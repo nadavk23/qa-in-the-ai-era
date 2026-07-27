@@ -910,7 +910,7 @@
   }
 
   /* ---------- Enrollment / early access (front-end; see README for real gating) ---------- */
-  const GOOGLE_CLIENT_ID = ""; // TODO: paste your Google OAuth Client ID to enable "Continue with Google" on your live domain.
+  const GOOGLE_CLIENT_ID = "196517862592-f4bddiqp8mp4ri6sqv11ap39k6cq37m5.apps.googleusercontent.com"; // enables "Continue with Google" on the live domain.
   const mKey = "qaera_member";
   function getMember() { try { return JSON.parse(localStorage.getItem(mKey) || "null"); } catch (e) { return null; } }
   function setMember(m) { try { localStorage.setItem(mKey, JSON.stringify(m)); } catch (e) {} }
