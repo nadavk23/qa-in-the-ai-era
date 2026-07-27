@@ -109,3 +109,25 @@ those need a backend. Two paths when you're ready:
 - **Most control: a real app** — Next.js on Vercel + auth (Clerk / Supabase / NextAuth
   with Google) + a database (to count members and gate access) + Stripe for payments.
   This matches the stack you already use for Dipper.
+
+## Custom domain — nadav-katz.info (DNS setup)
+
+The repo is configured for the apex domain `nadav-katz.info` (see the `CNAME` file).
+**You must add these DNS records at your domain registrar** for the domain to go live:
+
+Apex `nadav-katz.info` — four A records:
+```
+A   @   185.199.108.153
+A   @   185.199.109.153
+A   @   185.199.110.153
+A   @   185.199.111.153
+```
+(optional IPv6 AAAA: 2606:50c0:8000::153, 2606:50c0:8001::153, 2606:50c0:8002::153, 2606:50c0:8003::153)
+
+`www` subdomain — one CNAME:
+```
+CNAME   www   nadavk23.github.io.
+```
+
+Then: wait for DNS to propagate (minutes–hours) → GitHub auto-issues an HTTPS cert →
+enable **Settings → Pages → Enforce HTTPS**. Google sign-in origin becomes `https://nadav-katz.info`.
