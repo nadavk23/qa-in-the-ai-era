@@ -3,20 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="A bi-weekly field guide to quality in the AI era — tools, guides, a bug-hunting game, and a free QA learning roadmap. By Nadav Katz.">
+<meta name="description" content="A bi-weekly field guide to quality in the AI era, plus a free project-based QA course, a bug-hunting game, and tools/guides. By Nadav Katz.">
 <meta name="author" content="Nadav Katz">
 <meta name="theme-color" content="#0d131e">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="QA in the AI Era">
 <meta property="og:title" content="QA in the AI Era — by Nadav Katz">
-<meta property="og:description" content="A bi-weekly field guide to quality in the AI era — plus a bug-hunting game and a free QA learning roadmap.">
+<meta property="og:description" content="A free QA course for the AI era, a bug-hunting game, plus bi-weekly guides on keeping AI-built software trustworthy.">
 <meta property="og:url" content="https://YOUR-DOMAIN/">
 <meta property="og:image" content="https://YOUR-DOMAIN/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="QA in the AI Era — by Nadav Katz">
-<meta name="twitter:description" content="Quality, tools, a bug-hunting game, and a free QA roadmap.">
+<meta name="twitter:description" content="Free QA course, a bug-hunting game, and guides for the AI era.">
 <meta name="twitter:image" content="https://YOUR-DOMAIN/og.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%A7%AA%3C/text%3E%3C/svg%3E">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <title>QA in the AI Era — by Nadav Katz</title>
 <style>
   :root {
@@ -319,6 +320,29 @@
   .mod .chk { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 14px; }
   .mod .chk .when { font-family: var(--serif); font-size: 14.5px; font-style: italic; color: var(--muted); }
   .mod .chk .btn { padding: 8px 14px; font-size: 12px; }
+  .parth { margin: 34px 0 8px; }
+  .parth .pt { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--signal); }
+  .parth h2 { font-family: var(--serif); font-weight: 620; font-size: clamp(22px, 3.4vw, 27px); letter-spacing: -.012em; margin: 4px 0 0; }
+  .parth .pb { font-size: 15.5px; color: var(--muted); margin: 6px 0 0; max-width: 42em; }
+  .mod .build { font-family: var(--serif); font-size: 15.5px; color: var(--ink); margin: 10px 0 12px; }
+  .mod .build b { color: var(--signal); font-weight: 600; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+  .chip { font-family: var(--mono); font-size: 11px; color: var(--muted); background: var(--tag-bg); border-radius: 99px; padding: 4px 9px; }
+  /* Enrollment / early access */
+  .enroll { background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--signal); border-radius: 8px; box-shadow: var(--shadow); padding: 22px 24px; margin: 0 0 26px; }
+  .enroll .tag2 { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--signal); }
+  .enroll h3 { font-family: var(--serif); font-weight: 620; font-size: 20px; margin: 8px 0 6px; letter-spacing: -.01em; }
+  .enroll > p { font-size: 15.5px; color: var(--muted); margin: 0 0 14px; max-width: 40em; }
+  .enroll .forms { display: flex; flex-direction: column; gap: 10px; max-width: 440px; }
+  .enroll .row2 { display: flex; gap: 8px; flex-wrap: wrap; }
+  .enroll .row2 input { flex: 1; min-width: 130px; }
+  .gbtn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; font-family: var(--sans); font-size: 14px; font-weight: 500; color: #3c4043; background: #fff; border: 1px solid #dadce0; border-radius: 6px; padding: 11px 16px; cursor: pointer; width: 100%; }
+  .gbtn:hover { background: #f8f9fa; }
+  .enroll .or { font-family: var(--mono); font-size: 11px; color: var(--faint); letter-spacing: .08em; text-align: center; margin: 2px 0; }
+  .enrolled { background: color-mix(in srgb, #2e9e4f 10%, var(--card)); border: 1px solid color-mix(in srgb, #2e9e4f 42%, var(--line)); border-radius: 8px; padding: 16px 20px; margin: 0 0 26px; }
+  .enrolled p { margin: 0; font-family: var(--serif); font-size: 16px; color: var(--ink); }
+  .enrolled b { color: #2e9e4f; }
+  .memberchip { font-family: var(--mono); font-size: 12px; color: var(--signal); border: 1px solid var(--line-strong); border-radius: 99px; padding: 4px 10px; }
 
   @media (prefers-reduced-motion: no-preference) {
     .fade { animation: fade .45s ease both; }
@@ -335,6 +359,7 @@
       <span class="mark">QA in the AI Era<span class="dot">.</span></span>
     </button>
     <nav class="nav">
+      <span id="memberChip"></span>
       <a onclick="go('')" class="hidephone">Articles</a>
       <a onclick="go('learn')" class="hidephone">Learn</a>
       <a onclick="go('bug-hunt')" class="hidephone">Bug Hunt</a>
@@ -350,7 +375,7 @@
 <script>
   const AUTHOR = "Nadav Katz";
   // TODO: replace with your real address / booking link before sharing widely.
-  const EMAIL = "you@example.com";
+  const EMAIL = "nadav@dipperapp.com";
   const CONTACT = "mailto:" + EMAIL + "?subject=QA%20consulting%20%E2%80%94%20inquiry";
   const LINKEDIN = "https://www.linkedin.com/in/nadav-katz-2b497541/";
 
@@ -619,10 +644,10 @@
       <div class="sec-h"><h2>Sharpen your skills</h2><span class="note">free &amp; interactive</span></div>
       <div class="explore">
         <button class="xcard" onclick="go('learn')">
-          <span class="xk">Start here</span>
-          <h3>Learn QA in the AI Era</h3>
-          <p>A free, self-paced roadmap for anyone new to quality — from mindset to testing AI features, with curated resources and progress you can track.</p>
-          <span class="go">Open the roadmap →</span>
+          <span class="xk">The course · free in beta</span>
+          <h3>Become a QA for the AI Era</h3>
+          <p>A free, project-based course — 22 modules from zero to Playwright automation and testing AI features, mapped to the ISTQB Foundation. Free for early members while it's in beta.</p>
+          <span class="go">Open the course →</span>
         </button>
         <button class="xcard" onclick="go('bug-hunt')">
           <span class="xk">Play</span>
@@ -883,66 +908,210 @@
     </div>`;
   }
 
-  /* ---------- Learn roadmap ---------- */
-  const LEARN = [
-    { title: "Mindset", sub: "Module 0 · ~2 hrs",
-      lead: "What quality actually is — and why it's bigger than \"testing.\"",
-      learn: ["What QA means beyond finding bugs", "Why a bug gets roughly 10× costlier at each stage it survives", "How quality is everyone's job, not a phase bolted on at the end"],
-      res: [{ name: "Ministry of Testing", url: "https://www.ministryoftesting.com/" }, { name: "Google Testing Blog", url: "https://testing.googleblog.com/" }, { name: "Read: The Missing Feedback Loop", url: "#/post/missing-feedback-loop" }],
-      when: "you can explain, in one sentence, why quality is cheaper the earlier you catch a problem." },
-    { title: "Fundamentals", sub: "Module 1 · ~6 hrs",
-      lead: "The core testing skills every QA needs — AI or not.",
-      learn: ["Testing types: unit, integration, e2e, exploratory, regression", "How to design a clear, minimal test case", "How to write a bug report a developer can act on without asking questions"],
-      res: [{ name: "Test Automation University (free)", url: "https://testautomationu.applitools.com/" }, { name: "ISTQB Foundation syllabus", url: "https://www.istqb.org/" }, { name: "Ministry of Testing", url: "https://www.ministryoftesting.com/" }],
-      when: "you can take a feature, list what to test, and file a bug that needs no follow-up." },
-    { title: "The modern toolkit", sub: "Module 2 · ~10 hrs",
-      lead: "Get hands-on with the tools that catch regressions automatically.",
-      learn: ["Write your first unit tests with Vitest", "Drive a real browser with Playwright", "Run it all automatically in CI on every change"],
-      res: [{ name: "Playwright docs", url: "https://playwright.dev/" }, { name: "Vitest docs", url: "https://vitest.dev/" }, { name: "GitHub Actions", url: "https://docs.github.com/actions" }, { name: "Read: The QA Stack", url: "#/post/qa-stack-ai-software" }],
-      when: "a push to your project runs tests automatically and blocks itself when they fail." },
-    { title: "The AI-era layer", sub: "Module 3 · ~6 hrs",
-      lead: "Test the parts of the product that think — where there's no single right answer.",
-      learn: ["Why AI features need evals, not equality checks", "Build a small golden set and score with LLM-as-judge", "Guardrails: validate the shape, sanity-check, fail closed"],
-      res: [{ name: "Promptfoo docs", url: "https://www.promptfoo.dev/" }, { name: "DeepEval", url: "https://docs.confident-ai.com/" }, { name: "Read: Testing the AI Itself", url: "#/post/testing-the-ai-itself" }],
-      when: "you can add 10 golden cases for an AI feature and run them in CI." },
-    { title: "Practice", sub: "Module 4 · ongoing",
-      lead: "Turn knowledge into instinct.",
-      learn: ["Spot bugs under time pressure", "Test a small app end-to-end yourself", "Make \"every bug becomes a test\" an automatic habit"],
-      res: [{ name: "Play Bug Hunt 🐞", url: "#/bug-hunt" }, { name: "Playwright: Getting started", url: "https://playwright.dev/docs/intro" }, { name: "Read: Turn Every Bug Into a Test", url: "#/post/every-bug-a-test" }],
-      when: "you reflexively write a failing test before fixing any bug." },
+  /* ---------- Enrollment / early access (front-end; see README for real gating) ---------- */
+  const GOOGLE_CLIENT_ID = ""; // TODO: paste your Google OAuth Client ID to enable "Continue with Google" on your live domain.
+  const mKey = "qaera_member";
+  function getMember() { try { return JSON.parse(localStorage.getItem(mKey) || "null"); } catch (e) { return null; } }
+  function setMember(m) { try { localStorage.setItem(mKey, JSON.stringify(m)); } catch (e) {} }
+  function firstName(m) { return ((m && m.name) || "there").split(" ")[0]; }
+  window.enrollEmail = function (ev) {
+    ev.preventDefault();
+    const name = (document.getElementById("enName").value || "").trim();
+    const email = (document.getElementById("enEmail").value || "").trim();
+    if (!name || !email) return false;
+    setMember({ name, email, via: "email" });
+    refreshEnroll();
+    return false;
+  };
+  function decodeJwt(t) { try { const p = t.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"); return JSON.parse(decodeURIComponent(escape(atob(p)))); } catch (e) { return {}; } }
+  window.onGoogleCredential = function (resp) {
+    const d = decodeJwt(resp.credential);
+    setMember({ name: d.name || d.email || "Member", email: d.email || "", via: "google" });
+    refreshEnroll();
+  };
+  window.signOutMember = function () { try { localStorage.removeItem(mKey); } catch (e) {} refreshEnroll(); };
+  function refreshEnroll() { const box = document.getElementById("enrollBox"); if (box) box.outerHTML = enrollBlock(); initGoogle(); syncMemberChip(); }
+  function initGoogle() {
+    if (!GOOGLE_CLIENT_ID || getMember()) return;
+    if (!(window.google && google.accounts && google.accounts.id)) return;
+    try {
+      google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: window.onGoogleCredential });
+      const holder = document.getElementById("gbtnHolder");
+      if (holder) { holder.innerHTML = ""; google.accounts.id.renderButton(holder, { theme: "outline", size: "large", text: "continue_with", width: 340 }); }
+    } catch (e) {}
+  }
+  function syncMemberChip() { const el = document.getElementById("memberChip"); if (!el) return; const m = getMember(); el.innerHTML = m ? `<span class="memberchip">✓ ${esc(firstName(m))}</span>` : ""; }
+  function enrollBlock() {
+    const m = getMember();
+    if (m) {
+      return `<div class="enrolled" id="enrollBox"><p><b>✓ You're enrolled.</b> Welcome, ${esc(firstName(m))} — your <b>free early-access</b> seat is locked in, and progress saves as you go.</p><p style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:8px;"><a onclick="signOutMember()" style="color:var(--signal);cursor:pointer;">Sign out</a></p></div>`;
+    }
+    const gArea = GOOGLE_CLIENT_ID
+      ? `<div id="gbtnHolder"></div>`
+      : `<button class="gbtn" onclick="alert('Continue with Google activates on the live site once a Google Client ID is configured (see README). For now, join with your email.')"><span style="font-weight:700;color:#4285F4;font-family:var(--sans);">G</span> Continue with Google</button>`;
+    return `<div class="enroll" id="enrollBox">
+      <span class="tag2">Free · early access · limited time</span>
+      <h3>Enroll free while it's in beta</h3>
+      <p>The full course is <b>free for early members</b> right now — it becomes paid later. Join today to lock in free access and save your progress across modules.</p>
+      <div class="forms">
+        ${gArea}
+        <div class="or">— or —</div>
+        <form class="row2" onsubmit="return enrollEmail(event)">
+          <input class="field" id="enName" type="text" placeholder="First name" maxlength="60" required>
+          <input class="field" id="enEmail" type="email" placeholder="Email" maxlength="120" required>
+          <button class="btn primary" type="submit">Join free →</button>
+        </form>
+      </div>
+    </div>`;
+  }
+
+  /* ---------- The Course (Learn) ---------- */
+  const COURSE = [
+    { part: "Part 1 · QA Foundations", tag: "Maps to ISTQB Foundation (CTFL v4)", blurb: "The timeless core AI can't do for you: how to think about quality, design tests, and report defects.",
+      modules: [
+        { id: "f1", title: "The Testing Mindset & Fundamentals", time: "~4 hrs", meta: "CTFL Ch.1",
+          build: "a one-page test charter for a real app — what to test, and the risks.",
+          skills: ["error vs defect vs failure", "the 7 testing principles", "verification vs validation", "cost of a bug over time"],
+          res: [{ name: "ISTQB CTFL syllabus", url: "https://www.istqb.org/" }, { name: "Ministry of Testing", url: "https://www.ministryoftesting.com/" }, { name: "Read: The Missing Feedback Loop", url: "#/post/missing-feedback-loop" }] },
+        { id: "f2", title: "Testing Across the SDLC", time: "~4 hrs", meta: "CTFL Ch.2",
+          build: "a test plan mapped to an Agile sprint (unit → integration → system → acceptance).",
+          skills: ["Agile / DevOps", "shift-left", "test levels & types", "TDD / BDD / ATDD"],
+          res: [{ name: "Atlassian: software testing", url: "https://www.atlassian.com/continuous-delivery/software-testing" }] },
+        { id: "f3", title: "Test Design Techniques", time: "~6 hrs", meta: "CTFL Ch.4",
+          build: "a full set of test cases for a checkout flow using formal techniques.",
+          skills: ["equivalence partitioning", "boundary values", "decision tables", "state transition", "exploratory testing"],
+          res: [{ name: "Test Automation University", url: "https://testautomationu.applitools.com/" }] },
+        { id: "f4", title: "Bug Reporting & Managing Test Activities", time: "~5 hrs", meta: "CTFL Ch.5",
+          build: "5 reproducible bug reports + a risk-based test plan (smoke / sanity / regression).",
+          skills: ["great bug reports", "severity vs priority", "risk-based testing", "Jira / TestRail"],
+          res: [{ name: "Ministry of Testing", url: "https://www.ministryoftesting.com/" }] },
+        { id: "f5", title: "Static Testing & Reviews", time: "~2 hrs", meta: "CTFL Ch.3",
+          build: "a review checklist and a walkthrough of a requirements doc.",
+          skills: ["reviews & inspections", "static analysis", "early feedback"],
+          res: [] },
+      ] },
+    { part: "Part 2 · Automation & Tooling", tag: "The employable core — Playwright-first", blurb: "Turn manual skill into automated suites with the tools employers actually hire for.",
+      modules: [
+        { id: "a1", title: "Just Enough JavaScript / TypeScript", time: "~8 hrs",
+          build: "small scripts — variables, functions, arrays, async/await — the subset tests need.",
+          skills: ["JS / TS basics", "async / await", "(Python noted as alt)"],
+          res: [{ name: "javascript.info", url: "https://javascript.info/" }, { name: "freeCodeCamp", url: "https://www.freecodecamp.org/learn/" }] },
+        { id: "a2", title: "Git & the Developer Workflow", time: "~3 hrs",
+          build: "a repo with branches and a pull request you review.",
+          skills: ["Git", "branches & PRs", "code review"],
+          res: [{ name: "GitHub Skills", url: "https://skills.github.com/" }] },
+        { id: "a3", title: "Web Automation with Playwright — Basics", time: "~8 hrs",
+          build: "an automated test of a real app's login + core happy path.",
+          skills: ["Playwright", "locators", "actions & assertions", "auto-waiting"],
+          res: [{ name: "playwright.dev", url: "https://playwright.dev/" }, { name: "Test Automation University", url: "https://testautomationu.applitools.com/" }] },
+        { id: "a4", title: "Playwright — Robust, Maintainable Suites", time: "~8 hrs",
+          build: "refactor your suite with the Page Object Model, resilient locators & fixtures.",
+          skills: ["Page Object Model", "resilient locators", "fixtures", "trace viewer", "cross-browser"],
+          res: [{ name: "Playwright best practices", url: "https://playwright.dev/docs/best-practices" }] },
+        { id: "a5", title: "Visual & Accessibility Checks", time: "~4 hrs",
+          build: "add axe accessibility assertions + screenshot diffs to your suite.",
+          skills: ["axe-core", "visual regression", "WCAG basics"],
+          res: [{ name: "axe-core", url: "https://github.com/dequelabs/axe-core" }, { name: "web.dev: Accessibility", url: "https://web.dev/learn/accessibility/" }] },
+        { id: "a6", title: "API Testing", time: "~6 hrs",
+          build: "a suite that tests a public REST API plus one GraphQL query.",
+          skills: ["HTTP & REST", "Postman", "automated API tests", "GraphQL basics"],
+          res: [{ name: "Postman Learning Center", url: "https://learning.postman.com/" }] },
+        { id: "a7", title: "CI/CD — Run Everything Automatically", time: "~5 hrs",
+          build: "a GitHub Actions pipeline that runs your suite on every push and blocks on red.",
+          skills: ["GitHub Actions", "quality gates", "parallelization", "reporting"],
+          res: [{ name: "GitHub Actions docs", url: "https://docs.github.com/actions" }] },
+        { id: "a8", title: "Performance & Load Testing", time: "~5 hrs",
+          build: "a k6 load test with pass/fail thresholds on an endpoint.",
+          skills: ["k6", "thresholds", "(JMeter context)"],
+          res: [{ name: "k6 docs", url: "https://grafana.com/docs/k6/latest/" }] },
+        { id: "a9", title: "Mobile, Cross-Device & SQL Essentials", time: "~5 hrs",
+          build: "a basic Appium check + SQL queries validating the data behind the UI.",
+          skills: ["Appium basics", "BrowserStack", "SQL for testers"],
+          res: [{ name: "Appium docs", url: "https://appium.io/" }, { name: "SQLBolt", url: "https://sqlbolt.com/" }] },
+      ] },
+    { part: "Part 3 · The AI Era", tag: "Your differentiator — least-taught, fastest-growing", blurb: "Use AI to test faster, then learn the genuinely new discipline: testing features that think.",
+      modules: [
+        { id: "i1", title: "AI-Assisted Testing (and its traps)", time: "~5 hrs",
+          build: "generate tests with an AI + Playwright MCP, then de-flake the brittle output.",
+          skills: ["Copilot / Claude + MCP", "reviewing AI tests", "self-healing & visual-AI tools", "over-reliance risks"],
+          res: [{ name: "Copilot + Playwright MCP", url: "https://testdino.com/blog/playwright-tests-with-copilot" }] },
+        { id: "i2", title: "Testing AI Features — Evals 101", time: "~6 hrs",
+          build: "a 15-case golden dataset for an AI feature, scored with metrics not equality.",
+          skills: ["evals vs assertions", "golden datasets", "non-determinism"],
+          res: [{ name: "Read: Testing the AI Itself", url: "#/post/testing-the-ai-itself" }, { name: "Promptfoo intro", url: "https://www.promptfoo.dev/docs/intro/" }] },
+        { id: "i3", title: "LLM-as-Judge & Eval Tooling in CI", time: "~6 hrs",
+          build: "an eval suite that runs in CI and scores an LLM feature on every change.",
+          skills: ["G-Eval / QAG", "Promptfoo", "DeepEval", "prompt regression"],
+          res: [{ name: "DeepEval", url: "https://deepeval.com/" }, { name: "Promptfoo docs", url: "https://www.promptfoo.dev/" }] },
+        { id: "i4", title: "RAG, Hallucination, Bias & Guardrails", time: "~6 hrs",
+          build: "faithfulness + relevancy evals for a RAG answer, plus runtime guardrails.",
+          skills: ["RAG metrics", "hallucination testing", "bias & fairness", "validate / sanity / fail-closed"],
+          res: [{ name: "Ragas", url: "https://docs.ragas.io/" }, { name: "Confident AI: guardrails", url: "https://www.confident-ai.com/blog/llm-guardrails-the-ultimate-guide-to-safeguard-llm-systems" }] },
+        { id: "i5", title: "Red-Teaming & Prompt Security", time: "~5 hrs",
+          build: "a red-team run against a chatbot: prompt injection, jailbreaks, PII leaks.",
+          skills: ["prompt injection", "jailbreaks", "red-teaming", "guardrail validation"],
+          res: [{ name: "Promptfoo red-team", url: "https://www.promptfoo.dev/docs/red-team/" }] },
+      ] },
+    { part: "Part 4 · Career & Capstone", tag: "From learner to hired", blurb: "Assemble everything into proof of skill — and a job.",
+      modules: [
+        { id: "c1", title: "The AI-Era QA Role & Soft Skills", time: "~2 hrs",
+          build: "a one-page \"quality strategy\" memo for a feature — thinking like an orchestrator.",
+          skills: ["strategy vs execution", "defining acceptable AI behavior", "stakeholder communication"],
+          res: [{ name: "Ministry of Testing", url: "https://club.ministryoftesting.com/" }] },
+        { id: "c2", title: "Portfolio, Certifications & Interviews", time: "~4 hrs",
+          build: "a GitHub portfolio from your projects + a QA résumé; plan ISTQB CTFL & CT-AI.",
+          skills: ["portfolio", "ISTQB CTFL + CT-AI", "résumé", "interview prep"],
+          res: [{ name: "ISTQB certifications", url: "https://www.istqb.org/" }] },
+        { id: "cap", title: "Capstone — Full Quality Strategy for a Real App", time: "~15 hrs", meta: "Portfolio centerpiece",
+          build: "for one real app + its AI feature: a test plan, a Playwright suite in CI, an eval suite, and a quality report.",
+          skills: ["everything, end-to-end"],
+          res: [{ name: "Warm up in Bug Hunt", url: "#/bug-hunt" }] },
+      ] },
   ];
-  const lKey = "qaera_learn";
+  const TOTAL_MODULES = COURSE.reduce((n, p) => n + p.modules.length, 0);
+  const lKey = "qaera_course";
   function lGet() { try { return JSON.parse(localStorage.getItem(lKey) || "[]"); } catch (e) { return []; } }
-  window.lToggle = function (i) {
+  window.lToggle = function (id) {
     const s = new Set(lGet());
-    if (s.has(i)) s.delete(i); else s.add(i);
+    if (s.has(id)) s.delete(id); else s.add(id);
     try { localStorage.setItem(lKey, JSON.stringify([...s])); } catch (e) {}
     const done = lGet();
-    const bar = document.getElementById("lbar"); if (bar) bar.style.width = Math.round(done.length / LEARN.length * 100) + "%";
-    const note = document.getElementById("lnote"); if (note) note.textContent = done.length + " of " + LEARN.length + " modules complete";
-    const has = done.includes(i);
-    const card = document.getElementById("mod" + i); if (card) card.classList.toggle("done", has);
-    const btn = document.getElementById("mb" + i); if (btn) btn.textContent = has ? "✓ Completed" : "Mark complete";
+    const bar = document.getElementById("lbar"); if (bar) bar.style.width = Math.round(done.length / TOTAL_MODULES * 100) + "%";
+    const note = document.getElementById("lnote"); if (note) note.textContent = done.length + " of " + TOTAL_MODULES + " modules complete";
+    const has = done.includes(id);
+    const card = document.getElementById("mod_" + id); if (card) card.classList.toggle("done", has);
+    const btn = document.getElementById("mb_" + id); if (btn) btn.textContent = has ? "✓ Completed" : "Mark complete";
   };
   function renderLearn() {
-    document.title = "Learn — QA in the AI Era";
+    document.title = "The Course — QA in the AI Era";
     const done = lGet();
+    let n = 0;
+    const parts = COURSE.map((p) => {
+      const mods = p.modules.map((m) => {
+        n++;
+        const has = done.includes(m.id);
+        const resHTML = (m.res && m.res.length) ? `<div class="res">${m.res.map((r) => `<a href="${esc(r.url)}" ${r.url.charAt(0) === '#' ? '' : 'target="_blank" rel="noopener"'}>${esc(r.name)}</a>`).join("")}</div>` : "";
+        return `<div class="mod ${has ? 'done' : ''}" id="mod_${m.id}">
+          <div class="top"><span class="badge">${n}</span><div><p class="sub">${esc(m.time)}${m.meta ? ' · ' + esc(m.meta) : ''}</p><h3>${esc(m.title)}</h3></div></div>
+          <p class="build"><b>You'll build:</b> ${esc(m.build)}</p>
+          <div class="chips">${m.skills.map((s) => `<span class="chip">${esc(s)}</span>`).join("")}</div>
+          ${resHTML}
+          <div class="chk"><span></span><button class="btn ghost" id="mb_${m.id}" onclick="lToggle('${m.id}')">${has ? '✓ Completed' : 'Mark complete'}</button></div>
+        </div>`;
+      }).join("");
+      return `<div class="parth"><span class="pt">${esc(p.tag)}</span><h2>${esc(p.part)}</h2><p class="pb">${esc(p.blurb)}</p></div>${mods}`;
+    }).join("");
     return `<section class="page road fade"><div class="wrap">
       <a class="backlink" onclick="go('')">← All articles</a>
-      <p class="k">Learn · free roadmap</p>
-      <h1>Start here: QA in the AI Era</h1>
-      <p class="lede">New to quality and not sure where to begin? Follow this path from mindset to testing AI features. Free, self-paced, and your progress saves in this browser.</p>
-      <div class="pbar"><i id="lbar" style="width:${Math.round(done.length / LEARN.length * 100)}%"></i></div>
-      <p class="pnote" id="lnote">${done.length} of ${LEARN.length} modules complete</p>
-      ${LEARN.map((m, i) => { const has = done.includes(i); return `
-        <div class="mod ${has ? 'done' : ''}" id="mod${i}">
-          <div class="top"><span class="badge">${i}</span><div><p class="sub">${esc(m.sub)}</p><h3>${esc(m.title)}</h3></div></div>
-          <p style="font-family:var(--serif);font-size:16.5px;color:var(--muted);margin:12px 0 4px;">${esc(m.lead)}</p>
-          <ul class="mlearn">${m.learn.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>
-          <div class="res">${m.res.map((r) => `<a href="${esc(r.url)}" ${r.url.charAt(0) === '#' ? '' : 'target="_blank" rel="noopener"'}>${esc(r.name)}</a>`).join("")}</div>
-          <div class="chk"><span class="when">Done when: ${esc(m.when)}</span><button class="btn ghost" id="mb${i}" onclick="lToggle(${i})">${has ? '✓ Completed' : 'Mark complete'}</button></div>
-        </div>`; }).join("")}
-      <div class="actions" style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;"><button class="btn primary" onclick="go('bug-hunt')">Practice in Bug Hunt →</button></div>
+      <p class="k">The Course · free &amp; self-paced</p>
+      <h1>Become a QA for the AI era — from zero</h1>
+      <p class="lede">A complete, project-based path from "what is testing?" to automating with Playwright and testing AI features themselves. Every module ends in something you build; together they become your portfolio.</p>
+      ${enrollBlock()}
+      <div class="pbar"><i id="lbar" style="width:${Math.round(done.length / TOTAL_MODULES * 100)}%"></i></div>
+      <p class="pnote" id="lnote">${done.length} of ${TOTAL_MODULES} modules complete</p>
+      <div class="enroll" style="border-left-color:var(--line-strong);"><p style="margin:0;font-size:15.5px;color:var(--muted);"><b style="color:var(--signal);">How it works:</b> 22 modules across 4 parts, done in order. The foundations map to the ISTQB Foundation exam; the AI-era part is where you'll stand out. Finish with a capstone you can show employers.</p></div>
+      ${parts}
+      <div class="actions" style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;"><button class="btn primary" onclick="go('bug-hunt')">Warm up in Bug Hunt →</button><a class="btn ghost" onclick="go('contact')">Ask a question</a></div>
     </div></section>${siteFooter()}`;
   }
 
@@ -967,11 +1136,15 @@
     else if (parts[0] === "contact") html = renderContact();
     else { html = renderHome(); scrollToAbout = (parts[0] === "about"); }
     $app.innerHTML = html;
+    syncMemberChip();
+    if (parts[0] === "learn") initGoogle();
     if (scrollToAbout) { const a = document.getElementById("about"); if (a) { a.scrollIntoView({ behavior: "smooth" }); return; } }
     window.scrollTo(0, 0);
   }
 
   window.addEventListener("hashchange", router);
+  // Google Identity Services loads async on the live domain — render its button once ready.
+  window.addEventListener("load", () => { if ((location.hash || "").indexOf("learn") >= 0) initGoogle(); });
   router();
 </script>
 
