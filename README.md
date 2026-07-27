@@ -70,3 +70,42 @@ vercel --prod   # promote to production
 - **Per-article share previews** — because this is a client-side single-page site, social crawlers
   see one site-level preview. If you want each article to have its own preview card, I can convert
   it to a small static multi-page build.
+
+---
+
+## Live
+
+Deployed via **GitHub Pages**: https://nadavk23.github.io/qa-in-the-ai-era/
+Every `git push` to `main` redeploys automatically.
+
+To move to **Vercel + your own domain** later: import this same repo at vercel.com
+(Framework: **Other**, no build command), then Project → Settings → Domains → add your domain.
+
+## Enrollment & "Continue with Google"
+
+The course page has an early-access enrollment (email + Google). **Email signup works
+out of the box** — it saves the member in their browser and personalizes the page.
+
+To turn on **Google Sign-In** on your live site:
+1. Google Cloud Console → APIs & Services → Credentials → **Create OAuth client ID** → Web application.
+2. Under **Authorized JavaScript origins**, add your live origin(s):
+   `https://nadavk23.github.io` (and later your custom domain).
+3. Copy the **Client ID** and paste it into `index.html`:
+   `const GOOGLE_CLIENT_ID = "....apps.googleusercontent.com";`
+4. Commit + push. The "Continue with Google" button renders on the course page.
+
+> Note: this is **front-end identity only** — it personalizes the page and saves progress
+> locally. It does NOT verify users on a server or restrict who can access the course.
+
+## Making it a REAL gated / limited / paid course
+
+A static site **cannot** enforce "first N users only," block access, or take payment —
+those need a backend. Two paths when you're ready:
+
+- **Fastest (no code): a course platform** — Teachable, Podia, Gumroad, Thinkific, or
+  Circle. They provide registration, Google login, free/paid tiers, seat caps, drip
+  content, and Stripe payments out of the box. Host the lessons there; keep this site as
+  the marketing front.
+- **Most control: a real app** — Next.js on Vercel + auth (Clerk / Supabase / NextAuth
+  with Google) + a database (to count members and gate access) + Stripe for payments.
+  This matches the stack you already use for Dipper.
