@@ -404,6 +404,10 @@
   .article .body .term .w { font-family: var(--mono); font-size: 13.5px; font-weight: 600; color: var(--ink); }
   .article .body .term .m { font-size: 16px; color: var(--muted); }
   @media (max-width: 560px) { .article .body .term { grid-template-columns: 1fr; gap: 2px; } }
+  .article .body pre.cblock { background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--signal); border-radius: 6px; padding: 15px 18px; overflow-x: auto; margin: 22px 0; box-shadow: var(--shadow); }
+  .article .body pre.cblock code { font-family: var(--mono); font-size: 13px; line-height: 1.7; color: var(--ink); background: none; padding: 0; white-space: pre; display: block; }
+  .article .body pre.cblock .c { color: var(--faint); }
+  .article .body pre.cblock .hl { color: var(--signal); }
   .lec-nav { display: flex; justify-content: space-between; gap: 12px; margin: 8px 0 0; padding-top: 24px; border-top: 1px solid var(--line-strong); flex-wrap: wrap; }
   .lec-nav a { font-family: var(--mono); font-size: 12.5px; color: var(--muted); text-decoration: none; cursor: pointer; max-width: 47%; }
   .lec-nav a:hover { color: var(--signal); }
@@ -1435,26 +1439,282 @@
           summary: "The small subset of JS/TS that test code actually uses — no full dev course required.",
           project: "Small scripts: variables, functions, arrays, and async/await.",
           lectures: [
-            { id: "a1l1", title: "Variables, types & functions for testers", time: "12 min", outline: true },
-            { id: "a1l2", title: "Arrays & objects — the shapes test data takes", time: "12 min", outline: true },
-            { id: "a1l3", title: "async / await — why tests are full of it", time: "14 min", outline: true },
-            { id: "a1p", title: "Practice — write & fix small scripts", time: "20 min", kind: "practice", outline: true } ] },
+            { id: "a1l1", title: "Variables, types & functions for testers", time: "12 min", body: `
+              <p class="lead">You're not here to become a developer — you're here to <em>read and write test code</em>. That needs a surprisingly small slice of JavaScript, and this module teaches exactly that slice. (Want the whole language? Do a dedicated JS course alongside — that's the prerequisite we flagged. Here we cover only what tests use.)</p>
+              <h2>Variables: name a value</h2>
+              <p>Two keywords. Use <code>const</code> for a value that won't be reassigned (most of the time), and <code>let</code> for one that changes.</p>
+              <pre class="cblock"><code>const user = "standard_user";  <span class="c">// a string, won't change</span>
+const price = 29.99;           <span class="c">// a number</span>
+let inCart = false;            <span class="c">// a boolean — will flip to true later</span>
+inCart = true;                 <span class="c">// fine: declared with let</span></code></pre>
+              <h2>The types you'll meet</h2>
+              <p><strong>string</strong> (text in quotes), <strong>number</strong> (<code>29.99</code>, no quotes), <strong>boolean</strong> (<code>true</code>/<code>false</code>), and the two "empty" values <strong>null</strong> and <strong>undefined</strong> — which cause a huge share of real bugs when code forgets to check for them (remember the Bug Hunt crash on <code>p.image.url</code>).</p>
+              <h2>Strict equality: <code>===</code>, not <code>==</code></h2>
+              <p>Always compare with <code>===</code> (and <code>!==</code>). It checks value <em>and</em> type, with no surprise conversions. This is not pedantry — it's exactly the bug from Bug Hunt where an env var held <code>"live "</code> with a trailing space:</p>
+              <pre class="cblock"><code>"live " === "live"   <span class="c">// false — the space makes them different</span>
+1 === 1              <span class="c">// true</span>
+0 === false          <span class="c">// false with ===  (would be TRUE with ==, a classic trap)</span></code></pre>
+              <h2>Functions: a reusable action</h2>
+              <p>A function takes inputs, does something, and usually <code>return</code>s a result. You'll see two shapes — both do the same thing:</p>
+              <pre class="cblock"><code><span class="c">// classic declaration</span>
+function total(price, qty) {
+  return price * qty;
+}
+
+<span class="c">// arrow function — the short form you'll see everywhere in tests</span>
+const total = (price, qty) =&gt; price * qty;
+
+total(10, 3);  <span class="c">// 30</span></code></pre>
+              <div class="callout"><span class="k">What about TypeScript?</span><p>TypeScript is JavaScript plus optional type labels (<code>price: number</code>). Playwright projects use it by default, but you can write plain JS inside and ignore the types while you learn — they'll quietly help you later by catching "you passed a string where a number goes" before the test even runs.</p></div>` },
+            { id: "a1l2", title: "Arrays & objects — the shapes test data takes", time: "12 min", body: `
+              <p class="lead">Test data has two shapes, and almost everything you'll touch is one, the other, or a nesting of both. Learn these and you can read most test code.</p>
+              <h2>Arrays: an ordered list</h2>
+              <p>Perfect for "a list of users to try" or "the products on the page." Items have a position (index), starting at <strong>0</strong>.</p>
+              <pre class="cblock"><code>const users = ["standard_user", "locked_out_user", "problem_user"];
+
+users.length;              <span class="c">// 3</span>
+users[0];                  <span class="c">// "standard_user"  (first item = index 0)</span>
+users.includes("problem_user");  <span class="c">// true</span>
+users.forEach(u =&gt; console.log(u));  <span class="c">// run something for each item</span></code></pre>
+              <h2>Objects: named fields</h2>
+              <p>An object groups related values under keys — ideal for "a product" or "a test case." You read a field with a dot.</p>
+              <pre class="cblock"><code>const product = { name: "Backpack", price: 29.99, inStock: true };
+
+product.name;      <span class="c">// "Backpack"</span>
+product.price;     <span class="c">// 29.99</span>
+product.inStock;   <span class="c">// true</span></code></pre>
+              <h2>The combo: an array of objects</h2>
+              <p>This is a data table in code — and it's exactly how you'll drive many tests. Remember the decision table you built in Part 1? Here it is as data:</p>
+              <pre class="cblock"><code>const loginCases = [
+  { user: "standard_user",   valid: true  },
+  { user: "locked_out_user", valid: false },
+  { user: "",                valid: false },
+];
+
+loginCases.length;        <span class="c">// 3</span>
+loginCases[1].user;       <span class="c">// "locked_out_user"</span></code></pre>
+              <div class="callout"><span class="k">Why this matters for testing</span><p>A "data-driven test" loops over an array of cases like this and runs the same steps for each — turning your Part 1 decision table straight into automated coverage. You'll do exactly that in Module 4.</p></div>` },
+            { id: "a1l3", title: "async / await — why tests are full of it", time: "14 min", body: `
+              <p class="lead">Open almost any Playwright test and you'll see <code>await</code> on nearly every line. Understand this one idea and the rest of the course reads easily.</p>
+              <h2>Some things take time</h2>
+              <p>Clicking a button, loading a page, fetching from an API — none of these finish instantly. In JavaScript, an action that "will finish later" hands you a <strong>Promise</strong>: a placeholder for a result that isn't ready yet.</p>
+              <h2><code>await</code> means "wait for it, then continue"</h2>
+              <p>Put <code>await</code> in front of a Promise and the code pauses on that line until it's done — so the next line can safely use the result. A function that uses <code>await</code> must be marked <code>async</code>.</p>
+              <pre class="cblock"><code>async function login(page) {
+  await page.goto("https://www.saucedemo.com");  <span class="c">// wait for the page to load</span>
+  await page.fill("#user-name", "standard_user"); <span class="c">// THEN type</span>
+  await page.fill("#password", "secret_sauce");
+  await page.click("#login-button");              <span class="c">// THEN click</span>
+}</code></pre>
+              <h2>Forget <code>await</code> and you get the classic flaky bug</h2>
+              <p>Without it, the code races ahead before the action finishes. This is the exact intermittent bug from the Bug Hunt game — <code>fetchProduct</code> wasn't awaited, so <code>data</code> was still a Promise and <code>data.title</code> was <code>undefined</code>:</p>
+              <pre class="cblock"><code><span class="c">// BROKEN: no await — data is a Promise, not the product</span>
+const data = fetchProduct(url);
+save({ title: data.title });   <span class="c">// undefined, saves a titleless record</span>
+
+<span class="c">// FIXED</span>
+const data = await fetchProduct(url);
+save({ title: data.title });   <span class="c">// the real title</span></code></pre>
+              <div class="callout"><span class="k">The rule of thumb</span><p>In Playwright, if a line touches the page or the network, it almost certainly needs <code>await</code>. A missing one is the number-one cause of tests that pass sometimes and fail others — the flakiness you'll learn to hunt in Module 4.</p></div>` },
+            { id: "a1p", title: "Practice — check yourself + write small scripts", time: "25 min", kind: "practice",
+              intro: "Confirm the JS subset, then write a few tiny functions by hand — the muscle memory you'll use in every test from here on.",
+              quiz: [
+                { q: "You have a value that never gets reassigned. Which keyword?", options: ["let", "const", "var"], answer: 1, why: "Use <code>const</code> for values that won't be reassigned — it's the safe default and signals intent. Reach for <code>let</code> only when the value actually changes." },
+                { q: "What does <code>\"live \" === \"live\"</code> evaluate to?", options: ["true", "false"], answer: 1, why: "<b>false.</b> Strict equality compares exactly — the trailing space makes the strings different. This is the real trailing-space bug from the Bug Hunt: trim values at system seams." },
+                { q: "In <code>const users = [\"a\", \"b\", \"c\"]</code>, what is <code>users[1]</code>?", options: ["\"a\"", "\"b\"", "\"c\""], answer: 1, why: "Arrays are zero-indexed: index 0 is \"a\", index 1 is \"b\". Off-by-one on indices is a common source of boundary bugs." },
+                { q: "What does <code>await</code> do?", options: ["Runs the next line immediately", "Pauses until the Promise resolves, then continues", "Skips the line if it's slow"], answer: 1, why: "<code>await</code> pauses on that line until the async action finishes, so the result is ready for the next line. Forgetting it causes races and flaky tests." }
+              ],
+              tasks: [
+                { title: "Write three tiny functions", prompt: "In any JS playground (your browser console works, or <code>node</code>), write: <b>(1)</b> a <code>total(price, qty)</code> that returns the product; <b>(2)</b> a function that takes the <code>users</code> array and returns the last element using <code>.length</code>; <b>(3)</b> an <code>async</code> function that <code>await</code>s a fake delay then logs \"done\". Then reveal to compare.",
+                  model: `
+                    <pre class="cblock"><code><span class="c">// 1</span>
+const total = (price, qty) =&gt; price * qty;
+total(29.99, 2);  <span class="c">// 59.98</span>
+
+<span class="c">// 2 — last item without hardcoding the index</span>
+const users = ["standard_user", "locked_out_user", "problem_user"];
+const last = (arr) =&gt; arr[arr.length - 1];
+last(users);  <span class="c">// "problem_user"</span>
+
+<span class="c">// 3 — async/await</span>
+const wait = (ms) =&gt; new Promise((r) =&gt; setTimeout(r, ms));
+async function go() {
+  await wait(500);
+  console.log("done");
+}
+go();</code></pre>
+                    <p><b>What this shows:</b> <code>arr.length - 1</code> is the idiom for "last element" and never goes out of bounds. And note every async result is reached through <code>await</code> — the habit you'll repeat in every Playwright test.</p>` }
+              ] } ] },
         { id: "a2", title: "Git & the Developer Workflow", meta: "",
           summary: "Branches, commits, and pull requests — how testing plugs into how developers actually ship.",
           project: "A repo with a branch and a pull request you review.",
           lectures: [
-            { id: "a2l1", title: "Git basics: clone, commit, branch, push", time: "12 min", outline: true },
-            { id: "a2l2", title: "Pull requests & code review as static testing", time: "10 min", outline: true },
-            { id: "a2p", title: "Practice — open and review a PR", time: "20 min", kind: "practice", outline: true } ] },
+            { id: "a2l1", title: "Git basics: clone, commit, branch, push", time: "12 min", body: `
+              <p class="lead">Your tests live in the same repository as the code they test. To add them, review changes, and run them in CI, you need a working grasp of Git — not mastery, just the everyday loop.</p>
+              <h2>The mental model</h2>
+              <p>Git tracks the history of a project as a series of <strong>commits</strong> (saved snapshots). A <strong>repository</strong> (repo) holds that history. A <strong>branch</strong> is a parallel line of work so you can change things without disturbing the main version. <strong>Remote</strong> is the shared copy (e.g. on GitHub) everyone syncs with.</p>
+              <h2>The everyday loop</h2>
+              <pre class="cblock"><code>git clone &lt;url&gt;          <span class="c"># get a copy of the repo (once)</span>
+git checkout -b add-login-test   <span class="c"># make + switch to a new branch</span>
+
+<span class="c"># ...write your test file...</span>
+
+git status               <span class="c"># what changed?</span>
+git add tests/login.spec.ts   <span class="c"># stage the file for commit</span>
+git commit -m "Add login test for SauceDemo"   <span class="c"># save a snapshot</span>
+git push -u origin add-login-test   <span class="c"># send the branch to GitHub</span></code></pre>
+              <h2>Why testers care about branches</h2>
+              <p>Branches keep unfinished or risky work off the shared <code>main</code> version until it's reviewed and green. Your new test goes on a branch, runs in CI there, and only merges to <code>main</code> once it passes — so <code>main</code> stays deployable. That discipline is the backbone of the CI gate you'll build in Module 12.</p>
+              <div class="callout"><span class="k">You don't need all of Git</span><p>Clone, branch, add, commit, push, pull — that six-verb loop covers ~90% of daily work. Merge conflicts and history rewriting can wait until you hit them. Learn the loop by doing it, not by reading the whole manual.</p></div>` },
+            { id: "a2l2", title: "Pull requests & code review as static testing", time: "10 min", body: `
+              <p class="lead">A pull request is where quality happens before anything runs — which makes reviewing one a form of <em>static testing</em>, the discipline you met in Part 1.</p>
+              <h2>What a pull request is</h2>
+              <p>A <strong>pull request</strong> (PR) proposes merging your branch into <code>main</code>. It shows the exact diff (what lines changed), runs the CI checks automatically, and gives teammates a place to comment before the change lands. Nothing merges until it's approved and green.</p>
+              <h2>Reviewing is static testing</h2>
+              <p>Reading a diff to find defects <em>without running it</em> is precisely static testing. On a QA team you'll review two things constantly: <strong>test code</strong> (is this test actually asserting something real, or will it pass no matter what?) and, increasingly, <strong>AI-written PRs</strong>.</p>
+              <ul>
+                <li><strong>Does the test assert?</strong> A test with no meaningful <code>expect</code> is a false sense of safety — it goes green forever.</li>
+                <li><strong>Is it testing behavior, not implementation?</strong> Locators tied to brittle CSS will break on the next redesign.</li>
+                <li><strong>For AI PRs: does the code handle the messy real input</strong> and the seams — the four blind spots from the manifesto — or only the happy path it imagined?</li>
+              </ul>
+              <div class="callout"><span class="k">Read it, then run it</span><p>Review proves the change is <em>plausible</em>; the CI run proves it's <em>true</em>. You need both. A PR that "looks right" but has no passing tests is exactly where AI-era regressions slip through.</p></div>` },
+            { id: "a2p", title: "Practice — check yourself + open a PR", time: "25 min", kind: "practice",
+              intro: "Confirm the workflow, then actually create a repo, branch, commit, and open a pull request — the loop you'll repeat for every test you write.",
+              quiz: [
+                { q: "What is the main purpose of working on a branch?", options: ["To make the code run faster", "To change things without disturbing the deployable main version", "To delete old commits"], answer: 1, why: "A branch isolates your work so <code>main</code> stays stable and deployable until your change is reviewed and passing." },
+                { q: "Reviewing a pull request's diff to find defects before it runs is a form of…", options: ["Dynamic testing", "Static testing", "Load testing"], answer: 1, why: "Examining code without executing it is <b>static testing</b> — the cheapest place to catch a defect, straight from Part 1." },
+                { q: "You spot a test in a PR that has no meaningful assertion. Why flag it?", options: ["It runs too slowly", "It will pass no matter what, giving false confidence", "It uses the wrong color"], answer: 1, why: "A test with no real <code>expect</code> can never fail — it's a false sense of safety that hides regressions instead of catching them." }
+              ],
+              tasks: [
+                { title: "Create a repo, branch, commit, and open a PR", prompt: "On GitHub, create a new empty repo. Clone it, make a branch (<code>git checkout -b first-test</code>), add a small file (even a <code>tests/README.md</code>), commit it, and push. Open a pull request and write a two-line review comment on your own diff as if you were the reviewer. Then reveal the command sequence.",
+                  model: `
+                    <pre class="cblock"><code>git clone https://github.com/you/your-repo.git
+cd your-repo
+git checkout -b first-test
+<span class="c"># create tests/README.md with a line of text</span>
+git add tests/README.md
+git commit -m "Add tests folder + placeholder"
+git push -u origin first-test
+<span class="c"># then on GitHub: "Compare & pull request" → open PR</span></code></pre>
+                    <p><b>A good self-review comment names something concrete:</b> "This is a placeholder — before merge, the first real test should assert on the login redirect, not just that the page loads." That's you practicing static testing on your own work.</p>` }
+              ] } ] },
         { id: "a3", title: "Web Automation with Playwright — Basics", meta: "",
           summary: "Drive a real browser: locators, actions, and assertions with auto-waiting built in.",
           project: "An automated test of SauceDemo login + the core happy path.",
           lectures: [
-            { id: "a3l1", title: "Setup & your first Playwright test", time: "14 min", outline: true },
-            { id: "a3l2", title: "Locators: finding elements that don't break", time: "14 min", outline: true },
-            { id: "a3l3", title: "Actions, assertions & auto-waiting", time: "14 min", outline: true },
-            { id: "a3l4", title: "Automating the SauceDemo checkout", time: "16 min", outline: true },
-            { id: "a3p", title: "Practice — automate a full purchase", time: "30 min", kind: "practice", outline: true } ] },
+            { id: "a3l1", title: "Setup & your first Playwright test", time: "14 min", body: `
+              <p class="lead">Time to make a browser do your bidding. Playwright is the tool employers hire for — it drives Chromium, Firefox, and WebKit from one script, with reliability built in. Let's install it and write a test that actually passes.</p>
+              <h2>Install (one command)</h2>
+              <p>With Node.js installed, in an empty folder run:</p>
+              <pre class="cblock"><code>npm init playwright@latest</code></pre>
+              <p>Accept the defaults (TypeScript, a <code>tests/</code> folder, browsers download). You now have a runnable example suite.</p>
+              <h2>Anatomy of a test</h2>
+              <p>Create <code>tests/login.spec.ts</code>. Every test has the same skeleton — import, name, and an async body that receives a fresh <code>page</code>:</p>
+              <pre class="cblock"><code>import { test, expect } from '@playwright/test';
+
+test('a shopper can log in', async ({ page }) =&gt; {
+  await page.goto('https://www.saucedemo.com');
+  await page.getByPlaceholder('Username').fill('standard_user');
+  await page.getByPlaceholder('Password').fill('secret_sauce');
+  await page.getByRole('button', { name: 'Login' }).click();
+
+  await expect(page).toHaveURL(/inventory/);   <span class="c">// proof we're logged in</span>
+});</code></pre>
+              <p>Notice the Part-1 and Module-1 ideas showing up: it's an <code>async</code> function, every browser action is <code>await</code>ed, and it ends in an <strong>assertion</strong> — without that <code>expect</code>, the test proves nothing.</p>
+              <h2>Run it</h2>
+              <pre class="cblock"><code>npx playwright test            <span class="c"># run headless (no visible browser)</span>
+npx playwright test --ui       <span class="c"># the UI mode — watch it step through, time-travel</span></code></pre>
+              <div class="callout"><span class="k">Start in UI mode</span><p><code>--ui</code> shows each step, the DOM at every moment, and exactly where a failure happened. While you're learning, run there — it turns "why did it fail?" from a guess into something you can see.</p></div>` },
+            { id: "a3l2", title: "Locators: finding elements that don't break", time: "14 min", body: `
+              <p class="lead">A test is only as reliable as how it finds elements. Pick fragile locators and your suite breaks on every redesign; pick resilient ones and it survives. This is the highest-leverage skill in UI automation.</p>
+              <h2>A locator is a durable handle on an element</h2>
+              <p>Playwright locators don't grab the element once — they re-find it each time you use it, and auto-retry until it's there. Prefer locators that mirror <em>how a user perceives</em> the page, in this order:</p>
+              <pre class="cblock"><code>page.getByRole('button', { name: 'Login' });  <span class="c">// best: role + accessible name</span>
+page.getByPlaceholder('Username');             <span class="c">// form fields by placeholder</span>
+page.getByText('Add to cart');                 <span class="c">// visible text</span>
+page.getByTestId('add-to-cart-sauce-labs-backpack'); <span class="c">// a stable test hook</span></code></pre>
+              <h2>Why role/text beats CSS and XPath</h2>
+              <p>A selector like <code>.btn_primary > span:nth-child(2)</code> encodes the current markup — change the layout and it dies. Role- and text-based locators track what the element <em>is</em> and <em>says</em>, which changes far less often. As a bonus, <code>getByRole</code> only finds elements the accessibility tree exposes, so your tests quietly pressure the app toward being accessible.</p>
+              <div class="callout"><span class="k">SauceDemo gives you test IDs</span><p>Inspect SauceDemo and you'll see <code>data-test</code> attributes on key elements — e.g. <code>data-test="username"</code>. Those map to <code>getByTestId('username')</code> and are the most stable locators of all, because they exist <em>for</em> testing and won't change with the design. When an app provides them, use them.</p></div>` },
+            { id: "a3l3", title: "Actions, assertions & auto-waiting", time: "14 min", body: `
+              <p class="lead">Three things make up almost every test: do something, check something, and — the part Playwright handles for you — wait for the app to be ready. Master these and you can automate most flows.</p>
+              <h2>Actions</h2>
+              <pre class="cblock"><code>await locator.click();
+await locator.fill('standard_user');   <span class="c">// clears + types into an input</span>
+await locator.check();                 <span class="c">// checkbox / radio</span>
+await page.getByRole('combobox').selectOption('lohi');  <span class="c">// dropdown</span></code></pre>
+              <h2>Assertions — the part that makes it a test</h2>
+              <p>Use <code>expect</code> with a locator. These are <strong>web-first assertions</strong>: they automatically retry for a few seconds until the condition is met or they time out — no manual waiting.</p>
+              <pre class="cblock"><code>await expect(page.getByText('Products')).toBeVisible();
+await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
+await expect(page).toHaveURL(/checkout-complete/);</code></pre>
+              <h2>Auto-waiting: delete your sleeps</h2>
+              <p>Before every action, Playwright waits for the element to be present, visible, and actionable. Before every web-first assertion, it retries until true. That means you should <strong>never</strong> write fixed pauses like <code>sleep(2000)</code> — they're the root of both slow suites and flaky ones. Trust the auto-wait; assert on the outcome you actually want.</p>
+              <div class="callout"><span class="k">Flakiness, prevented by design</span><p>Most flaky UI tests come from racing the app — checking before it's ready. Playwright's auto-waiting removes that entire class of bug <em>if</em> you let it: locate, act, and assert on real conditions instead of guessing at timing.</p></div>` },
+            { id: "a3l4", title: "Automating the SauceDemo checkout", time: "16 min", body: `
+              <p class="lead">Now assemble everything into one real end-to-end test: log in, add an item, check out, and prove the order completed. This is the "system-level" test from Part 1 — made executable.</p>
+              <pre class="cblock"><code>import { test, expect } from '@playwright/test';
+
+test('shopper completes a purchase', async ({ page }) =&gt; {
+  <span class="c">// 1. log in</span>
+  await page.goto('https://www.saucedemo.com');
+  await page.getByTestId('username').fill('standard_user');
+  await page.getByTestId('password').fill('secret_sauce');
+  await page.getByTestId('login-button').click();
+
+  <span class="c">// 2. add an item, confirm the cart badge</span>
+  await page.getByTestId('add-to-cart-sauce-labs-backpack').click();
+  await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
+
+  <span class="c">// 3. go to cart and check out</span>
+  await page.locator('.shopping_cart_link').click();
+  await page.getByTestId('checkout').click();
+  await page.getByTestId('firstName').fill('Ada');
+  await page.getByTestId('lastName').fill('Lovelace');
+  await page.getByTestId('postalCode').fill('12345');
+  await page.getByTestId('continue').click();
+
+  <span class="c">// 4. finish and PROVE it worked</span>
+  await page.getByTestId('finish').click();
+  await expect(page.getByText('Thank you for your order!')).toBeVisible();
+});</code></pre>
+              <p>Read it back and notice the layers stack: resilient <code>getByTestId</code> locators, awaited actions, and — critically — <strong>assertions at the checkpoints that matter</strong> (badge count, final confirmation). A test that clicked through all of this but asserted nothing would pass even if checkout were broken.</p>
+              <div class="callout"><span class="k">This is your Module 3 project</span><p>Get this running against the live SauceDemo. Then try it as <code>problem_user</code> — watch a real defect make a step or assertion fail. That's your automated suite catching the exact bugs you filed by hand in Part 1.</p></div>` },
+            { id: "a3p", title: "Practice — check yourself + automate a purchase", time: "35 min", kind: "practice",
+              intro: "Confirm the core concepts, then write and run a real Playwright test against SauceDemo. This is the first portfolio-worthy artifact of Part 2.",
+              quiz: [
+                { q: "Which locator is the most resilient to a redesign?", options: ["page.locator('.btn_primary > span:nth-child(2)')", "page.getByRole('button', { name: 'Login' })", "page.locator('div div div button')"], answer: 1, why: "Role + accessible name tracks what the element <em>is</em>, not its current markup, so it survives layout changes. The CSS-position selectors break the moment the structure shifts." },
+                { q: "Playwright's auto-waiting means you should never write…", options: ["assertions", "fixed sleeps / fixed timeouts like sleep(2000)", "locators"], answer: 1, why: "Auto-waiting retries until elements are actionable and assertions are true, so fixed sleeps are unnecessary — and they're the main cause of slow, flaky suites." },
+                { q: "A test clicks through the entire checkout but has no <code>expect</code>. What's wrong?", options: ["Nothing — clicking through is enough", "It proves nothing; it will pass even if checkout is broken", "It runs too fast"], answer: 1, why: "Without an assertion, there's no pass/fail signal — the test goes green regardless. A test is only a test if it <em>checks</em> something." },
+                { q: "SauceDemo exposes <code>data-test</code> attributes. The matching locator is…", options: ["getByTestId('username')", "getByRole('username')", "getByText('username')"], answer: 0, why: "<code>data-test=\"username\"</code> maps to <code>getByTestId('username')</code> — the most stable locator because it exists specifically for testing and won't change with the design." }
+              ],
+              tasks: [
+                { title: "Write & run a SauceDemo purchase test", prompt: "Set up Playwright (<code>npm init playwright@latest</code>) and write a test that logs in as <code>standard_user</code>, adds <b>two</b> different items, asserts the cart badge shows <code>2</code>, then completes checkout and asserts the \"Thank you for your order!\" confirmation. Run it in <code>--ui</code> mode. Bonus: run the same test as <code>problem_user</code> and note what fails. Reveal to compare.",
+                  model: `
+                    <pre class="cblock"><code>import { test, expect } from '@playwright/test';
+
+test('purchase two items', async ({ page }) =&gt; {
+  await page.goto('https://www.saucedemo.com');
+  await page.getByTestId('username').fill('standard_user');
+  await page.getByTestId('password').fill('secret_sauce');
+  await page.getByTestId('login-button').click();
+
+  await page.getByTestId('add-to-cart-sauce-labs-backpack').click();
+  await page.getByTestId('add-to-cart-sauce-labs-bike-light').click();
+  await expect(page.locator('.shopping_cart_badge')).toHaveText('2');
+
+  await page.locator('.shopping_cart_link').click();
+  await page.getByTestId('checkout').click();
+  await page.getByTestId('firstName').fill('Ada');
+  await page.getByTestId('lastName').fill('Lovelace');
+  await page.getByTestId('postalCode').fill('12345');
+  await page.getByTestId('continue').click();
+  await page.getByTestId('finish').click();
+
+  await expect(page.getByText('Thank you for your order!')).toBeVisible();
+});</code></pre>
+                    <p><b>What a strong solution shows:</b> stable <code>getByTestId</code> locators, an assertion on the badge <em>and</em> the final confirmation (two real checkpoints), and no fixed sleeps anywhere. Running as <code>problem_user</code> surfaces real defects — some add-to-cart buttons misbehave — which is your automation catching what you filed manually in Part 1.</p>` }
+              ] } ] },
         { id: "a4", title: "Playwright — Robust, Maintainable Suites", meta: "",
           summary: "The patterns that keep a suite alive as the app changes: Page Object Model, fixtures, resilient locators, and the trace viewer.",
           project: "Refactor your suite with POM, fixtures, and cross-browser runs.",
@@ -1624,8 +1884,8 @@
   function practiceHTML(l) {
     const quiz = (l.quiz || []).map((q, i) => {
       const qid = l.id + "_q" + i;
-      const opts = q.options.map((o, k) => `<button class="opt" onclick="quizPick('${qid}',${k},${q.answer})"><span class="mk">${String.fromCharCode(65 + k)}</span><span>${esc(o)}</span></button>`).join("");
-      return `<div class="qz" id="${qid}"><p class="q"><span class="n">Q${i + 1}</span>${esc(q.q)}</p><div class="opts">${opts}</div><p class="why"><b>Answer:</b> ${q.why}</p></div>`;
+      const opts = q.options.map((o, k) => `<button class="opt" onclick="quizPick('${qid}',${k},${q.answer})"><span class="mk">${String.fromCharCode(65 + k)}</span><span>${o}</span></button>`).join("");
+      return `<div class="qz" id="${qid}"><p class="q"><span class="n">Q${i + 1}</span>${q.q}</p><div class="opts">${opts}</div><p class="why"><b>Answer:</b> ${q.why}</p></div>`;
     }).join("");
     const tasks = (l.tasks || []).map((t, i) => {
       const tid = l.id + "_t" + i;
