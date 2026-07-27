@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A bi-weekly field guide to quality in the AI era — tools, guides, and hard-won lessons for keeping AI-built software trustworthy. By Nadav Katz.">
+<meta name="author" content="Nadav Katz">
+<meta name="theme-color" content="#0d131e">
+<!-- Open Graph / social share cards. Replace YOUR-DOMAIN with your real domain after you connect it in Vercel. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="QA in the AI Era">
+<meta property="og:title" content="QA in the AI Era — by Nadav Katz">
+<meta property="og:description" content="A bi-weekly field guide to quality in the AI era — tools, guides, and lessons for keeping AI-built software trustworthy.">
+<meta property="og:url" content="https://YOUR-DOMAIN/">
+<meta property="og:image" content="https://YOUR-DOMAIN/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="QA in the AI Era — by Nadav Katz">
+<meta name="twitter:description" content="A bi-weekly field guide to quality in the AI era.">
+<meta name="twitter:image" content="https://YOUR-DOMAIN/og.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%A7%AA%3C/text%3E%3C/svg%3E">
+<title>QA in the AI Era — by Nadav Katz</title>
+<style>
+  :root {
+    --paper: #eceff4; --card: #ffffff; --ink: #141b28; --muted: #57616f; --faint: #808b99;
+    --line: #d7dbe3; --line-strong: #c1c8d2; --signal: #b23c1c; --signal-soft: #f3e3dc;
+    --bar: #354154; --bar-track: #dde1e8; --tag-bg: #e6e9ef; --field: #f6f7fa;
+    --shadow: 0 1px 2px rgba(20,27,40,.05), 0 14px 30px -20px rgba(20,27,40,.30);
+    --serif: ui-serif, "New York", "Iowan Old Style", Georgia, "Times New Roman", serif;
+    --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, "Cascadia Code", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0d131e; --card: #151d2b; --ink: #e7ebf2; --muted: #9aa4b3; --faint: #6f7a8a;
+      --line: #24303f; --line-strong: #33404f; --signal: #f07040; --signal-soft: #2a1a12;
+      --bar: #6d8199; --bar-track: #202b3a; --tag-bg: #1d2634; --field: #101825;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 18px 36px -22px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #eceff4; --card: #ffffff; --ink: #141b28; --muted: #57616f; --faint: #808b99;
+    --line: #d7dbe3; --line-strong: #c1c8d2; --signal: #b23c1c; --signal-soft: #f3e3dc;
+    --bar: #354154; --bar-track: #dde1e8; --tag-bg: #e6e9ef; --field: #f6f7fa;
+    --shadow: 0 1px 2px rgba(20,27,40,.05), 0 14px 30px -20px rgba(20,27,40,.30);
+  }
+  :root[data-theme="dark"] {
+    --paper: #0d131e; --card: #151d2b; --ink: #e7ebf2; --muted: #9aa4b3; --faint: #6f7a8a;
+    --line: #24303f; --line-strong: #33404f; --signal: #f07040; --signal-soft: #2a1a12;
+    --bar: #6d8199; --bar-track: #202b3a; --tag-bg: #1d2634; --field: #101825;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 18px 36px -22px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: var(--serif); line-height: 1.62;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+  .mono { font-family: var(--mono); }
+
+  /* ---- Masthead ---- */
+  .masthead {
+    border-bottom: 1px solid var(--line-strong); position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: saturate(1.4) blur(8px);
+  }
+  .masthead .bar { max-width: 940px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .brand { display: flex; align-items: baseline; gap: 10px; text-decoration: none; cursor: pointer; background: none; border: 0; padding: 0; }
+  .brand .mark { font-family: var(--mono); font-weight: 600; font-size: 14px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink); }
+  .brand .mark .dot { color: var(--signal); }
+  .nav { display: flex; align-items: center; gap: 18px; }
+  .nav a { font-family: var(--mono); font-size: 12.5px; letter-spacing: .04em; color: var(--muted); text-decoration: none; cursor: pointer; }
+  .nav a:hover { color: var(--signal); }
+  .nav .cta { color: var(--ink); border: 1px solid var(--line-strong); border-radius: 3px; padding: 5px 11px; }
+  .nav .cta:hover { border-color: var(--signal); color: var(--signal); }
+  @media (max-width: 720px) { .nav .hidephone { display: none; } }
+
+  /* ---- Hero ---- */
+  .hero { padding: 74px 0 30px; }
+  @media (max-width: 640px) { .hero { padding: 48px 0 24px; } }
+  .hero .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); margin: 0 0 20px; }
+  .hero h1 { font-family: var(--serif); font-weight: 620; font-size: clamp(34px, 6.2vw, 56px); line-height: 1.05; letter-spacing: -.018em; text-wrap: balance; margin: 0; }
+  .hero h1 .hl { color: var(--signal); font-style: italic; }
+  .hero .deck { font-size: clamp(18px, 2.3vw, 21px); color: var(--muted); max-width: 33em; margin: 24px 0 0; }
+  .hero .meta { margin: 28px 0 0; display: flex; flex-wrap: wrap; gap: 10px 20px; font-family: var(--mono); font-size: 12.5px; color: var(--faint); letter-spacing: .04em; }
+  .hero .meta b { color: var(--signal); font-weight: 600; }
+
+  .sec-h { max-width: 940px; margin: 0 auto; padding: 40px 24px 4px; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .sec-h h2 { font-family: var(--mono); font-size: 12.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--signal); font-weight: 600; margin: 0; }
+  .sec-h .note { font-family: var(--mono); font-size: 12px; color: var(--faint); }
+
+  .feature-wrap { max-width: 940px; margin: 0 auto; padding: 8px 24px 0; }
+  .feature {
+    display: block; text-decoration: none; cursor: pointer; text-align: left; width: 100%;
+    background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+    box-shadow: var(--shadow); padding: 34px 34px 30px; border-left: 3px solid var(--signal);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .feature:hover { transform: translateY(-2px); box-shadow: 0 1px 2px rgba(20,27,40,.05), 0 22px 44px -22px rgba(20,27,40,.4); }
+  .feature .row { display: flex; gap: 10px; align-items: center; margin: 0 0 16px; flex-wrap: wrap; }
+  .tag { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--signal); background: var(--signal-soft); border-radius: 99px; padding: 3px 10px; }
+  .tag.plain { color: var(--muted); background: var(--tag-bg); }
+  .feature .issue { font-family: var(--mono); font-size: 12px; color: var(--faint); letter-spacing: .08em; }
+  .feature h3 { font-family: var(--serif); font-weight: 620; font-size: clamp(26px, 4vw, 34px); line-height: 1.1; letter-spacing: -.015em; text-wrap: balance; margin: 0 0 12px; }
+  .feature p { font-size: 18px; color: var(--muted); margin: 0 0 18px; max-width: 40em; }
+  .feature .go { font-family: var(--mono); font-size: 13px; color: var(--signal); letter-spacing: .04em; }
+
+  .list { max-width: 940px; margin: 0 auto; padding: 6px 24px 0; }
+  .post {
+    display: grid; grid-template-columns: 84px 1fr auto; gap: 4px 22px; align-items: start;
+    text-decoration: none; cursor: pointer; text-align: left; width: 100%; background: none; border: 0;
+    padding: 26px 0; border-top: 1px solid var(--line);
+  }
+  .post:hover h3 { color: var(--signal); }
+  .post .num { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--faint); letter-spacing: .06em; padding-top: 3px; }
+  .post .body { grid-column: 2; }
+  .post .body .row { display: flex; gap: 10px; align-items: center; margin: 0 0 8px; flex-wrap: wrap; }
+  .post h3 { font-family: var(--serif); font-weight: 600; font-size: 22px; line-height: 1.16; letter-spacing: -.01em; margin: 0 0 6px; transition: color .12s; }
+  .post p { font-size: 16px; color: var(--muted); margin: 0; max-width: 42em; }
+  .post .rt { grid-column: 3; font-family: var(--mono); font-size: 12px; color: var(--faint); white-space: nowrap; padding-top: 3px; }
+  @media (max-width: 620px) {
+    .post { grid-template-columns: 1fr; }
+    .post .num { padding-top: 0; }
+    .post .body, .post .rt { grid-column: 1; }
+    .post .rt { padding-top: 6px; }
+  }
+
+  .upcoming { max-width: 940px; margin: 0 auto; padding: 8px 24px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+  .up { border: 1px dashed var(--line-strong); border-radius: 5px; padding: 16px 18px; }
+  .up .k { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); margin: 0 0 7px; }
+  .up p { font-family: var(--serif); font-size: 16px; margin: 0; color: var(--muted); line-height: 1.35; }
+
+  /* ---- About / consulting ---- */
+  .about { border-top: 1px solid var(--line-strong); margin-top: 56px; background: var(--card); }
+  .about .in { max-width: 720px; margin: 0 auto; padding: 52px 24px; }
+  .about .k { font-family: var(--mono); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--signal); margin: 0 0 16px; }
+  .about h2 { font-family: var(--serif); font-weight: 620; font-size: clamp(24px, 3.6vw, 30px); line-height: 1.16; letter-spacing: -.012em; text-wrap: balance; margin: 0 0 16px; }
+  .about p { font-size: 18px; color: var(--muted); margin: 0 0 16px; }
+  .about p b { color: var(--ink); font-weight: 600; }
+  .about .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+  .btn { font-family: var(--mono); font-size: 13px; letter-spacing: .03em; text-decoration: none; border-radius: 4px; padding: 11px 18px; cursor: pointer; border: 1px solid transparent; }
+  .btn.primary { background: var(--signal); color: #fff; border-color: var(--signal); }
+  .btn.primary:hover { filter: brightness(1.06); }
+  .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line-strong); }
+  .btn.ghost:hover { border-color: var(--signal); color: var(--signal); }
+
+  footer.site { border-top: 1px solid var(--line); }
+  footer.site .in { max-width: 940px; margin: 0 auto; padding: 26px 24px 56px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  footer.site p { font-family: var(--mono); font-size: 12px; color: var(--faint); letter-spacing: .03em; margin: 0; }
+
+  /* ---- Article view ---- */
+  .article { padding: 44px 0 20px; }
+  .backlink { font-family: var(--mono); font-size: 12.5px; color: var(--muted); text-decoration: none; letter-spacing: .04em; display: inline-block; margin-bottom: 30px; cursor: pointer; }
+  .backlink:hover { color: var(--signal); }
+  .article .head .row { display: flex; gap: 10px; align-items: center; margin: 0 0 18px; flex-wrap: wrap; }
+  .article h1 { font-family: var(--serif); font-weight: 620; font-size: clamp(30px, 5.2vw, 46px); line-height: 1.07; letter-spacing: -.02em; text-wrap: balance; margin: 0 0 16px; }
+  .article .dek { font-family: var(--serif); font-size: clamp(19px, 2.6vw, 22px); color: var(--muted); margin: 0 0 26px; max-width: 34em; line-height: 1.45; }
+  .article .byline { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-family: var(--mono); font-size: 12.5px; color: var(--faint); letter-spacing: .04em; padding-bottom: 26px; border-bottom: 1px solid var(--line); margin-bottom: 34px; }
+  .article .byline b { color: var(--ink); font-weight: 600; }
+  .article .byline .sep { opacity: .5; }
+
+  .article .body { font-size: 19px; }
+  .article .body > *:first-child { margin-top: 0; }
+  .article .body p { margin: 0 0 20px; }
+  .article .body p.lead { font-size: 21px; }
+  .article .body h2 { font-family: var(--serif); font-weight: 620; font-size: clamp(23px, 3.4vw, 28px); line-height: 1.18; letter-spacing: -.01em; text-wrap: balance; margin: 40px 0 14px; }
+  .article .body h3 { font-family: var(--serif); font-weight: 600; font-size: 20px; margin: 30px 0 8px; letter-spacing: -.005em; }
+  .article .body em { font-style: italic; }
+  .article .body strong { font-weight: 620; }
+  .article .body a { color: var(--signal); text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
+  .article .body ul { margin: 0 0 20px; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .article .body ul li { position: relative; padding-left: 26px; }
+  .article .body ul li::before { content: "→"; position: absolute; left: 0; top: 0; font-family: var(--mono); color: var(--signal); font-size: 15px; }
+  .article .body ol { margin: 0 0 20px; padding-left: 22px; display: flex; flex-direction: column; gap: 12px; }
+  .article .body ol li { padding-left: 6px; }
+  .article .body ol li::marker { font-family: var(--mono); font-weight: 600; color: var(--signal); }
+  .article .body blockquote { margin: 28px 0; padding: 4px 0 4px 22px; border-left: 3px solid var(--signal); font-family: var(--serif); font-size: 22px; line-height: 1.32; letter-spacing: -.01em; color: var(--ink); }
+  .article .body blockquote em { color: var(--signal); font-style: italic; }
+  .article .body code { font-family: var(--mono); font-size: .84em; background: var(--tag-bg); border-radius: 3px; padding: 2px 6px; }
+  .article .body .callout { background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--signal); border-radius: 4px; padding: 18px 20px; margin: 26px 0; box-shadow: var(--shadow); }
+  .article .body .callout p { margin: 0; font-size: 16.5px; }
+  .article .body .callout .k { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--signal); display: block; margin-bottom: 8px; }
+  .toolrow { display: grid; grid-template-columns: 150px 1fr; gap: 6px 20px; padding: 16px 0; border-top: 1px solid var(--line); }
+  .toolrow .t { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--ink); }
+  .toolrow .t .role { display: block; font-weight: 400; font-size: 11.5px; color: var(--faint); letter-spacing: .06em; text-transform: uppercase; margin-top: 4px; }
+  .toolrow .d { font-family: var(--serif); font-size: 16.5px; color: var(--muted); }
+  .toolrow .d b { color: var(--ink); font-weight: 600; }
+  @media (max-width: 560px) { .toolrow { grid-template-columns: 1fr; } }
+
+  .statband { display: flex; flex-wrap: wrap; gap: 14px 36px; align-items: baseline; margin: 26px 0 30px; padding: 22px 0; border-block: 1px solid var(--line-strong); }
+  .statband .s { display: flex; flex-direction: column; gap: 3px; }
+  .statband .s .n { font-family: var(--mono); font-weight: 600; font-size: 27px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .statband .s .n em { color: var(--signal); font-style: normal; }
+  .statband .s .l { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+
+  /* ---- Share row ---- */
+  .share { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 40px 0 8px; padding-top: 24px; border-top: 1px solid var(--line); }
+  .share .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); margin-right: 4px; }
+  .sbtn { font-family: var(--mono); font-size: 12.5px; letter-spacing: .03em; cursor: pointer; text-decoration: none; color: var(--ink); background: var(--card); border: 1px solid var(--line-strong); border-radius: 99px; padding: 7px 14px; display: inline-flex; align-items: center; gap: 6px; }
+  .sbtn:hover { border-color: var(--signal); color: var(--signal); }
+  .sbtn svg { width: 14px; height: 14px; fill: currentColor; }
+
+  /* ---- Comments ---- */
+  .comments { margin-top: 46px; padding-top: 30px; border-top: 1px solid var(--line-strong); }
+  .comments .h { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+  .comments .h h3 { font-family: var(--serif); font-size: 22px; font-weight: 620; margin: 0; }
+  .comments .h .c { font-family: var(--mono); font-size: 13px; color: var(--faint); }
+  .comments .disc { font-family: var(--sans); font-size: 12.5px; color: var(--faint); margin: 0 0 22px; line-height: 1.5; }
+  .cform { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+  .cform .two { display: flex; gap: 10px; flex-wrap: wrap; }
+  .cform .two input { flex: 1; min-width: 160px; }
+  .field { font-family: var(--sans); font-size: 15px; color: var(--ink); background: var(--field); border: 1px solid var(--line-strong); border-radius: 5px; padding: 11px 13px; width: 100%; }
+  .field:focus { outline: 2px solid var(--signal); outline-offset: 1px; border-color: var(--signal); }
+  textarea.field { min-height: 90px; resize: vertical; font-family: var(--sans); line-height: 1.5; }
+  .cform .foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .clist { display: flex; flex-direction: column; gap: 16px; }
+  .cmt { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px; }
+  .cmt .top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+  .cmt .who { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--ink); }
+  .cmt .when { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  .cmt .txt { font-family: var(--serif); font-size: 16px; color: var(--muted); margin: 0; white-space: pre-wrap; }
+  .cempty { font-family: var(--serif); font-size: 16px; color: var(--faint); font-style: italic; }
+
+  .article .authorcard { margin-top: 46px; padding: 26px; background: var(--card); border: 1px solid var(--line); border-radius: 6px; box-shadow: var(--shadow); }
+  .article .authorcard .k { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); margin: 0 0 8px; }
+  .article .authorcard h4 { font-family: var(--serif); font-size: 20px; font-weight: 620; margin: 0 0 8px; }
+  .article .authorcard p { font-family: var(--serif); font-size: 16px; color: var(--muted); margin: 0 0 16px; }
+  .article .authorcard .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .article .more { margin-top: 40px; padding-top: 26px; border-top: 1px solid var(--line-strong); }
+  .article .more .k { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--signal); margin: 0 0 14px; }
+
+  /* ---- Generic page (contact / talks) ---- */
+  .page { padding: 54px 0 20px; }
+  .page .k { font-family: var(--mono); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--signal); margin: 0 0 16px; }
+  .page h1 { font-family: var(--serif); font-weight: 620; font-size: clamp(30px, 5vw, 44px); line-height: 1.08; letter-spacing: -.02em; text-wrap: balance; margin: 0 0 16px; }
+  .page .lede { font-size: 19px; color: var(--muted); margin: 0 0 30px; max-width: 36em; }
+  .page .lede b { color: var(--ink); font-weight: 600; }
+
+  .talk { display: grid; grid-template-columns: 1fr auto; gap: 8px 20px; align-items: start; padding: 24px 0; border-top: 1px solid var(--line); }
+  .talk .meta { font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); margin: 0 0 8px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .talk .meta .kind { color: var(--signal); }
+  .talk h3 { font-family: var(--serif); font-size: 21px; font-weight: 620; margin: 0 0 8px; letter-spacing: -.01em; }
+  .talk p { font-size: 16.5px; color: var(--muted); margin: 0; max-width: 44em; }
+  .talk .act { grid-column: 2; grid-row: 1 / span 3; align-self: center; }
+  .talk .act .btn { white-space: nowrap; }
+  .talk .act .soon { font-family: var(--mono); font-size: 11px; color: var(--faint); border: 1px dashed var(--line-strong); border-radius: 4px; padding: 8px 12px; }
+  @media (max-width: 560px) { .talk { grid-template-columns: 1fr; } .talk .act { grid-column: 1; grid-row: auto; margin-top: 6px; } }
+
+  .contact-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 34px; align-items: start; }
+  @media (max-width: 680px) { .contact-grid { grid-template-columns: 1fr; gap: 26px; } }
+  .contact-side .box { background: var(--card); border: 1px solid var(--line); border-radius: 6px; box-shadow: var(--shadow); padding: 22px 22px; margin-bottom: 16px; }
+  .contact-side .box .k { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); margin: 0 0 10px; }
+  .contact-side .box p { font-size: 15.5px; color: var(--muted); margin: 0 0 8px; }
+  .contact-side .box a { color: var(--signal); text-decoration: none; font-family: var(--mono); font-size: 13.5px; }
+  .contact-side .box a:hover { text-decoration: underline; }
+  .contact-side ul { margin: 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .contact-side ul li { font-size: 15.5px; color: var(--muted); position: relative; padding-left: 20px; }
+  .contact-side ul li::before { content: "✓"; position: absolute; left: 0; color: var(--signal); font-family: var(--mono); font-size: 13px; }
+  .note-inline { font-family: var(--sans); font-size: 12.5px; color: var(--faint); margin: 8px 0 0; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fade { animation: fade .45s ease both; }
+    @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  }
+  :focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="bar">
+    <button class="brand" onclick="go('')" aria-label="QA in the AI Era — home">
+      <span class="mark">QA in the AI Era<span class="dot">.</span></span>
+    </button>
+    <nav class="nav">
+      <a onclick="go('')" class="hidephone">Articles</a>
+      <a onclick="go('talks')" class="hidephone">Talks &amp; Videos</a>
+      <a onclick="go('about')" class="hidephone">About</a>
+      <a onclick="go('contact')" class="cta">Contact</a>
+    </nav>
+  </div>
+</div>
+
+<main id="app"></main>
+
+<script>
+  const AUTHOR = "Nadav Katz";
+  // TODO: replace with your real address / booking link before sharing widely.
+  const EMAIL = "you@example.com";
+  const CONTACT = "mailto:" + EMAIL + "?subject=QA%20consulting%20%E2%80%94%20inquiry";
+  const LINKEDIN = "https://www.linkedin.com/in/nadav-katz-2b497541/";
+
+  const POSTS = [
+    {
+      slug: "missing-feedback-loop", issue: "01", category: "Manifesto",
+      date: "Jul 6, 2026", readingTime: "6 min", featured: true,
+      title: "You Are the AI's Missing Feedback Loop",
+      dek: "I shipped 217 commits in two months building a real product with AI. 52 were bug fixes. Every one was trying to tell me the same thing.",
+      body: `
+        <p class="lead">When AI writes the code, the bottleneck stops being <em>writing</em> and becomes <em>verifying</em>. I learned this the expensive way. Over two months building a real product almost entirely with AI, I shipped 217 commits. Fifty-two of them — roughly one in four — were bug fixes. When I lined all fifty-two up, they weren't random. They told a single, uncomfortable story.</p>
+        <div class="statband">
+          <div class="s"><span class="n">217</span><span class="l">commits</span></div>
+          <div class="s"><span class="n">52 <em>≈¼</em></span><span class="l">were bug fixes</span></div>
+          <div class="s"><span class="n">60</span><span class="l">days</span></div>
+          <div class="s"><span class="n">0</span><span class="l">found by the AI itself</span></div>
+        </div>
+        <h2>The AI didn't write bad code. It wrote plausible code.</h2>
+        <p>Plausible code fails in a specific place: exactly where the model had no way to check itself. It can't see the messy real page a user is on. It can't feel the app change between yesterday and today. It can't stand at the seam where two systems hand off. And it never notices the failure it didn't imagine. My fifty-two bugs clustered into those four blind spots.</p>
+        <h3>1. It tests the happy path it imagined — not the mess that's real.</h3>
+        <p>The AI wrote a price parser against clean, invented HTML. Real stores don't cooperate: a price of <code>2,969</code> was read as <code>296</code> because the parser choked on a comma. Right-to-left Hebrew rendered backwards. Bot-blocked shops returned a bare "no price." None of it appeared in the world the model pictured.</p>
+        <h3>2. It reasons about one moment — not an app living over time.</h3>
+        <p>A single request looked perfect. State across sessions is where it broke: the all-time-low price was lost on refresh, so "price dropped" badges vanished. Single-page navigation didn't re-trigger detection. A cached page served a stale price on the second check.</p>
+        <h3>3. It can't stand at the seam between two systems.</h3>
+        <p>The nastiest bugs lived <em>between</em> systems, where the model could only ever see one side. A stray space in a payment credential took <strong>four</strong> commits to fully corner. The apex domain silently 308-redirected and broke "Add." One alert channel failing would swallow the entire alert.</p>
+        <h3>4. And it will happily re-break what it already fixed.</h3>
+        <p>This is the one that costs you. Because rewriting is cheap, the AI re-broke the same feature again and again. Product detection in my browser extension broke <strong>three separate times</strong> — each "fixed," each undone by the next well-meaning change, because nothing was holding the fix in place.</p>
+        <blockquote>Turn every bug you find into a <em>test</em> — before you let the AI fix it. It rewrites code fast enough to break the same thing three times. The test is the only thing that makes a fix <em>stay</em> fixed.</blockquote>
+        <h2>You can't out-prompt these bugs. You out-process them.</h2>
+        <ol>
+          <li><strong>Bug → failing test → fix. In that order.</strong> Write the test that reproduces the bug first, watch it go red, then fix. Now the AI physically cannot re-break it without a red X.</li>
+          <li><strong>Feed it your ugliest real input.</strong> Comma-separated prices, right-to-left text, sold-out and bot-blocked pages, every currency. The AI validates the world it pictured; your job is to hand it the world that exists.</li>
+          <li><strong>Assume failure at every seam — and never swallow it.</strong> Guard boundaries, surface errors loudly, give outputs a sanity check. A single stray space cost me four commits.</li>
+          <li><strong>You run the app; the AI only reads the code.</strong> Reading code proves it's plausible. Running it proves it's true. Every bug that mattered was caught by a human using the product.</li>
+        </ol>
+        <p>The model writes the code. You provide the one thing it structurally can't: contact with reality. That isn't a limitation of building with AI — it <em>is</em> the job. Own that loop, and your quality compounds instead of leaking.</p>
+      `,
+    },
+    {
+      slug: "qa-stack-ai-software", issue: "02", category: "Tools",
+      date: "Jul 20, 2026", readingTime: "7 min",
+      title: "The QA Stack for AI-Built Software: 8 Tools That Earn Their Place",
+      dek: "When the model writes the code, your tools are the eyes it doesn't have. Here's the small, honest stack I'd stand up on day one.",
+      body: `
+        <p class="lead">There are hundreds of testing tools. You don't need hundreds — you need the few that give you sight where the AI is blind. This is the stack I actually reach for on a small team shipping AI-written software. Not the biggest list; the one that earns its keep.</p>
+        <h2>Catch regressions before they ship</h2>
+        <div class="toolrow"><div class="t">Vitest / Jest<span class="role">Unit + regression net</span></div><div class="d"><b>The single highest-leverage tool here.</b> Fast enough to run on every save. Every bug a human reports becomes a permanent test, so the AI can't quietly re-break it. If you adopt one thing this week, adopt this.</div></div>
+        <div class="toolrow"><div class="t">Playwright<span class="role">Real browser flows</span></div><div class="d">Unit tests prove functions work; Playwright proves the <b>app</b> works — in Chromium, Firefox and WebKit, on real user journeys. Its trace viewer replays a failed run frame by frame, which is gold when a bug only shows up in the browser.</div></div>
+        <h2>Catch what humans see and the model can't</h2>
+        <div class="toolrow"><div class="t">axe-core<span class="role">Accessibility + contrast</span></div><div class="d">AI almost never checks color contrast, focus order, or labels. <code>@axe-core/playwright</code> drops accessibility assertions straight into your e2e run and fails the build on serious violations — the a11y bugs you'd otherwise ship blind.</div></div>
+        <div class="toolrow"><div class="t">Visual regression<span class="role">"It looks broken"</span></div><div class="d">Playwright screenshot diffs (or <b>Chromatic</b> with Storybook) catch the layout breakage a model can't perceive from source: an overlapping icon, a collapsed card, an image that renders as a broken glyph.</div></div>
+        <h2>Catch the seams and what escapes to production</h2>
+        <div class="toolrow"><div class="t">Error monitoring<span class="role">Prod truth</span></div><div class="d"><b>Sentry</b> (or a lightweight self-hosted table) reports the bugs your tests missed, from real users, with a stack trace and a fingerprint so duplicates collapse. The AI can't watch production — this is how you get told before your users tell you.</div></div>
+        <div class="toolrow"><div class="t">GitHub Actions<span class="role">The gate</span></div><div class="d">None of the above matters if it doesn't run automatically. CI is the enforcement layer: tests, lint, and type-checks on every push, blocking merge on red. It's what turns "we have tests" into "we can't ship past them."</div></div>
+        <h2>Keep the sprawl in check</h2>
+        <div class="toolrow"><div class="t">Renovate / Dependabot<span class="role">Dependency hygiene</span></div><div class="d">AI-built apps accumulate packages fast. Automated dependency PRs keep you patched against known vulnerabilities without a human remembering to look — a quiet but real part of quality.</div></div>
+        <div class="toolrow"><div class="t">Promptfoo<span class="role">LLM evals</span></div><div class="d">The moment any feature calls an LLM, ordinary tests stop being enough, because there's no single right answer. Promptfoo runs evals against a golden set in CI. That's a whole discipline of its own — it's the next article.</div></div>
+        <div class="callout"><span class="k">Where to start</span><p>Don't stand all eight up at once. Week one: <b>Vitest + Playwright + GitHub Actions</b>. That trio alone converts "the AI keeps re-breaking things" into "the build won't let it." Add the rest as the pain shows up.</p></div>
+        <p>A tool you don't run is worse than no tool — it's a false sense of safety. Pick three, wire them into CI so they run without you, and let the failing build be the teammate who never gets tired of checking.</p>
+      `,
+    },
+    {
+      slug: "every-bug-a-test", issue: "03", category: "Guide",
+      date: "Aug 3, 2026", readingTime: "5 min",
+      title: "Turn Every Bug Into a Test: A 15-Minute Habit That Ends Repeat Regressions",
+      dek: "The most valuable QA habit in the AI era isn't glamorous. It's refusing to fix a bug until you've written the test that catches it next time.",
+      body: `
+        <p class="lead">Here's the pattern that quietly wrecks quality on AI projects: you report a bug, the AI fixes it, everyone moves on — and three changes later, the same bug is back. Not because the model is careless, but because <em>rewriting is cheap</em>, so re-breaking is the default. The fix that lasts is the one nailed down by a test. Here's the fifteen-minute habit.</p>
+        <h2>The loop, step by step</h2>
+        <ol>
+          <li><strong>Reproduce with the exact real input.</strong> Not a simplified version — the actual value that broke. When a price parser turned <code>2,969</code> into <code>296</code>, the input <em>is</em> <code>"2,969"</code>. Capture it verbatim.</li>
+          <li><strong>Write the failing test first, and watch it fail.</strong> <code>expect(parsePrice("2,969")).toBe(2969)</code>. Run it, see red. This step is the whole trick: you've now proven the test can actually detect the bug. A test that was green before the fix proves nothing.</li>
+          <li><strong>Only now, let the AI fix it.</strong> Give it the failing test as the target. It now has an unambiguous definition of done <em>and</em> a guardrail it can't wander past.</li>
+          <li><strong>Watch it go green, and keep the test forever.</strong> That test is now a permanent tripwire. Any future change — by you or the AI — that reintroduces the bug turns the build red before it reaches a user.</li>
+        </ol>
+        <div class="callout"><span class="k">Why "test first" matters more with AI</span><p>A human who fixes a bug tends to remember it. An AI starts fresh every session — it has no memory that this line was hard-won. The test <em>is</em> that memory, encoded where the model can't ignore it.</p></div>
+        <h2>Three rules that keep it working</h2>
+        <ul>
+          <li><strong>Name the test after the bug, not the function.</strong> <code>"parses prices with thousands separators (2,969 not 296)"</code> tells the next reader — human or AI — exactly what reality this defends.</li>
+          <li><strong>One assertion per real failure.</strong> Resist bundling. If two things broke, that's two tests, each of which can go red independently and point at one cause.</li>
+          <li><strong>It only counts if CI runs it.</strong> A test on your laptop is a note-to-self. A test in the pipeline is a law. Wire it in so no one — including future you at 1am — can merge past it.</li>
+        </ul>
+        <h2>The economics</h2>
+        <p>This feels slower. It isn't. The extension detection bug I mentioned in the first article broke <em>three times</em> before I built the habit — three rounds of report, diagnose, fix, re-verify, each costing far more than the ten minutes a test would have taken the first time. The test is a ratchet: it only ever moves quality forward. In a world where code is cheap to generate and therefore cheap to break, the ratchet is the entire game.</p>
+        <p>Adopt exactly one policy this week: <strong>no bug gets fixed until its test exists and fails.</strong> It's the cheapest insurance in software, and in the AI era it's close to mandatory.</p>
+      `,
+    },
+    {
+      slug: "testing-the-ai-itself", issue: "04", category: "Guide",
+      date: "Aug 17, 2026", readingTime: "8 min",
+      title: "Testing the AI Itself: Evals for Features That Don't Have One Right Answer",
+      dek: "Your regular tests check 'did it do what I said.' But an AI feature has no single correct output. To keep it trustworthy you need a different instrument: evals.",
+      body: `
+        <p class="lead">Unit and end-to-end tests assume a knowable right answer: this input yields that output. AI features break that assumption. Ask an LLM to "find a cheaper version of this product," "summarize this thread," or "classify this ticket," and there's a <em>range</em> of acceptable answers and a wide range of bad ones. You can't assert equality. But you absolutely can measure quality — with evals.</p>
+        <h2>An eval is a test with a rubric instead of an equals sign</h2>
+        <p>The shape is the same as any test: fixed inputs, expected behaviour, a pass/fail signal. What changes is how you judge the output. Four scoring methods, from cheapest to richest:</p>
+        <ul>
+          <li><strong>Exact / regex</strong> — for anything structured. Does the response contain a valid price? Is the JSON well-formed? Is the classification one of the allowed labels? Cheap, deterministic, catches the majority of real failures.</li>
+          <li><strong>Assertions on properties</strong> — not "is it the perfect summary" but "is it under 60 words, in the input's language, and free of a refusal." Property checks are underrated and very stable.</li>
+          <li><strong>LLM-as-judge</strong> — a second model scores the first against a rubric ("is this a genuinely cheaper, in-stock alternative? yes/no + reason"). Powerful for open-ended output; keep the rubric narrow and always log the judge's reasoning so you can audit it.</li>
+          <li><strong>Human spot-check</strong> — the ground truth. You don't grade everything by hand, but you review a sample every release to keep the automated judges honest.</li>
+        </ul>
+        <h2>Build a golden set — small is fine</h2>
+        <p>Collect 10–50 real inputs that represent what users actually send, including the ugly ones: the ambiguous query, the foreign-language product, the item that has no cheaper version. Pair each with what an acceptable answer looks like. This golden set is the single most valuable QA asset for an AI feature — more than any tool. Even <strong>ten</strong> honest cases in CI beats shipping on vibes.</p>
+        <div class="callout"><span class="k">The tools</span><p><b>Promptfoo</b> — config-driven, runs in CI, great for prompt/model comparisons. <b>DeepEval</b> — pytest-style, feels native if you already test in Python. <b>Ragas</b> — purpose-built for retrieval/RAG quality. <b>Langfuse</b> / <b>LangSmith</b> — production observability: trace every real call, then promote failures into your golden set.</p></div>
+        <h2>Treat prompts like code</h2>
+        <p>A prompt is source code that happens to be in English. It deserves the same discipline: version it, and re-run your evals on every change. "Prompt regressions" are completely real — a tweak that helps one case silently degrades five others, and without evals you'll never see it. Wire the eval run into the same CI gate as your unit tests.</p>
+        <h2>Then guard it at runtime</h2>
+        <p>Evals tell you the feature is good <em>on average, before</em> release. Guardrails protect the <em>individual</em> user in real time:</p>
+        <ul>
+          <li><strong>Validate the shape</strong> before you trust it — reject malformed JSON, out-of-range numbers, empty results.</li>
+          <li><strong>Sanity-check against reality</strong> — a "cheaper" price that's higher than the original is a bug, not a deal. Catch it and drop it.</li>
+          <li><strong>Fail closed.</strong> When the model returns something you can't verify, show nothing rather than something wrong. A missing suggestion is forgettable; a confidently wrong one costs trust.</li>
+        </ul>
+        <p>The mental model that ties it together: <strong>evals are your test suite for the parts of the product that think, and guardrails are your error handling for when they think wrong.</strong> Ship AI features without them and you're not measuring quality — you're hoping for it. In this era, hope doesn't scale. Evidence does.</p>
+      `,
+    },
+  ];
+
+  const UPCOMING = [
+    "CI that fails loud: the pipeline every AI project needs",
+    "Prompt-injection & the new security surface of AI apps",
+    "The QA metrics that actually predict trust",
+    "Reviewing AI-written pull requests without rubber-stamping",
+  ];
+
+  // Talks & videos — replace url with your real YouTube/Vimeo/slides links.
+  // Leave url empty ("") to show a "link coming soon" state.
+  const TALKS = [
+    { kind: "Conference talk", event: "{{Event name}}", year: "{{Year}}", url: "",
+      title: "{{Talk title}}",
+      blurb: "{{One or two lines on what this talk covered — the audience, the takeaway. Send me the recording link and I'll wire it up.}}" },
+    { kind: "Presentation", event: "{{Event / company}}", year: "{{Year}}", url: "",
+      title: "{{Presentation title}}",
+      blurb: "{{Slides or session description. Add a link to the deck (PDF/Slides) or the video and I'll attach it here.}}" },
+    { kind: "Video", event: "{{Channel / series}}", year: "{{Year}}", url: "",
+      title: "{{Video title}}",
+      blurb: "{{Short description of the video. Paste the URL and this becomes a 'Watch' button.}}" },
+  ];
+
+  const $app = document.getElementById("app");
+  const bySlug = (s) => POSTS.find((p) => p.slug === s);
+  const featured = () => POSTS.find((p) => p.featured);
+  const esc = (s) => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+  function go(hash) { location.hash = hash ? ("/" + hash) : "/"; }
+  window.go = go;
+
+  function tag(cat, cls) { return '<span class="tag ' + (cls||'') + '">' + esc(cat) + '</span>'; }
+
+  /* ---------- Social sharing ---------- */
+  const ICON = {
+    x: '<svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25h6.83l4.713 6.231 5.447-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117l11.966 15.644Z"/></svg>',
+    li: '<svg viewBox="0 0 24 24"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.66H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.26 2.37 4.26 5.45v6.29ZM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.12 20.45H3.56V9h3.56v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0Z"/></svg>',
+    fb: '<svg viewBox="0 0 24 24"><path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.96.93-1.96 1.89v2.25h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07Z"/></svg>',
+    link: '<svg viewBox="0 0 24 24"><path d="M10.59 13.41a1 1 0 0 0 1.42 0l4.24-4.24a3 3 0 1 0-4.24-4.24l-1.42 1.41 1.42 1.42 1.41-1.42a1 1 0 1 1 1.42 1.42l-4.24 4.24a1 1 0 0 0 0 1.41Zm2.82-2.82a1 1 0 0 0-1.42 0L7.75 14.83a3 3 0 1 0 4.24 4.24l1.42-1.41-1.42-1.42-1.41 1.42a1 1 0 0 1-1.42-1.42l4.25-4.24a1 1 0 0 0 0-1.41Z"/></svg>',
+  };
+  function shareRow(p) {
+    const url = encodeURIComponent(location.href);
+    const text = encodeURIComponent(p.title + " — QA in the AI Era");
+    return `
+      <div class="share">
+        <span class="lbl">Share</span>
+        <a class="sbtn" target="_blank" rel="noopener" href="https://twitter.com/intent/tweet?text=${text}&url=${url}">${ICON.x} X</a>
+        <a class="sbtn" target="_blank" rel="noopener" href="https://www.linkedin.com/sharing/share-offsite/?url=${url}">${ICON.li} LinkedIn</a>
+        <a class="sbtn" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=${url}">${ICON.fb} Facebook</a>
+        <button class="sbtn" onclick="copyLink(this)">${ICON.link} <span>Copy link</span></button>
+      </div>`;
+  }
+  window.copyLink = function (btn) {
+    const done = () => { const s = btn.querySelector("span"); if (s) { s.textContent = "Copied!"; setTimeout(() => (s.textContent = "Copy link"), 1600); } };
+    try { navigator.clipboard.writeText(location.href).then(done, done); } catch (e) { done(); }
+  };
+
+  /* ---------- Comments (stored in this browser) ---------- */
+  const cKey = (slug) => "qaera_c_" + slug;
+  function getComments(slug) { try { return JSON.parse(localStorage.getItem(cKey(slug)) || "[]"); } catch (e) { return []; } }
+  function commentsListHTML(slug) {
+    const items = getComments(slug);
+    if (!items.length) return '<p class="cempty">No comments yet — be the first to weigh in.</p>';
+    return items.map((c) => `
+      <div class="cmt">
+        <div class="top"><span class="who">${esc(c.name)}</span><span class="when">${esc(c.when)}</span></div>
+        <p class="txt">${esc(c.text)}</p>
+      </div>`).join("");
+  }
+  function commentsHTML(slug) {
+    const n = getComments(slug).length;
+    return `
+      <section class="comments">
+        <div class="h"><h3>Comments</h3><span class="c" id="ccount">${n ? n : ""}</span></div>
+        <p class="disc">Comments are saved in your own browser on this preview. When this becomes a live site, I'll connect a shared comment system so everyone can see the discussion.</p>
+        <form class="cform" onsubmit="return addComment(event, '${slug}')">
+          <div class="two">
+            <input class="field" id="cname" type="text" placeholder="Your name" maxlength="60" required>
+          </div>
+          <textarea class="field" id="ctext" placeholder="Share a thought, a question, or your own war story…" maxlength="1500" required></textarea>
+          <div class="foot">
+            <span class="note-inline">Be kind and specific.</span>
+            <button class="btn primary" type="submit">Post comment</button>
+          </div>
+        </form>
+        <div class="clist" id="clist">${commentsListHTML(slug)}</div>
+      </section>`;
+  }
+  window.addComment = function (ev, slug) {
+    ev.preventDefault();
+    const name = (document.getElementById("cname").value || "").trim();
+    const text = (document.getElementById("ctext").value || "").trim();
+    if (!name || !text) return false;
+    const now = new Date();
+    const when = now.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    const items = getComments(slug);
+    items.unshift({ name, text, when });
+    try { localStorage.setItem(cKey(slug), JSON.stringify(items)); } catch (e) {}
+    document.getElementById("clist").innerHTML = commentsListHTML(slug);
+    const cc = document.getElementById("ccount"); if (cc) cc.textContent = items.length;
+    document.getElementById("cname").value = ""; document.getElementById("ctext").value = "";
+    return false;
+  };
+
+  /* ---------- Views ---------- */
+  function renderHome() {
+    const f = featured();
+    const rest = POSTS.filter((p) => !p.featured).slice().reverse();
+    document.title = "QA in the AI Era — by " + AUTHOR;
+    return `
+      <section class="hero fade">
+        <div class="wrap">
+          <p class="eyebrow">A field guide, every two weeks &middot; by ${AUTHOR}</p>
+          <h1>Quality didn't get easier when AI started writing the code. It got <span class="hl">harder to see.</span></h1>
+          <p class="deck">Every other week: one tool, guide, or hard-won lesson for keeping AI-built software trustworthy — drawn from real production, not theory.</p>
+          <div class="meta"><span>New article every two weeks</span><span>&middot;</span><span><b>${POSTS.length}</b> published</span><span>&middot;</span><span>Grounded in real commit logs</span></div>
+        </div>
+      </section>
+
+      <div class="sec-h"><h2>Start here</h2><span class="note">the cornerstone</span></div>
+      <div class="feature-wrap">
+        <button class="feature fade" onclick="go('post/${f.slug}')">
+          <div class="row">${tag(f.category)}<span class="issue">Article ${f.issue} &middot; ${f.date}</span></div>
+          <h3>${esc(f.title)}</h3>
+          <p>${esc(f.dek)}</p>
+          <span class="go">Read the manifesto →</span>
+        </button>
+      </div>
+
+      <div class="sec-h"><h2>Latest articles</h2><span class="note">newest first</span></div>
+      <div class="list">
+        ${rest.map((p) => `
+          <button class="post" onclick="go('post/${p.slug}')">
+            <span class="num">Article ${p.issue}</span>
+            <span class="body">
+              <span class="row">${tag(p.category, 'plain')}<span class="mono" style="font-size:12px;color:var(--faint)">${p.date}</span></span>
+              <h3>${esc(p.title)}</h3>
+              <p>${esc(p.dek)}</p>
+            </span>
+            <span class="rt">${p.readingTime}</span>
+          </button>`).join("")}
+      </div>
+
+      <div class="sec-h"><h2>Coming next</h2><span class="note">in the pipeline</span></div>
+      <div class="upcoming">
+        ${UPCOMING.map((u, i) => `<div class="up"><p class="k">Article ${String(POSTS.length + i + 1).padStart(2,"0")}</p><p>${esc(u)}</p></div>`).join("")}
+      </div>
+
+      <section class="about" id="about">
+        <div class="in fade">
+          <p class="k">About &amp; consulting</p>
+          <h2>I help teams ship fast with AI — without letting quality quietly leak out.</h2>
+          <p><b>${AUTHOR}</b> is a builder and quality engineer who ships AI-written software and documents what actually keeps it trustworthy. QA in the AI Era is written from the trenches: real products, real production incidents, real commit logs — never hand-wavy theory.</p>
+          <p>If your organization is adopting AI coding tools and wants a QA strategy that keeps up — test architecture, eval pipelines, and the process changes that stop regressions before they reach customers — that's exactly the work I do.</p>
+          <div class="actions">
+            <a class="btn primary" onclick="go('contact')">Work with me →</a>
+            <a class="btn ghost" onclick="go('talks')">Talks &amp; videos</a>
+          </div>
+        </div>
+      </section>
+
+      ${siteFooter()}
+    `;
+  }
+
+  function renderPost(p) {
+    document.title = p.title + " — QA in the AI Era";
+    const others = POSTS.filter((x) => x.slug !== p.slug).slice(-3).reverse();
+    return `
+      <article class="article fade">
+        <div class="wrap">
+          <a class="backlink" onclick="go('')">← All articles</a>
+          <div class="head">
+            <div class="row">${tag(p.category)}<span class="mono" style="font-size:12.5px;color:var(--faint);letter-spacing:.06em">Article ${p.issue}</span></div>
+            <h1>${esc(p.title)}</h1>
+            <p class="dek">${esc(p.dek)}</p>
+            <div class="byline"><b>${AUTHOR}</b><span class="sep">/</span><span>${p.date}</span><span class="sep">/</span><span>${p.readingTime} read</span></div>
+          </div>
+          <div class="body">${p.body}</div>
+
+          ${shareRow(p)}
+
+          <div class="authorcard">
+            <p class="k">Written by</p>
+            <h4>${AUTHOR}</h4>
+            <p>Quality engineering for the AI era — tools, guides, and process from real production. Available for consulting on QA strategy and AI-tool adoption.</p>
+            <div class="actions">
+              <a class="btn primary" onclick="go('contact')">Work with me →</a>
+              <a class="btn ghost" onclick="go('about')">About</a>
+            </div>
+          </div>
+
+          ${commentsHTML(p.slug)}
+
+          <div class="more">
+            <p class="k">Keep reading</p>
+            <div class="list" style="padding-left:0;padding-right:0;">
+              ${others.map((o) => `
+                <button class="post" onclick="go('post/${o.slug}')" style="padding-top:20px;padding-bottom:20px;">
+                  <span class="num">Article ${o.issue}</span>
+                  <span class="body"><span class="row">${tag(o.category,'plain')}</span><h3>${esc(o.title)}</h3></span>
+                  <span class="rt">${o.readingTime}</span>
+                </button>`).join("")}
+            </div>
+          </div>
+        </div>
+      </article>
+      ${siteFooter()}
+    `;
+  }
+
+  function renderTalks() {
+    document.title = "Talks & Videos — QA in the AI Era";
+    return `
+      <section class="page fade">
+        <div class="wrap">
+          <a class="backlink" onclick="go('')">← All articles</a>
+          <p class="k">Talks &amp; videos</p>
+          <h1>Talks, presentations &amp; recordings</h1>
+          <p class="lede">A running archive of the sessions I've given on quality, testing, and building with AI. <b>Watch, or grab the slides.</b></p>
+          ${TALKS.map((t) => `
+            <div class="talk">
+              <div>
+                <p class="meta"><span class="kind">${esc(t.kind)}</span><span>${esc(t.event)}</span><span>${esc(t.year)}</span></p>
+                <h3>${esc(t.title)}</h3>
+                <p>${esc(t.blurb)}</p>
+              </div>
+              <div class="act">
+                ${t.url ? `<a class="btn primary" target="_blank" rel="noopener" href="${esc(t.url)}">Watch →</a>` : `<span class="soon">Link coming soon</span>`}
+              </div>
+            </div>`).join("")}
+          <p class="note-inline" style="margin-top:26px;">Want one of these embedded to play inline? Send me the links — on the live site the players will run; in this preview they open in a new tab.</p>
+          <div class="actions" style="display:flex;gap:12px;margin-top:26px;flex-wrap:wrap;">
+            <a class="btn primary" onclick="go('contact')">Invite me to speak →</a>
+          </div>
+        </div>
+      </section>
+      ${siteFooter()}
+    `;
+  }
+
+  function renderContact() {
+    document.title = "Contact — QA in the AI Era";
+    return `
+      <section class="page fade">
+        <div class="wrap">
+          <a class="backlink" onclick="go('')">← All articles</a>
+          <p class="k">Contact</p>
+          <h1>Let's talk quality.</h1>
+          <p class="lede">Consulting, a QA review of your AI workflow, a speaking invite, or just a question about an article — send it over and I'll get back to you.</p>
+          <div class="contact-grid">
+            <form class="cform" onsubmit="return sendContact(event)">
+              <div class="two">
+                <input class="field" id="fname" type="text" placeholder="Your name" maxlength="80" required>
+                <input class="field" id="femail" type="email" placeholder="Your email" maxlength="120" required>
+              </div>
+              <input class="field" id="fsubject" type="text" placeholder="Subject — e.g. QA consulting for our team" maxlength="140" required>
+              <textarea class="field" id="fmsg" placeholder="Tell me a little about your team, your stack, and what you're trying to improve…" maxlength="3000" required></textarea>
+              <div class="foot">
+                <span class="note-inline">Opens your email app with everything filled in.</span>
+                <button class="btn primary" type="submit">Send message →</button>
+              </div>
+            </form>
+            <div class="contact-side">
+              <div class="box">
+                <p class="k">Direct</p>
+                <p>Prefer your own email client?</p>
+                <a href="${CONTACT}">${esc(EMAIL)}</a>
+              </div>
+              <div class="box">
+                <p class="k">Elsewhere</p>
+                <p><a href="${LINKEDIN}" target="_blank" rel="noopener">LinkedIn →</a></p>
+              </div>
+              <div class="box">
+                <p class="k">I can help with</p>
+                <ul>
+                  <li>QA strategy for AI-built software</li>
+                  <li>Test &amp; eval pipeline design</li>
+                  <li>Team workflow &amp; review process</li>
+                  <li>Talks &amp; workshops</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      ${siteFooter()}
+    `;
+  }
+  window.sendContact = function (ev) {
+    ev.preventDefault();
+    const name = (document.getElementById("fname").value || "").trim();
+    const email = (document.getElementById("femail").value || "").trim();
+    const subject = (document.getElementById("fsubject").value || "").trim();
+    const msg = (document.getElementById("fmsg").value || "").trim();
+    const body = "From: " + name + " <" + email + ">\n\n" + msg;
+    window.location.href = "mailto:" + EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+    return false;
+  };
+
+  function siteFooter() {
+    return `
+      <footer class="site">
+        <div class="in">
+          <p>QA in the AI Era — by ${AUTHOR}</p>
+          <p><a onclick="go('')" style="color:var(--muted);text-decoration:none;cursor:pointer;">Articles</a> &middot; <a onclick="go('talks')" style="color:var(--muted);text-decoration:none;cursor:pointer;">Talks</a> &middot; <a onclick="go('contact')" style="color:var(--muted);text-decoration:none;cursor:pointer;">Contact</a></p>
+        </div>
+      </footer>`;
+  }
+
+  function router() {
+    const h = location.hash.replace(/^#\/?/, "");
+    const parts = h.split("/").filter(Boolean);
+    let html, scrollToAbout = false;
+    if (parts[0] === "post" && bySlug(parts[1])) html = renderPost(bySlug(parts[1]));
+    else if (parts[0] === "talks") html = renderTalks();
+    else if (parts[0] === "contact") html = renderContact();
+    else { html = renderHome(); scrollToAbout = (parts[0] === "about"); }
+    $app.innerHTML = html;
+    if (scrollToAbout) { const a = document.getElementById("about"); if (a) { a.scrollIntoView({ behavior: "smooth" }); return; } }
+    window.scrollTo(0, 0);
+  }
+
+  window.addEventListener("hashchange", router);
+  router();
+</script>
+
+</body>
+</html>
