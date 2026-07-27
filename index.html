@@ -345,6 +345,111 @@
   .enrolled b { color: #2e9e4f; }
   .memberchip { font-family: var(--mono); font-size: 12px; color: var(--signal); border: 1px solid var(--line-strong); border-radius: 99px; padding: 4px 10px; }
 
+  /* ---- Course landing: Before you start ---- */
+  .before { background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); padding: 22px 24px; margin: 0 0 22px; }
+  .before .k { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--signal); margin: 0 0 8px; }
+  .before h3 { font-family: var(--serif); font-weight: 620; font-size: 19px; margin: 0 0 6px; letter-spacing: -.01em; }
+  .before > p { font-size: 15px; color: var(--muted); margin: 0 0 16px; max-width: 46em; }
+  .before .pre { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+  .before .pre .p { border: 1px solid var(--line); border-radius: 6px; padding: 13px 15px; background: var(--field); }
+  .before .pre .p .lbl { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; margin: 0 0 6px; }
+  .before .pre .p .lbl.req { color: var(--signal); }
+  .before .pre .p .lbl.rec { color: var(--faint); }
+  .before .pre .p h4 { font-family: var(--serif); font-size: 16px; font-weight: 620; margin: 0 0 4px; }
+  .before .pre .p p { font-size: 13px; color: var(--muted); margin: 0; line-height: 1.45; }
+
+  /* ---- What you'll learn / build ---- */
+  .wyl { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 26px; margin: 4px 0 0; padding: 0; }
+  @media (max-width: 620px) { .wyl { grid-template-columns: 1fr; } }
+  .wyl li { list-style: none; position: relative; padding-left: 26px; font-size: 15.5px; color: var(--muted); line-height: 1.4; }
+  .wyl li::before { content: "✓"; position: absolute; left: 0; top: 1px; color: var(--signal); font-family: var(--mono); font-size: 13px; }
+
+  /* ---- Curriculum accordion ---- */
+  .curric { margin: 8px 0 0; }
+  .cmod { border: 1px solid var(--line); border-radius: 8px; margin-bottom: 12px; background: var(--card); box-shadow: var(--shadow); overflow: hidden; }
+  .cmod.done { border-color: color-mix(in srgb, var(--signal) 45%, var(--line)); }
+  .cmod-h { display: flex; width: 100%; align-items: center; gap: 14px; text-align: left; background: none; border: 0; cursor: pointer; padding: 17px 20px; }
+  .cmod-h:hover { background: var(--field); }
+  .cmod-h .badge { flex: none; width: 32px; height: 32px; border-radius: 7px; background: var(--signal); color: #fff; font-family: var(--mono); font-weight: 600; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+  .cmod.done .cmod-h .badge::after { content: "✓"; }
+  .cmod.done .cmod-h .badge { font-size: 15px; }
+  .cmod.done .cmod-h .badge .bn { display: none; }
+  .cmod-h .cmt { flex: 1; min-width: 0; }
+  .cmod-h .cmt .sub { font-family: var(--mono); font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--faint); margin: 0 0 3px; }
+  .cmod-h .cmt h3 { font-family: var(--serif); font-weight: 620; font-size: 18px; letter-spacing: -.01em; margin: 0; }
+  .cmod-h .chev { font-family: var(--mono); color: var(--faint); font-size: 14px; transition: transform .2s; }
+  .cmod.open .cmod-h .chev { transform: rotate(90deg); }
+  .cmod-lec { display: none; border-top: 1px solid var(--line); padding: 6px 0; }
+  .cmod.open .cmod-lec { display: block; }
+  .lec-item { display: flex; width: 100%; align-items: center; gap: 12px; text-align: left; background: none; border: 0; cursor: pointer; padding: 11px 20px; }
+  .lec-item:hover { background: var(--field); }
+  .lec-item .ico { font-family: var(--mono); font-size: 13px; width: 16px; text-align: center; color: var(--faint); flex: none; }
+  .lec-item.done .ico { color: #2e9e4f; }
+  .lec-item .lt { flex: 1; min-width: 0; font-family: var(--sans); font-size: 14.5px; color: var(--ink); }
+  .lec-item.locked .lt { color: var(--faint); }
+  .lec-item .tm { font-family: var(--mono); font-size: 11.5px; color: var(--faint); flex: none; }
+  .lec-item .kd { font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--signal); border: 1px solid var(--line-strong); border-radius: 99px; padding: 2px 7px; flex: none; }
+  .lec-item .kd.soon { color: var(--faint); }
+
+  /* ---- Lesson viewer ---- */
+  .lbread { font-family: var(--mono); font-size: 11.5px; letter-spacing: .04em; color: var(--faint); margin: 0 0 12px; }
+  .lbread b { color: var(--signal); font-weight: 600; }
+  .lmeta { font-family: var(--mono); font-size: 12px; color: var(--faint); display: flex; gap: 8px 16px; flex-wrap: wrap; align-items: center; padding-bottom: 22px; border-bottom: 1px solid var(--line); margin-bottom: 32px; }
+  .lmeta .kd2 { color: var(--signal); border: 1px solid var(--line-strong); border-radius: 99px; padding: 2px 9px; letter-spacing: .06em; text-transform: uppercase; font-size: 10.5px; }
+  .article .body .exercise { background: color-mix(in srgb, #2e9e4f 8%, var(--card)); border: 1px solid color-mix(in srgb, #2e9e4f 30%, var(--line)); border-left: 3px solid #2e9e4f; border-radius: 4px; padding: 18px 20px; margin: 26px 0; box-shadow: var(--shadow); }
+  .article .body .exercise .k { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #2e9e4f; display: block; margin-bottom: 8px; }
+  .article .body .exercise p { margin: 0 0 10px; font-size: 16.5px; }
+  .article .body .exercise p:last-child { margin-bottom: 0; }
+  .article .body .term { display: grid; grid-template-columns: 190px 1fr; gap: 4px 20px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .article .body .term .w { font-family: var(--mono); font-size: 13.5px; font-weight: 600; color: var(--ink); }
+  .article .body .term .m { font-size: 16px; color: var(--muted); }
+  @media (max-width: 560px) { .article .body .term { grid-template-columns: 1fr; gap: 2px; } }
+  .lec-nav { display: flex; justify-content: space-between; gap: 12px; margin: 8px 0 0; padding-top: 24px; border-top: 1px solid var(--line-strong); flex-wrap: wrap; }
+  .lec-nav a { font-family: var(--mono); font-size: 12.5px; color: var(--muted); text-decoration: none; cursor: pointer; max-width: 47%; }
+  .lec-nav a:hover { color: var(--signal); }
+  .lec-nav a .d { display: block; font-size: 10px; color: var(--faint); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 3px; }
+  .lec-nav a.nx { text-align: right; margin-left: auto; }
+  .ldone { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 38px 0 0; padding-top: 24px; border-top: 1px solid var(--line); }
+  .ldone .prog { font-family: var(--mono); font-size: 12px; color: var(--faint); }
+
+  /* ---- Quiz + practice tasks ---- */
+  .quiz { margin: 4px 0 0; }
+  .qz { border: 1px solid var(--line); border-radius: 8px; background: var(--card); box-shadow: var(--shadow); padding: 18px 20px; margin-bottom: 14px; }
+  .qz .q { font-family: var(--serif); font-size: 17.5px; font-weight: 600; margin: 0 0 13px; color: var(--ink); line-height: 1.3; }
+  .qz .q .n { font-family: var(--mono); font-size: 12px; color: var(--signal); margin-right: 8px; }
+  .qz .opts { display: flex; flex-direction: column; gap: 8px; }
+  .qz .opt { display: flex; gap: 10px; align-items: flex-start; text-align: left; width: 100%; background: var(--field); border: 1px solid var(--line-strong); border-radius: 6px; padding: 10px 13px; font-family: var(--sans); font-size: 14.5px; color: var(--ink); cursor: pointer; line-height: 1.4; }
+  .qz .opt:hover:not(:disabled) { border-color: var(--signal); }
+  .qz .opt:disabled { cursor: default; }
+  .qz .opt.correct { background: color-mix(in srgb, #2e9e4f 16%, transparent); border-color: #2e9e4f; }
+  .qz .opt.wrong { background: color-mix(in srgb, var(--signal) 14%, transparent); border-color: var(--signal); }
+  .qz .opt .mk { font-family: var(--mono); font-size: 12.5px; color: var(--faint); flex: none; }
+  .qz .why { font-family: var(--sans); font-size: 14px; color: var(--muted); margin: 13px 0 0; padding-left: 14px; border-left: 2px solid var(--line-strong); display: none; line-height: 1.55; }
+  .qz .why.show { display: block; }
+  .qz .why b { color: var(--ink); font-weight: 600; }
+  .tsk { border: 1px solid var(--line); border-left: 3px solid var(--signal); border-radius: 6px; background: var(--card); box-shadow: var(--shadow); padding: 18px 20px; margin-bottom: 14px; }
+  .tsk .tk { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--signal); margin: 0 0 7px; }
+  .tsk h4 { font-family: var(--serif); font-size: 18.5px; font-weight: 620; margin: 0 0 9px; letter-spacing: -.01em; }
+  .tsk .brief { font-size: 15.5px; color: var(--muted); margin: 0 0 13px; line-height: 1.5; }
+  .tsk .brief b { color: var(--ink); font-weight: 600; }
+  .tsk .brief code { font-family: var(--mono); font-size: .85em; background: var(--tag-bg); border-radius: 3px; padding: 1px 5px; }
+  .tsk .model { display: none; border-top: 1px solid var(--line); margin-top: 13px; padding-top: 14px; }
+  .tsk .model.show { display: block; }
+  .tsk .model .mh { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); margin: 0 0 10px; }
+  .tsk .model p { font-size: 15.5px; color: var(--muted); margin: 0 0 12px; line-height: 1.55; }
+  .tsk .model p:last-child { margin-bottom: 0; }
+  .tsk .model b { color: var(--ink); font-weight: 600; }
+  .tsk .model code { font-family: var(--mono); font-size: .85em; background: var(--tag-bg); border-radius: 3px; padding: 1px 5px; }
+  .tsk .model ul { margin: 0 0 12px; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  .tsk .model ul li { position: relative; padding-left: 22px; font-size: 15px; color: var(--muted); line-height: 1.5; }
+  .tsk .model ul li::before { content: "→"; position: absolute; left: 0; color: var(--signal); font-family: var(--mono); font-size: 14px; }
+  .tsk .model table { border-collapse: collapse; width: 100%; margin: 0 0 12px; font-size: 13.5px; }
+  .tsk .model table th, .tsk .model table td { border: 1px solid var(--line-strong); padding: 7px 10px; text-align: left; font-family: var(--mono); }
+  .tsk .model table th { color: var(--faint); font-weight: 600; background: var(--field); text-transform: uppercase; font-size: 10.5px; letter-spacing: .06em; }
+  .tsk .tblwrap { overflow-x: auto; }
+  .tsk .reveal { font-family: var(--mono); font-size: 12.5px; color: var(--signal); background: none; border: 1px solid var(--line-strong); border-radius: 99px; padding: 8px 15px; cursor: pointer; }
+  .tsk .reveal:hover { border-color: var(--signal); }
+
   @media (prefers-reduced-motion: no-preference) {
     .fade { animation: fade .45s ease both; }
     @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -968,151 +1073,665 @@
 
   /* ---------- The Course (Learn) ---------- */
   const COURSE = [
-    { part: "Part 1 · QA Foundations", tag: "Maps to ISTQB Foundation (CTFL v4)", blurb: "The timeless core AI can't do for you: how to think about quality, design tests, and report defects.",
+    { part: "Part 1 · QA Foundations", tag: "Maps to ISTQB Foundation (CTFL v4)", blurb: "The timeless core AI can't do for you: the vocabulary, how to design tests, and how to report and prioritize defects. Fully written, self-contained, and practiced on real apps.",
       modules: [
-        { id: "f1", title: "The Testing Mindset & Fundamentals", time: "~4 hrs", meta: "CTFL Ch.1",
-          build: "a one-page test charter for a real app — what to test, and the risks.",
-          skills: ["error vs defect vs failure", "the 7 testing principles", "verification vs validation", "cost of a bug over time"],
-          res: [{ name: "ISTQB CTFL syllabus", url: "https://www.istqb.org/" }, { name: "Ministry of Testing", url: "https://www.ministryoftesting.com/" }, { name: "Read: The Missing Feedback Loop", url: "#/post/missing-feedback-loop" }] },
-        { id: "f2", title: "Testing Across the SDLC", time: "~4 hrs", meta: "CTFL Ch.2",
-          build: "a test plan mapped to an Agile sprint (unit → integration → system → acceptance).",
-          skills: ["Agile / DevOps", "shift-left", "test levels & types", "TDD / BDD / ATDD"],
-          res: [{ name: "Atlassian: software testing", url: "https://www.atlassian.com/continuous-delivery/software-testing" }] },
-        { id: "f3", title: "Test Design Techniques", time: "~6 hrs", meta: "CTFL Ch.4",
-          build: "a full set of test cases for a checkout flow using formal techniques.",
-          skills: ["equivalence partitioning", "boundary values", "decision tables", "state transition", "exploratory testing"],
-          res: [{ name: "Test Automation University", url: "https://testautomationu.applitools.com/" }] },
-        { id: "f4", title: "Bug Reporting & Managing Test Activities", time: "~5 hrs", meta: "CTFL Ch.5",
-          build: "5 reproducible bug reports + a risk-based test plan (smoke / sanity / regression).",
-          skills: ["great bug reports", "severity vs priority", "risk-based testing", "Jira / TestRail"],
-          res: [{ name: "Ministry of Testing", url: "https://www.ministryoftesting.com/" }] },
-        { id: "f5", title: "Static Testing & Reviews", time: "~2 hrs", meta: "CTFL Ch.3",
-          build: "a review checklist and a walkthrough of a requirements doc.",
-          skills: ["reviews & inspections", "static analysis", "early feedback"],
-          res: [] },
+        { id: "f1", title: "The Testing Mindset & Vocabulary", meta: "CTFL Ch.1", project: "A one-page test charter for SauceDemo.",
+          summary: "The vocabulary you'll hear everywhere, the error→defect→failure chain, and the seven principles that still hold when AI writes the code.",
+          lectures: [
+            { id: "f1l1", title: "QA vocabulary in 10 minutes", time: "10 min", body: `
+              <p class="lead">You don't need to memorize these — but you must <em>recognize</em> them, because every plan, ticket, and standup uses them. Here's the core vocabulary, fast. We'll go deep on the ones that matter for the rest of Part 1.</p>
+              <div class="term"><span class="w">Quality</span><span class="m">How well software meets real needs — does the right thing, reliably, for real users. Not just "no crashes."</span></div>
+              <div class="term"><span class="w">QA vs QC</span><span class="m"><b>Quality Assurance</b> is the process that prevents defects (how we work). <b>Quality Control</b> is the activity that finds them (testing). QA is the umbrella; testing is one tool under it.</span></div>
+              <div class="term"><span class="w">Test case</span><span class="m">One specific check: preconditions, steps, input, and the expected result. The atom of testing.</span></div>
+              <div class="term"><span class="w">Test suite</span><span class="m">A named group of test cases run together (e.g. "checkout suite").</span></div>
+              <div class="term"><span class="w">Test plan</span><span class="m">The strategy document: what we'll test, how, by whom, with what entry/exit criteria and risks.</span></div>
+              <div class="term"><span class="w">Test charter</span><span class="m">A lightweight, one-page mission for a testing session — looser than a plan, used for exploratory work.</span></div>
+              <div class="term"><span class="w">Error / Defect / Failure</span><span class="m">The chain a bug travels: a human <b>error</b> introduces a <b>defect</b> (bug) in the code, which under the right conditions produces a visible <b>failure</b>. Next lecture unpacks this.</span></div>
+              <div class="term"><span class="w">Severity</span><span class="m">How bad the failure is <em>technically</em> (data loss? crash? cosmetic?). A property of the bug.</span></div>
+              <div class="term"><span class="w">Priority</span><span class="m">How urgently the business wants it fixed. Set by people, not the code. Severity ≠ priority — a whole lecture in Chapter 4.</span></div>
+              <div class="term"><span class="w">Smoke / Sanity / Regression</span><span class="m">Three test depths: <b>smoke</b> = "does it even boot?", <b>sanity</b> = "does this one area work after a change?", <b>regression</b> = "did we break anything that used to work?"</span></div>
+              <div class="term"><span class="w">Verification vs Validation</span><span class="m">"Did we build it <em>right</em>?" (matches spec) vs "Did we build the <em>right thing</em>?" (matches the real need).</span></div>
+              <div class="term"><span class="w">False positive / negative</span><span class="m">A test that fails when nothing's broken (false positive / "flaky") vs a test that passes while a real bug exists (false negative — the dangerous one).</span></div>
+              <div class="term"><span class="w">Coverage</span><span class="m">How much of something (code, requirements, risks) your tests actually exercise. High coverage is evidence, not proof.</span></div>
+              <div class="callout"><span class="k">Your practice app</span><p>Throughout Part 1 you'll practice on <b>SauceDemo</b> (<code>saucedemo.com</code>) — a real, free demo shop built specifically for QA practice. It even ships deliberate bugs for certain logins, which you'll hunt in Chapter 4. Open it now and log in with <code>standard_user</code> / <code>secret_sauce</code>.</p></div>` },
+            { id: "f1l2", title: "Error → Defect → Failure", time: "8 min", body: `
+              <p class="lead">This one chain makes your bug reports precise and your severity calls defensible. Learn to see all three links.</p>
+              <p>A developer mistypes a line — that's a human <strong>error</strong>. The mistake now lives in the code as a <strong>defect</strong> (what everyone casually calls a "bug"). The defect sits there harmlessly until the right input and state reach it — then it produces a <strong>failure</strong>: the wrong, visible behavior a user experiences.</p>
+              <h2>See it on SauceDemo</h2>
+              <p>Log in as <code>problem_user</code> / <code>secret_sauce</code> and look at the product grid. Every item shows the <em>same</em> photo. Trace the chain:</p>
+              <ul>
+                <li><strong>Error</strong> — a developer wired the image field to the wrong source.</li>
+                <li><strong>Defect</strong> — the code that maps products to images is wrong. You can't see it directly; it's in the source.</li>
+                <li><strong>Failure</strong> — the observable symptom: identical photos on every card. This is what you report.</li>
+              </ul>
+              <div class="callout"><span class="k">Why the distinction earns its keep</span><p>Your <b>bug report</b> describes the <em>failure</em> plus the steps to trigger it — never a guess at the code. <b>Severity</b> rates the failure's impact. The <b>fix</b> lives in the defect. Confusing these is how you get reports like "the code is broken" that no one can act on.</p></div>
+              <p>Not every defect fails, either. A defect on a screen no one visits, or that needs an input no one sends, is real but dormant. That's exactly why "it passed" never means "there are no bugs" — a theme you'll meet again in the principles.</p>` },
+            { id: "f1l3", title: "Seven principles that still hold in the AI era", time: "9 min", body: `
+              <p class="lead">ISTQB codifies seven testing principles. They predate AI by decades — and AI writing the code makes several of them <em>more</em> true, not less. Learn them once; you'll lean on them forever.</p>
+              <ol>
+                <li><strong>Testing shows the presence of defects, not their absence.</strong> A green suite means "no bug found here yet," never "bug-free." Evidence, not proof.</li>
+                <li><strong>Exhaustive testing is impossible.</strong> You can't try every input × state. So you <em>prioritize by risk</em>. When AI can generate infinite plausible code paths, choosing what to test well matters more than ever.</li>
+                <li><strong>Early testing saves time and money.</strong> A defect caught in a requirement costs pennies; the same defect caught in production costs orders of magnitude more. "Shift left."</li>
+                <li><strong>Defects cluster.</strong> A small number of modules hold most of the bugs (Pareto). On SauceDemo, the buggy behavior clusters in specific logins — <code>problem_user</code>, <code>visual_user</code>. Follow the smoke.</li>
+                <li><strong>Beware the pesticide paradox.</strong> Run the same tests forever and they stop finding new bugs — the code adapts around them. Refresh and add cases. AI-written tests rot the same way.</li>
+                <li><strong>Testing is context-dependent.</strong> You test a banking app and a meme generator differently. Risk sets the bar, not a fixed checklist.</li>
+                <li><strong>Absence-of-errors is a fallacy.</strong> A flawless build of the wrong product still fails its users. Correct ≠ valuable — this is where <em>validation</em> comes in.</li>
+              </ol>
+              <p>Notice how many of these are really about one skill: spending finite attention where the risk actually is. That skill is what a QA brings that the model can't.</p>` },
+            { id: "f1l4", title: "Verification, validation & the cost curve", time: "7 min", body: `
+              <p class="lead">Two questions decide whether software is any good — and one curve explains why QA belongs early, not bolted on at the end.</p>
+              <h2>Verification vs validation</h2>
+              <p><strong>Verification</strong> asks: <em>did we build the thing right?</em> Does it match the spec, the design, the requirements? <strong>Validation</strong> asks: <em>did we build the right thing?</em> Does it actually solve the user's problem?</p>
+              <p>You can pass one and fail the other. "We built exactly what the ticket said, and users hated it" is a <em>validation</em> failure — the spec was wrong. "It's a great idea, but it crashes on submit" is a <em>verification</em> failure. Good QA watches both.</p>
+              <h2>The cost-of-a-bug curve</h2>
+              <p>The later a defect is found, the more it costs to fix — roughly by an order of magnitude at each stage:</p>
+              <div class="statband">
+                <div class="s"><span class="n">1×</span><span class="l">in requirements</span></div>
+                <div class="s"><span class="n">~10×</span><span class="l">in development</span></div>
+                <div class="s"><span class="n">~100×</span><span class="l">in production</span></div>
+              </div>
+              <p>That curve is the entire business case for QA. It's why you'll learn static reviews (Chapter 5) that catch bugs <em>before</em> code runs, and why "test early, test often" isn't a slogan — it's arithmetic.</p>
+              <h2>Your first artifact: the test charter</h2>
+              <p>A <strong>test charter</strong> is a one-page mission for a focused testing session. It has five parts: <strong>Mission</strong> (what quality question am I answering?), <strong>Areas</strong> (what I'll touch), <strong>Risks</strong> (what would hurt most if broken), <strong>Out of scope</strong> (what I'm deliberately not testing), and <strong>Setup</strong> (accounts, data, environment). You'll write one for SauceDemo in the practice that follows.</p>` },
+            { id: "f1p", title: "Practice — check yourself + write a charter", time: "25 min", kind: "practice",
+              intro: "Answer the checks (click an option to see if you're right and why), then do the hands-on task and compare your charter to a strong example. The task is the real skill — don't skip it.",
+              quiz: [
+                { q: "A user taps “Buy” and the app crashes. The crash itself is the…", options: ["Error", "Defect", "Failure"], answer: 2, why: "The <b>failure</b> is the observable wrong behavior. The <b>defect</b> is the bug in the code that caused it; the <b>error</b> was the human mistake that introduced the defect." },
+                { q: "“Our test suite is green, so the app has no bugs.” This claim violates which principle?", options: ["Defects cluster", "Testing shows the presence of defects, not their absence", "Testing is context-dependent"], answer: 1, why: "Green means no defect was <em>found</em> by those tests — never that none exist. Tests give evidence, not proof of absence." },
+                { q: "You have two days and can't test everything. Which principle tells you what to do?", options: ["Exhaustive testing is impossible → prioritize by risk", "The pesticide paradox", "Absence-of-errors fallacy"], answer: 0, why: "Since you can't try every input and state, you spend your limited time where the risk is highest. That's risk-based testing, straight from principle 2." },
+                { q: "“We built exactly what the spec said, but it doesn't solve the user's problem.” What failed?", options: ["Verification", "Validation"], answer: 1, why: "Verification (built it <em>right</em>, matches spec) passed. <b>Validation</b> (built the <em>right thing</em>) failed — the spec itself was wrong for the user." },
+                { q: "The same regression tests have passed for a year and stopped catching anything new. This is…", options: ["The pesticide paradox", "Defect clustering", "The cost-of-a-bug curve"], answer: 0, why: "Repeating identical tests eventually stops finding new defects — the pesticide paradox. Refresh and add cases to keep them effective." }
+              ],
+              tasks: [
+                { title: "Write a test charter for SauceDemo", prompt: "Open <code>saucedemo.com</code>. Spend 15 minutes writing a one-page <b>test charter</b> for it, covering all five parts: Mission, Areas, Risks, Out of scope, and Setup. Aim for something a teammate could pick up and act on. Then reveal a strong example and compare — did you name concrete risks, or vague ones?",
+                  model: `
+                    <p><b>Mission:</b> Determine whether a first-time shopper can reliably browse products, add them to the cart, and complete checkout on SauceDemo — and identify where that core journey breaks for non-standard users.</p>
+                    <p><b>Areas in scope:</b></p>
+                    <ul><li>Login (valid, locked-out, and error states)</li><li>Product list: images, names, prices, sort order</li><li>Cart: add, remove, badge count, persistence across pages</li><li>Checkout: form validation, totals/tax math, confirmation</li></ul>
+                    <p><b>Top risks (what hurts most if broken):</b></p>
+                    <ul><li>Checkout totals are wrong → users are mischarged (highest business risk)</li><li>Add-to-cart silently fails → no purchase completes</li><li>Login blocks a legitimate user → zero access</li></ul>
+                    <p><b>Out of scope:</b> visual polish on marketing pages, performance/load, and localization — noted but not this session.</p>
+                    <p><b>Setup:</b> Chrome + SauceDemo; test logins <code>standard_user</code>, <code>locked_out_user</code>, <code>problem_user</code>; password <code>secret_sauce</code>. No real payment — checkout is simulated.</p>
+                    <p><b>What a strong charter shows:</b> risks tied to <em>user or business harm</em> (mischarge, no access) rather than "buttons might not work," and an explicit out-of-scope so no one assumes you covered it.</p>` }
+              ] }
+          ] },
+        { id: "f2", title: "Testing Across the SDLC", meta: "CTFL Ch.2", project: "A one-page test plan for a SauceDemo sprint.",
+          summary: "The four test levels, shift-left, functional vs non-functional types, and where test-first (TDD/BDD) — and AI — fit.",
+          lectures: [
+            { id: "f2l1", title: "The four test levels", time: "9 min", body: `
+              <p class="lead">The same feature gets tested at four zoom levels, each catching a different class of bug. Miss a level and a whole category of defects walks straight to production.</p>
+              <p>Follow SauceDemo's checkout through all four:</p>
+              <ul>
+                <li><strong>Unit / component</strong> — the smallest pieces in isolation. Example: the function that sums item prices into a subtotal. Fast, run on every save. Catches math and logic bugs.</li>
+                <li><strong>Integration</strong> — do two pieces talk correctly? Example: the cart hands its contents to the checkout page. Catches <em>seam</em> bugs — the wrong field, a bad format, a dropped value.</li>
+                <li><strong>System</strong> — the whole application end to end, as deployed. Example: log in → add two items → check out → see the confirmation. Catches bugs that only appear when everything runs together.</li>
+                <li><strong>Acceptance</strong> — does it meet the user's / business's real need? Example: "a shopper can actually buy something and knows it worked." Validation, not just verification.</li>
+              </ul>
+              <div class="callout"><span class="k">Rule of thumb</span><p>Most tests should be small and low (unit); fewer, slower ones sit higher (system/acceptance). That shape is the "test pyramid" — you'll automate it in Part 2.</p></div>` },
+            { id: "f2l2", title: "Shift-left: test early, test cheap", time: "7 min", body: `
+              <p class="lead">"Shift left" means pulling testing toward the <em>start</em> of the timeline — because, per the cost curve, that's where defects are cheapest to kill.</p>
+              <p>Testing isn't a phase at the end; it happens across the whole software development lifecycle (SDLC):</p>
+              <ul>
+                <li><strong>Requirements</strong> — review them for ambiguity and gaps before a line is written (static testing, Chapter 5). The cheapest bug is the one you never code.</li>
+                <li><strong>Design</strong> — ask "how would I test this?" while it's still a diagram. If it's untestable now, it'll be untestable later.</li>
+                <li><strong>Coding</strong> — unit tests and static analysis run as code is written.</li>
+                <li><strong>Integration &amp; system</strong> — automated suites in CI on every push (Part 2).</li>
+                <li><strong>Release &amp; operations</strong> — monitoring and error tracking catch what escaped.</li>
+              </ul>
+              <p>In the AI era, shift-left has a sharp edge: the model produces code fast and confidently. If your only check is at the end, you're reviewing a mountain. Push checks earlier — review the requirement, write the failing test first — and you shape quality instead of chasing it.</p>` },
+            { id: "f2l3", title: "Test types: functional & non-functional", time: "8 min", body: `
+              <p class="lead">Levels are about <em>where</em> you test. Types are about <em>what quality</em> you're testing for. You mix them freely.</p>
+              <ul>
+                <li><strong>Functional</strong> — does it do what it should? "Adding an item increases the cart badge by one." Most of your early tests.</li>
+                <li><strong>Non-functional</strong> — <em>how well</em> does it do it? Performance, security, usability, accessibility, reliability. Example: checkout responds in under two seconds; the page is keyboard-navigable.</li>
+                <li><strong>Structural (white-box)</strong> — testing based on the internal code structure and coverage, not just behavior.</li>
+                <li><strong>Regression &amp; confirmation</strong> — confirmation re-runs the exact test that found a bug to prove the fix works; regression re-runs the <em>rest</em> to prove the fix didn't break anything else.</li>
+              </ul>
+              <div class="callout"><span class="k">Where AI-era concerns live</span><p>Accessibility and performance are <b>non-functional</b> types. Testing an AI feature's output quality ("is this summary any good?") is a new non-functional discipline — <em>evals</em> — which is all of Part 3. Placing it on this map now means it won't feel like magic later.</p></div>` },
+            { id: "f2l4", title: "Test-first: TDD, BDD, ATDD & AI", time: "7 min", body: `
+              <p class="lead">Three related habits all share one radical move: write the test <em>before</em> the code. In the AI era, that move is your strongest lever.</p>
+              <ul>
+                <li><strong>TDD</strong> (Test-Driven Development) — write a failing unit test, write just enough code to pass it, refactor. Red → green → clean.</li>
+                <li><strong>BDD</strong> (Behavior-Driven Development) — describe behavior in plain "Given / When / Then" language everyone can read, then automate it. "<em>Given</em> a shopper with one item, <em>when</em> they check out, <em>then</em> the total includes tax."</li>
+                <li><strong>ATDD</strong> (Acceptance-Test-Driven) — the team agrees on acceptance tests up front, so "done" is defined before work starts.</li>
+              </ul>
+              <div class="callout"><span class="k">The AI connection</span><p>When you hand an AI a <em>failing test</em> as the target, you've given it an unambiguous definition of done and a guardrail it can't wander past — and the test stays behind to stop it re-breaking the feature later. This is the through-line of the whole site; test-first is how you own the loop.</p></div>` },
+            { id: "f2p", title: "Practice — check yourself + write a test plan", time: "30 min", kind: "practice",
+              intro: "Confirm the levels and types, then write a real one-page test plan and compare it against a worked example.",
+              quiz: [
+                { q: "You test that the cart correctly passes its items to the checkout page. Which level?", options: ["Unit", "Integration", "System", "Acceptance"], answer: 1, why: "You're checking that two components hand off correctly — that's <b>integration</b>. Testing the sum function alone would be unit; the full purchase flow would be system." },
+                { q: "“Checkout must respond within 2 seconds.” This is a…", options: ["Functional requirement", "Non-functional requirement"], answer: 1, why: "It's about <em>how well</em> it performs (speed), not <em>what</em> it does — that's a non-functional (performance) requirement." },
+                { q: "After fixing a bug, you re-run your other tests to make sure nothing else broke. That's…", options: ["Confirmation testing", "Regression testing", "Acceptance testing"], answer: 1, why: "Re-running the broader suite to catch newly introduced breakage is <b>regression</b>. Re-running the one test that found the original bug is <em>confirmation</em>." },
+                { q: "What does “shift left” tell you to do with a vague requirement?", options: ["Wait until QA at the end to find the problems", "Review and clarify it before any code is written", "Only test it in production monitoring"], answer: 1, why: "Shift-left pulls testing earlier. Reviewing the requirement now (static testing) kills the defect at 1× cost instead of 100× in production." }
+              ],
+              tasks: [
+                { title: "Write a one-page test plan for a SauceDemo sprint", prompt: "Imagine a sprint that adds a <b>promo-code field</b> to SauceDemo checkout. Write a one-page test plan: <b>scope</b>, the <b>test levels</b> you'll run, the <b>types</b> (functional + at least one non-functional), <b>entry/exit criteria</b>, and <b>top risks</b>. Then reveal the example.",
+                  model: `
+                    <p><b>Feature under test:</b> promo-code field on the checkout page (applies a discount to the total).</p>
+                    <p><b>Scope:</b> entering, validating, applying, and removing a promo code, and its effect on the displayed total and tax. Out of scope: creating/managing codes in an admin panel.</p>
+                    <p><b>Levels:</b></p>
+                    <ul><li><b>Unit</b> — discount-calculation function (percentage and fixed-amount codes, rounding)</li><li><b>Integration</b> — the field passes the code to the pricing logic and the new total flows to the summary</li><li><b>System</b> — full checkout with a valid, an invalid, and an expired code</li><li><b>Acceptance</b> — "a shopper can apply a valid code and sees a lower, correct total"</li></ul>
+                    <p><b>Types:</b> Functional (correct discount, correct rejection of bad codes) + Non-functional: usability (clear error message) and security (a code can't drive the total negative).</p>
+                    <p><b>Entry criteria:</b> feature deployed to test env; test codes seeded; build passes smoke. <b>Exit criteria:</b> all planned cases run; no open high-severity defects; totals verified to the cent.</p>
+                    <p><b>Top risks:</b> wrong math mischarges users; an invalid code silently "works"; a stacking bug drives the price below zero.</p>
+                    <p><b>What a strong plan shows:</b> explicit entry/exit criteria (so "done" isn't a feeling) and at least one non-functional angle. Money math is always a top risk — call it out.</p>` }
+              ] }
+          ] },
+        { id: "f3", title: "Test Design Techniques", meta: "CTFL Ch.4", project: "A full test-case set for SauceDemo login + cart.",
+          summary: "The formal techniques that turn infinite possible inputs into a small, high-coverage set of test cases: partitions, boundaries, decision tables, and state models.",
+          lectures: [
+            { id: "f3l1", title: "Equivalence partitioning", time: "8 min", body: `
+              <p class="lead">You can't test every input. Equivalence partitioning finds the few that <em>represent</em> all the rest — same coverage, a fraction of the effort.</p>
+              <p>The idea: group inputs into classes the software should treat the same way, then test one value from each class. If <code>standard_user</code> works, other valid users probably behave identically — one test covers the class.</p>
+              <h2>SauceDemo login, partitioned</h2>
+              <ul>
+                <li><strong>Valid, active user</strong> — e.g. <code>standard_user</code> → expect: logs in.</li>
+                <li><strong>Valid but locked-out user</strong> — <code>locked_out_user</code> → expect: blocked with a clear message.</li>
+                <li><strong>Valid username, wrong password</strong> → expect: error, no login.</li>
+                <li><strong>Empty username or password</strong> → expect: validation error.</li>
+                <li><strong>Unknown username</strong> → expect: error.</li>
+              </ul>
+              <p>Five classes, five tests — instead of hundreds of guesses. Each class has a different <em>expected result</em>; that's the signal you've partitioned correctly.</p>` },
+            { id: "f3l2", title: "Boundary value analysis", time: "7 min", body: `
+              <p class="lead">Bugs love edges. Off-by-one errors, "greater-than" where it should be "greater-or-equal" — they hide exactly at the boundaries of a range. So test the boundaries, not the comfortable middle.</p>
+              <p>For any range, test the value just below the edge, the edge itself, and just above: the classic three-point (and stricter two-value) boundary check.</p>
+              <h2>Examples</h2>
+              <ul>
+                <li><strong>Cart quantity 1–10:</strong> test <code>0</code> (invalid), <code>1</code> (min valid), <code>10</code> (max valid), <code>11</code> (invalid). The middle values add little.</li>
+                <li><strong>A text field capped at 60 chars (TodoMVC todo):</strong> test 59, 60, and 61 characters. Does the 61st get rejected, truncated, or silently break?</li>
+                <li><strong>Price display:</strong> <code>0</code> is a famous boundary — remember the Bug Hunt snippet where a free item (price 0) showed "no price" because the code treated 0 as "missing."</li>
+              </ul>
+              <p>Pair boundaries with partitions: partitioning tells you <em>which</em> ranges exist; boundary analysis tells you <em>where in each range</em> to aim.</p>` },
+            { id: "f3l3", title: "Decision tables", time: "8 min", body: `
+              <p class="lead">When the outcome depends on a <em>combination</em> of conditions, prose gets slippery and cases get missed. A decision table lays every combination out as a grid so nothing slips.</p>
+              <p>List the conditions, enumerate their combinations, and write the expected action for each. Here's SauceDemo login as a decision table:</p>
+              <div class="tblwrap"><table>
+                <tr><th>Username</th><th>Password</th><th>Account</th><th>Expected</th></tr>
+                <tr><td>valid</td><td>correct</td><td>active</td><td>Logs in</td></tr>
+                <tr><td>valid</td><td>correct</td><td>locked</td><td>"Locked out" error</td></tr>
+                <tr><td>valid</td><td>wrong</td><td>active</td><td>"No match" error</td></tr>
+                <tr><td>empty</td><td>any</td><td>—</td><td>"Username required"</td></tr>
+                <tr><td>valid</td><td>empty</td><td>—</td><td>"Password required"</td></tr>
+              </table></div>
+              <p>Each row is a ready-made test case. The table also exposes gaps: is there a rule for a locked account with the <em>wrong</em> password? Which message wins? Prose hides that question; the grid forces it.</p>` },
+            { id: "f3l4", title: "State transition testing", time: "8 min", body: `
+              <p class="lead">Some bugs only exist <em>over time</em> — they depend on what happened before. State transition testing models the app as states and the moves between them, then checks that only the legal moves are allowed.</p>
+              <h2>TodoMVC: a to-do's life</h2>
+              <p>Open <code>todomvc.com</code>. A single to-do moves through states: <strong>Active</strong> → (check) → <strong>Completed</strong> → (uncheck) → Active, or → (delete) → gone. Test each transition <em>and</em> the ones that shouldn't happen or shouldn't lose data:</p>
+              <ul>
+                <li>Active → Completed (check the box): does it move under the "Completed" filter?</li>
+                <li>Completed → Active (uncheck): does it come back?</li>
+                <li>Filter = "Active", then complete an item: does it correctly disappear from the current view?</li>
+                <li>Edit a to-do, then reload: does the change persist, or was state only in memory? (Remember the Bug Hunt "peak price" bug — state that must outlive a session belongs in storage.)</li>
+              </ul>
+              <p>State bugs are, as the manifesto put it, the AI's biggest blind spot — the model reasons about one moment, not an app living across refreshes and navigation. This technique is how you go looking for them on purpose.</p>` },
+            { id: "f3l5", title: "Exploratory & experience-based testing", time: "7 min", body: `
+              <p class="lead">Formal techniques cover what you can specify. Exploratory testing covers what you didn't think to specify — and it's where a lot of real bugs are found.</p>
+              <p><strong>Exploratory testing</strong> is simultaneous learning, test design, and execution: you interact with the app, form hypotheses, and chase what looks odd — guided, not random. <strong>Session-based</strong> testing gives it structure: a time-boxed session against a <em>charter</em> (remember Chapter 1), with notes on what you tried and found.</p>
+              <ul>
+                <li><strong>Error guessing</strong> — deliberately feed the ugly input: emoji in a name field, a negative quantity, a double-click on "Buy," the back button mid-checkout.</li>
+                <li><strong>Tours</strong> — walk the app with one lens at a time: the "money tour" (every place value changes hands), the "data tour" (every field that stores something).</li>
+              </ul>
+              <div class="callout"><span class="k">Scripted + exploratory, together</span><p>Scripted tests prove known things keep working (great for regression and automation). Exploratory finds the unknown. Mature QA does both: automate the boring certainties, spend your human attention exploring. AI can generate scripted cases; it can't be curious for you.</p></div>` },
+            { id: "f3p", title: "Practice — check yourself + design test cases", time: "35 min", kind: "practice",
+              intro: "Confirm you can pick the right technique, then design a real set of test cases for SauceDemo login using two techniques and compare with the worked answer.",
+              quiz: [
+                { q: "A field accepts quantities 1–10. Using boundary value analysis, which set is best?", options: ["5 and 6", "1, 5, 10", "0, 1, 10, 11"], answer: 2, why: "Boundaries are where bugs hide: test just below min (0), min (1), max (10), and just above max (11). Middle values like 5 add little." },
+                { q: "The outcome depends on username validity AND password correctness AND account status. Best technique?", options: ["Boundary value analysis", "Decision table", "State transition testing"], answer: 1, why: "When the result depends on a <em>combination</em> of conditions, a <b>decision table</b> enumerates every combination so no case is missed." },
+                { q: "You want to test that completing a to-do, then reloading, keeps it completed. Which technique?", options: ["Equivalence partitioning", "State transition testing", "Decision table"], answer: 1, why: "You're testing behavior <em>over time</em> and across a reload — that's a state transition (and a classic state-persistence bug hunt)." },
+                { q: "Grouping login inputs into {valid active, locked, wrong password, empty} and testing one of each is…", options: ["Equivalence partitioning", "Exploratory testing", "Boundary value analysis"], answer: 0, why: "You've split inputs into classes the app treats alike and tested a representative of each — equivalence partitioning." }
+              ],
+              tasks: [
+                { title: "Design test cases for SauceDemo login", prompt: "Using <b>equivalence partitioning</b> to find the classes and a <b>decision table</b> to lay them out, write a complete set of test cases for SauceDemo login. Each case needs: a clear input, preconditions, and an expected result. Try the real logins (<code>standard_user</code>, <code>locked_out_user</code>, <code>problem_user</code>; password <code>secret_sauce</code>). Then reveal the worked set.",
+                  model: `
+                    <p><b>Partitions found:</b> valid+active, valid+locked, valid username+wrong password, empty username, empty password, unknown username.</p>
+                    <div class="tblwrap"><table>
+                      <tr><th>#</th><th>Input</th><th>Expected result</th></tr>
+                      <tr><td>1</td><td>standard_user / secret_sauce</td><td>Redirects to product list</td></tr>
+                      <tr><td>2</td><td>locked_out_user / secret_sauce</td><td>Error: "user has been locked out"</td></tr>
+                      <tr><td>3</td><td>standard_user / wrong_pw</td><td>Error: username & password don't match</td></tr>
+                      <tr><td>4</td><td>(empty) / secret_sauce</td><td>Error: "Username is required"</td></tr>
+                      <tr><td>5</td><td>standard_user / (empty)</td><td>Error: "Password is required"</td></tr>
+                      <tr><td>6</td><td>ghost_user / secret_sauce</td><td>Error: no match (no such user)</td></tr>
+                    </table></div>
+                    <p><b>What a strong set shows:</b> one case per partition (not ten redundant valid logins), an <em>expected result for each</em> (a case with no expected result can't pass or fail), and the empty-field boundaries tested separately for username and password — they often have different messages.</p>` }
+              ] }
+          ] },
+        { id: "f4", title: "Bug Reporting, Severity & Test Management", meta: "CTFL Ch.5", project: "5 real bug reports from SauceDemo + a P0–P3 triage + a smoke/sanity/regression plan.",
+          summary: "The most-used QA skill on the job: writing a report that gets fixed, setting severity vs priority correctly, and stratifying a suite into smoke, sanity, and regression.",
+          lectures: [
+            { id: "f4l1", title: "Anatomy of a bug report that gets fixed", time: "9 min", body: `
+              <p class="lead">A bug report has one job: get the bug reproduced, understood, and fixed with the least back-and-forth. Vague reports bounce; precise ones get closed. Here's the anatomy.</p>
+              <ul>
+                <li><strong>Title</strong> — specific and searchable: "Checkout total omits tax for single-item orders," not "checkout broken."</li>
+                <li><strong>Steps to reproduce</strong> — numbered, from a known starting state, with the <em>exact</em> input. Anyone should be able to follow them.</li>
+                <li><strong>Expected vs actual</strong> — the two lines that define the bug. "Expected total $32.39; actual $29.99."</li>
+                <li><strong>Environment</strong> — build/version, browser/OS, device, account/login used. Bugs are often environment-specific.</li>
+                <li><strong>Evidence</strong> — screenshot, screen recording, console error, or network log. Show, don't just tell.</li>
+                <li><strong>Severity &amp; priority</strong> — your assessment (next lecture).</li>
+              </ul>
+              <div class="callout"><span class="k">Two rules that save hours</span><p><b>One bug per report</b> — bundled bugs can't be tracked, triaged, or closed independently. And <b>reproducibility first</b>: if you can't reproduce it, say so and capture everything about when it happened — an intermittent bug still deserves a report, flagged as such.</p></div>` },
+            { id: "f4l2", title: "Severity vs priority (they're different)", time: "8 min", body: `
+              <p class="lead">These two get conflated constantly, and it causes real damage — the wrong things get fixed first. Learn to set them independently.</p>
+              <p><strong>Severity</strong> = how bad the failure is, technically. <strong>Priority</strong> = how urgently the business wants it fixed. One is about impact; the other about scheduling. They don't have to move together:</p>
+              <div class="tblwrap"><table>
+                <tr><th></th><th>High priority</th><th>Low priority</th></tr>
+                <tr><td><b>High severity</b></td><td>Checkout crashes for everyone — fix now</td><td>Data-loss bug on a feature launching next quarter — bad, but not urgent yet</td></tr>
+                <tr><td><b>Low severity</b></td><td>Typo in the company name on the homepage — trivial, but embarrassing, fix today</td><td>Cosmetic misalignment on an admin page — someday</td></tr>
+              </table></div>
+              <h2>A simple priority rubric</h2>
+              <ul>
+                <li><strong>P0</strong> — production down or data loss; drop everything.</li>
+                <li><strong>P1</strong> — major function broken, no reasonable workaround; fix this release.</li>
+                <li><strong>P2</strong> — meaningful but with a workaround; schedule soon.</li>
+                <li><strong>P3</strong> — minor / cosmetic; fix when convenient.</li>
+              </ul>
+              <p>Severity you often argue from the failure itself; priority you set <em>with</em> product and business context. Bring both to the table — and be ready to defend the gap when they differ.</p>` },
+            { id: "f4l3", title: "Hands-on: hunt real bugs in SauceDemo", time: "10 min", body: `
+              <p class="lead">SauceDemo ships <em>deliberate</em> bugs under certain logins — a rare gift for practice. Your job now is to find and characterize them like you would on a real product.</p>
+              <p>Log in as <code>problem_user</code> / <code>secret_sauce</code> and then as <code>visual_user</code>, and investigate. Without spoiling every one, here's where to look:</p>
+              <ul>
+                <li><strong>Product images</strong> — are they correct and distinct, or is something obviously wrong?</li>
+                <li><strong>Sorting</strong> — change the sort dropdown (name, price). Does the order actually change / make sense?</li>
+                <li><strong>Add / remove from cart</strong> — do the buttons behave consistently for every product?</li>
+                <li><strong>Checkout form</strong> — try to enter your info. Do all fields accept input correctly?</li>
+                <li><strong>Layout (visual_user)</strong> — look for misaligned, overlapping, or shifted elements.</li>
+              </ul>
+              <div class="callout"><span class="k">How to characterize what you find</span><p>For each bug, capture: exact steps, which login triggers it, expected vs actual, and a screenshot. Note whether <code>standard_user</code> has the same problem — "only happens for problem_user" is a powerful clue for developers and a real thing you'll write in the report. You'll turn these into formal reports in the practice.</p></div>` },
+            { id: "f4l4", title: "Risk-based testing: smoke, sanity, regression", time: "9 min", body: `
+              <p class="lead">Under time pressure you can't run everything, so you stratify your suite into layers and run the cheapest, highest-value layer first. This is the backbone of test management.</p>
+              <ul>
+                <li><strong>Smoke</strong> — a tiny set that answers "is the build even worth testing?" App loads, login works, core page renders. Runs first, on every build; if it fails, stop and reject the build.</li>
+                <li><strong>Sanity</strong> — narrow and deep: after a change to one area, does <em>that area</em> work? Quick, targeted, not exhaustive.</li>
+                <li><strong>Regression</strong> — broad: did this change break anything that used to work elsewhere? The most expensive layer, ideally automated (Part 2).</li>
+              </ul>
+              <h2>Prioritize <em>within</em> each layer</h2>
+              <p>Ranking matters even inside a layer, so QA under a deadline knows what runs first. For SauceDemo smoke: (1) site loads, (2) <code>standard_user</code> can log in, (3) products render, (4) add-to-cart updates the badge, (5) checkout reaches confirmation. Order by "what would hurt most if broken and we shipped."</p>
+              <div class="callout"><span class="k">This is a core QA priority</span><p>Stratified, ranked suites are exactly what lets a team ship fast without flying blind. It's also where <em>manual-first ordering</em> lives: things that can't be automated — real payments, SMS 2FA, biometric login, captchas — get scheduled at the <em>start</em> of a test window, with accounts and devices set up in advance.</p></div>` },
+            { id: "f4p", title: "Practice — report, triage & plan", time: "45 min", kind: "practice",
+              intro: "This is the most job-relevant practice in Part 1. Confirm the concepts, then do all three tasks — a real bug report, a P0–P3 triage, and a smoke/sanity/regression plan — and compare each to a worked answer.",
+              quiz: [
+                { q: "The homepage shows the company name misspelled. Technically trivial, but it's the first thing every visitor sees. Best call?", options: ["Low severity, low priority", "Low severity, high priority", "High severity, high priority"], answer: 1, why: "The <em>failure</em> is cosmetic (low severity), but the business impact of a visible typo is high, so it's fixed urgently (high priority). Severity and priority diverge — that's the whole point." },
+                { q: "Which item belongs in the SMOKE layer for SauceDemo?", options: ["Verify tax rounding on 20 different cart combinations", "Confirm the site loads and standard_user can log in", "Check every product's sort order under every filter"], answer: 1, why: "Smoke is the tiny 'is this build even alive?' check — load + login + core render. The exhaustive checks belong in regression." },
+                { q: "A bug report says only: “Checkout is broken.” What's the single most important thing it's missing?", options: ["A funny title", "Numbered steps to reproduce with expected vs actual", "The developer's name"], answer: 1, why: "Without reproducible steps and an expected-vs-actual, no one can confirm, diagnose, or verify a fix. Reproducibility is the heart of a report." },
+                { q: "Production is down and users are losing cart data. Priority?", options: ["P0", "P2", "P3"], answer: 0, why: "Production outage plus data loss is a drop-everything <b>P0</b>. Severity is high and priority is maximal — here they align." }
+              ],
+              tasks: [
+                { title: "Write a real bug report from SauceDemo", prompt: "Take one defect you found as <code>problem_user</code> or <code>visual_user</code> and write a complete bug report: <b>title, steps, expected, actual, environment, evidence note, severity, priority</b>. Then compare with the example.",
+                  model: `
+                    <p><b>Title:</b> Product images identical for all items when logged in as problem_user</p>
+                    <p><b>Steps to reproduce:</b></p>
+                    <ul><li>Go to saucedemo.com</li><li>Log in as <code>problem_user</code> / <code>secret_sauce</code></li><li>Observe the product list images</li></ul>
+                    <p><b>Expected:</b> each product shows its own distinct photo (as it does for <code>standard_user</code>).<br><b>Actual:</b> every product shows the same image.</p>
+                    <p><b>Environment:</b> Chrome 126 / macOS; build = current saucedemo.com; login = problem_user.</p>
+                    <p><b>Evidence:</b> screenshot of the grid attached. <b>Note:</b> does not reproduce for standard_user → user-specific.</p>
+                    <p><b>Severity:</b> Medium (core commerce works; product identification is impaired). <b>Priority:</b> High (users can't tell products apart — real conversion impact).</p>
+                    <p><b>Why this is strong:</b> the "doesn't happen for standard_user" note narrows the defect for developers, and expected/actual are one line each and unambiguous.</p>` },
+                { title: "Triage a bug list into P0–P3", prompt: "Assign a priority (P0–P3) to each, with one line of reasoning. Try it before revealing.<br>① Checkout button does nothing for all users. ② Company name misspelled in the header. ③ Cart badge off by one only when you add then remove then re-add. ④ Product images broken for problem_user only. ⑤ Footer copyright year is last year. ⑥ App won't load at all on Safari.",
+                  model: `
+                    <ul>
+                      <li><b>① Checkout dead for everyone — P0.</b> Core purchase path down; no revenue. Drop everything.</li>
+                      <li><b>⑥ Won't load on Safari — P0/P1.</b> If Safari is a meaningful share of users, entire app unusable for them → P0; if negligible, P1.</li>
+                      <li><b>② Misspelled company name — P1.</b> Trivial severity but highly visible and embarrassing; fix this release.</li>
+                      <li><b>④ Images broken for one user type — P2.</b> Real impact but scoped to a subset; workaround exists (other logins fine).</li>
+                      <li><b>③ Off-by-one only on add/remove/re-add — P2.</b> Genuine correctness bug, narrow repro path; schedule soon.</li>
+                      <li><b>⑤ Footer year — P3.</b> Cosmetic, no user harm; fix when convenient.</li>
+                    </ul>
+                    <p><b>What a strong triage shows:</b> P0s tied to "revenue/access down," a note that ⑥ depends on <em>audience data</em> (priority needs business context), and low-severity-but-high-visibility ② ranked above scoped functional bugs.</p>` },
+                { title: "Write a smoke/sanity/regression plan for SauceDemo", prompt: "Define what goes in each layer, and <b>rank the items inside smoke</b> so a tester under deadline knows the order. Then compare.",
+                  model: `
+                    <p><b>Smoke (run first, every build — ranked):</b></p>
+                    <ul><li>1. Site loads (login page renders)</li><li>2. standard_user can log in</li><li>3. Product list renders with items</li><li>4. Add-to-cart updates the badge</li><li>5. Checkout reaches the confirmation page</li></ul>
+                    <p><b>Sanity (after a change to a specific area):</b> if pricing changed → verify subtotal, tax, and total on a 1- and 2-item cart. If login changed → re-check the valid, locked, and empty cases.</p>
+                    <p><b>Regression (broad, ideally automated):</b> all login partitions, sort orders, add/remove across every product, cart persistence across navigation, full checkout with valid and invalid data, and every previously-fixed bug's test.</p>
+                    <p><b>What a strong plan shows:</b> smoke is <em>tiny</em> and ranked by "what proves the build is alive," sanity is scoped to the change, and regression explicitly re-runs <em>past bugs</em> — turning every fixed defect into a permanent tripwire (the site's core thesis).</p>` }
+              ] }
+          ] },
+        { id: "f5", title: "Static Testing & Reviews", meta: "CTFL Ch.3", project: "A requirements review + your own review checklist.",
+          summary: "Catch defects before the code ever runs — the cheapest bugs to fix — by reviewing requirements, designs, and (in the AI era) the model's own output.",
+          lectures: [
+            { id: "f5l1", title: "Static testing: find bugs before code runs", time: "8 min", body: `
+              <p class="lead">Dynamic testing runs the software. <strong>Static testing</strong> examines it <em>without</em> running it — reading requirements, designs, and code to find defects at their source, where they're cheapest to remove.</p>
+              <ul>
+                <li><strong>Informal review</strong> — a quick second pair of eyes. Cheap, no ceremony.</li>
+                <li><strong>Walkthrough</strong> — the author leads others through the artifact to gather feedback and find issues.</li>
+                <li><strong>Technical review</strong> — peers (often technical experts) assess quality and fitness.</li>
+                <li><strong>Inspection</strong> — the most formal: defined roles, entry/exit criteria, metrics. Reserved for high-risk artifacts.</li>
+                <li><strong>Static analysis</strong> — tools that scan code for defects and smells without executing it (linters, type-checkers, security scanners). You'll wire these into CI in Part 2.</li>
+              </ul>
+              <div class="callout"><span class="k">The AI-era version</span><p>Reviewing AI-written pull requests <em>is</em> static testing — and it's now a core skill. The model produces plausible code fast; a disciplined review is where you catch the plausible-but-wrong before it runs. Read the code to prove it's plausible; you'll still run it (dynamic) to prove it's true.</p></div>` },
+            { id: "f5l2", title: "Hunting ambiguity in requirements & AI output", time: "8 min", body: `
+              <p class="lead">Most expensive bugs start as a vague requirement everyone "understood differently." The highest-leverage static testing you'll do is hunting ambiguity <em>before</em> anyone builds the wrong thing.</p>
+              <p>Consider this requirement: <em>"Users should be able to reset their password quickly and securely."</em> Read like a tester, it's full of holes:</p>
+              <ul>
+                <li><strong>"quickly"</strong> — how fast? What's the measurable target?</li>
+                <li><strong>"securely"</strong> — via email link? SMS? What expiry? How many attempts?</li>
+                <li><strong>"users"</strong> — including locked-out or unverified ones?</li>
+                <li>What happens on an <em>unknown</em> email — error, or silent (to avoid leaking which emails exist)?</li>
+                <li>Can a reset link be reused? What if two are requested?</li>
+              </ul>
+              <div class="callout"><span class="k">Build a reusable review checklist</span><p>Turn your recurring questions into a checklist you run on every requirement: Is it <b>testable</b> (could I write a pass/fail case)? Is it <b>unambiguous</b>? Is it <b>complete</b> (error paths, edge cases)? Is it <b>consistent</b> with other requirements? Are terms <b>measurable</b> ("under 2s," not "fast")? The same checklist works on AI-generated specs and PRs.</p></div>` },
+            { id: "f5p", title: "Practice — review a requirement", time: "25 min", kind: "practice",
+              intro: "Confirm the review concepts, then do a real requirements review and build your reusable checklist.",
+              quiz: [
+                { q: "Reviewing a requirements doc for ambiguity before any code is written is…", options: ["Dynamic testing", "Static testing", "Regression testing"], answer: 1, why: "You're examining an artifact <em>without running software</em> — that's static testing, the cheapest place to remove a defect." },
+                { q: "The most formal review type, with defined roles, entry/exit criteria, and metrics, is a…", options: ["Informal review", "Walkthrough", "Inspection"], answer: 2, why: "An <b>inspection</b> is the most formal, reserved for high-risk artifacts. A walkthrough is author-led and lighter; informal review is the lightest." },
+                { q: "Which requirement is properly testable?", options: ["“The page should load quickly.”", "“The product list should render within 2 seconds on 4G.”", "“The app should feel fast.”"], answer: 1, why: "Only the middle one is measurable — you can write a pass/fail test for it. “Quickly” and “feel fast” can't be verified objectively." }
+              ],
+              tasks: [
+                { title: "Review a requirement and write clarifying questions", prompt: "Review this requirement: <b>“The checkout should show the order total, including any discounts, and let the user pay easily.”</b> List every ambiguity or missing case you can find, then write <b>3 clarifying questions</b> you'd send back. Then reveal the example.",
+                  model: `
+                    <p><b>Ambiguities / gaps:</b></p>
+                    <ul><li>Does "total" include tax and shipping, or only item price + discount?</li><li>"any discounts" — one code or several stacked? What if a code is invalid or expired?</li><li>"pay easily" — which payment methods? Is this even in scope for this ticket?</li><li>No error paths: what shows if the total can't be calculated, or the discount makes it negative?</li><li>No non-functional target: how fast must the total update after a code is applied?</li></ul>
+                    <p><b>Three clarifying questions:</b></p>
+                    <ul><li>Should the displayed total include tax and shipping, or just discounted item price? Please specify the exact formula.</li><li>Can multiple discount codes stack, and what's the expected behavior for an invalid/expired code?</li><li>What's the maximum acceptable time to recalculate and display the total after applying a discount?</li></ul>
+                    <p><b>Your checklist should now include:</b> testable? unambiguous? complete (error paths)? consistent? measurable? Reuse it on the next requirement — and on AI-generated specs.</p>` }
+              ] }
+          ] },
       ] },
-    { part: "Part 2 · Automation & Tooling", tag: "The employable core — Playwright-first", blurb: "Turn manual skill into automated suites with the tools employers actually hire for.",
+    { part: "Part 2 · Automation & Tooling", tag: "The employable core — Playwright-first", blurb: "Turn manual skill into automated suites with the tools employers actually hire for. Full lessons rolling out module by module — the curriculum below is final.",
       modules: [
-        { id: "a1", title: "Just Enough JavaScript / TypeScript", time: "~8 hrs",
-          build: "small scripts — variables, functions, arrays, async/await — the subset tests need.",
-          skills: ["JS / TS basics", "async / await", "(Python noted as alt)"],
-          res: [{ name: "javascript.info", url: "https://javascript.info/" }, { name: "freeCodeCamp", url: "https://www.freecodecamp.org/learn/" }] },
-        { id: "a2", title: "Git & the Developer Workflow", time: "~3 hrs",
-          build: "a repo with branches and a pull request you review.",
-          skills: ["Git", "branches & PRs", "code review"],
-          res: [{ name: "GitHub Skills", url: "https://skills.github.com/" }] },
-        { id: "a3", title: "Web Automation with Playwright — Basics", time: "~8 hrs",
-          build: "an automated test of a real app's login + core happy path.",
-          skills: ["Playwright", "locators", "actions & assertions", "auto-waiting"],
-          res: [{ name: "playwright.dev", url: "https://playwright.dev/" }, { name: "Test Automation University", url: "https://testautomationu.applitools.com/" }] },
-        { id: "a4", title: "Playwright — Robust, Maintainable Suites", time: "~8 hrs",
-          build: "refactor your suite with the Page Object Model, resilient locators & fixtures.",
-          skills: ["Page Object Model", "resilient locators", "fixtures", "trace viewer", "cross-browser"],
-          res: [{ name: "Playwright best practices", url: "https://playwright.dev/docs/best-practices" }] },
-        { id: "a5", title: "Visual & Accessibility Checks", time: "~4 hrs",
-          build: "add axe accessibility assertions + screenshot diffs to your suite.",
-          skills: ["axe-core", "visual regression", "WCAG basics"],
-          res: [{ name: "axe-core", url: "https://github.com/dequelabs/axe-core" }, { name: "web.dev: Accessibility", url: "https://web.dev/learn/accessibility/" }] },
-        { id: "a6", title: "API Testing", time: "~6 hrs",
-          build: "a suite that tests a public REST API plus one GraphQL query.",
-          skills: ["HTTP & REST", "Postman", "automated API tests", "GraphQL basics"],
-          res: [{ name: "Postman Learning Center", url: "https://learning.postman.com/" }] },
-        { id: "a7", title: "CI/CD — Run Everything Automatically", time: "~5 hrs",
-          build: "a GitHub Actions pipeline that runs your suite on every push and blocks on red.",
-          skills: ["GitHub Actions", "quality gates", "parallelization", "reporting"],
-          res: [{ name: "GitHub Actions docs", url: "https://docs.github.com/actions" }] },
-        { id: "a8", title: "Performance & Load Testing", time: "~5 hrs",
-          build: "a k6 load test with pass/fail thresholds on an endpoint.",
-          skills: ["k6", "thresholds", "(JMeter context)"],
-          res: [{ name: "k6 docs", url: "https://grafana.com/docs/k6/latest/" }] },
-        { id: "a9", title: "Mobile, Cross-Device & SQL Essentials", time: "~5 hrs",
-          build: "a basic Appium check + SQL queries validating the data behind the UI.",
-          skills: ["Appium basics", "BrowserStack", "SQL for testers"],
-          res: [{ name: "Appium docs", url: "https://appium.io/" }, { name: "SQLBolt", url: "https://sqlbolt.com/" }] },
+        { id: "a1", title: "Just Enough JavaScript / TypeScript", meta: "Prereq-friendly",
+          summary: "The small subset of JS/TS that test code actually uses — no full dev course required.",
+          project: "Small scripts: variables, functions, arrays, and async/await.",
+          lectures: [
+            { id: "a1l1", title: "Variables, types & functions for testers", time: "12 min", outline: true },
+            { id: "a1l2", title: "Arrays & objects — the shapes test data takes", time: "12 min", outline: true },
+            { id: "a1l3", title: "async / await — why tests are full of it", time: "14 min", outline: true },
+            { id: "a1p", title: "Practice — write & fix small scripts", time: "20 min", kind: "practice", outline: true } ] },
+        { id: "a2", title: "Git & the Developer Workflow", meta: "",
+          summary: "Branches, commits, and pull requests — how testing plugs into how developers actually ship.",
+          project: "A repo with a branch and a pull request you review.",
+          lectures: [
+            { id: "a2l1", title: "Git basics: clone, commit, branch, push", time: "12 min", outline: true },
+            { id: "a2l2", title: "Pull requests & code review as static testing", time: "10 min", outline: true },
+            { id: "a2p", title: "Practice — open and review a PR", time: "20 min", kind: "practice", outline: true } ] },
+        { id: "a3", title: "Web Automation with Playwright — Basics", meta: "",
+          summary: "Drive a real browser: locators, actions, and assertions with auto-waiting built in.",
+          project: "An automated test of SauceDemo login + the core happy path.",
+          lectures: [
+            { id: "a3l1", title: "Setup & your first Playwright test", time: "14 min", outline: true },
+            { id: "a3l2", title: "Locators: finding elements that don't break", time: "14 min", outline: true },
+            { id: "a3l3", title: "Actions, assertions & auto-waiting", time: "14 min", outline: true },
+            { id: "a3l4", title: "Automating the SauceDemo checkout", time: "16 min", outline: true },
+            { id: "a3p", title: "Practice — automate a full purchase", time: "30 min", kind: "practice", outline: true } ] },
+        { id: "a4", title: "Playwright — Robust, Maintainable Suites", meta: "",
+          summary: "The patterns that keep a suite alive as the app changes: Page Object Model, fixtures, resilient locators, and the trace viewer.",
+          project: "Refactor your suite with POM, fixtures, and cross-browser runs.",
+          lectures: [
+            { id: "a4l1", title: "The Page Object Model", time: "14 min", outline: true },
+            { id: "a4l2", title: "Fixtures & test setup/teardown", time: "12 min", outline: true },
+            { id: "a4l3", title: "Debugging with the trace viewer", time: "12 min", outline: true },
+            { id: "a4l4", title: "Cross-browser: Chromium, Firefox, WebKit", time: "10 min", outline: true },
+            { id: "a4p", title: "Practice — refactor a flaky suite", time: "30 min", kind: "practice", outline: true } ] },
+        { id: "a5", title: "Visual & Accessibility Checks", meta: "",
+          summary: "Catch what the model can't perceive: layout breakage and accessibility violations, automated.",
+          project: "Add axe accessibility assertions + screenshot diffs to your suite.",
+          lectures: [
+            { id: "a5l1", title: "Accessibility testing with axe-core", time: "14 min", outline: true },
+            { id: "a5l2", title: "Visual regression with screenshot diffs", time: "12 min", outline: true },
+            { id: "a5p", title: "Practice — fail a build on an a11y violation", time: "25 min", kind: "practice", outline: true } ] },
+        { id: "a6", title: "API Testing", meta: "",
+          summary: "Test below the UI — faster, more stable — against a real public API.",
+          project: "A suite testing restful-booker (REST) plus one GraphQL query.",
+          lectures: [
+            { id: "a6l1", title: "HTTP & REST for testers", time: "12 min", outline: true },
+            { id: "a6l2", title: "Automated API tests (restful-booker)", time: "16 min", outline: true },
+            { id: "a6l3", title: "A first GraphQL query test", time: "10 min", outline: true },
+            { id: "a6p", title: "Practice — test a public API end to end", time: "30 min", kind: "practice", outline: true } ] },
+        { id: "a7", title: "CI/CD — Run Everything Automatically", meta: "",
+          summary: "The enforcement layer: your suite runs on every push and blocks merge on red.",
+          project: "A GitHub Actions pipeline that gates merges on your tests.",
+          lectures: [
+            { id: "a7l1", title: "Your first GitHub Actions workflow", time: "14 min", outline: true },
+            { id: "a7l2", title: "Quality gates, parallelization & reports", time: "12 min", outline: true },
+            { id: "a7p", title: "Practice — gate a repo on green", time: "25 min", kind: "practice", outline: true } ] },
+        { id: "a8", title: "Performance & Load Testing", meta: "",
+          summary: "Put numbers and thresholds on “fast enough” with k6.",
+          project: "A k6 load test with pass/fail thresholds on an endpoint.",
+          lectures: [
+            { id: "a8l1", title: "Performance concepts & metrics", time: "12 min", outline: true },
+            { id: "a8l2", title: "Writing a k6 test with thresholds", time: "14 min", outline: true },
+            { id: "a8p", title: "Practice — set and defend a threshold", time: "25 min", kind: "practice", outline: true } ] },
+        { id: "a9", title: "Mobile, Cross-Device & SQL Essentials", meta: "Recommend the SQL prereq first",
+          summary: "A taste of mobile automation and the SQL every tester needs to validate the data behind the UI.",
+          project: "A basic Appium check + SQL queries validating UI data.",
+          lectures: [
+            { id: "a9l1", title: "Mobile automation basics (Appium)", time: "14 min", outline: true },
+            { id: "a9l2", title: "SQL for testers: verifying the data layer", time: "16 min", outline: true },
+            { id: "a9p", title: "Practice — verify UI against the database", time: "25 min", kind: "practice", outline: true } ] },
       ] },
-    { part: "Part 3 · The AI Era", tag: "Your differentiator — least-taught, fastest-growing", blurb: "Use AI to test faster, then learn the genuinely new discipline: testing features that think.",
+    { part: "Part 3 · The AI Era", tag: "Your differentiator — least-taught, fastest-growing", blurb: "Use AI to test faster, then learn the genuinely new discipline: testing features that think. Curriculum final; full lessons in progress.",
       modules: [
-        { id: "i1", title: "AI-Assisted Testing (and its traps)", time: "~5 hrs",
-          build: "generate tests with an AI + Playwright MCP, then de-flake the brittle output.",
-          skills: ["Copilot / Claude + MCP", "reviewing AI tests", "self-healing & visual-AI tools", "over-reliance risks"],
-          res: [{ name: "Copilot + Playwright MCP", url: "https://testdino.com/blog/playwright-tests-with-copilot" }] },
-        { id: "i2", title: "Testing AI Features — Evals 101", time: "~6 hrs",
-          build: "a 15-case golden dataset for an AI feature, scored with metrics not equality.",
-          skills: ["evals vs assertions", "golden datasets", "non-determinism"],
-          res: [{ name: "Read: Testing the AI Itself", url: "#/post/testing-the-ai-itself" }, { name: "Promptfoo intro", url: "https://www.promptfoo.dev/docs/intro/" }] },
-        { id: "i3", title: "LLM-as-Judge & Eval Tooling in CI", time: "~6 hrs",
-          build: "an eval suite that runs in CI and scores an LLM feature on every change.",
-          skills: ["G-Eval / QAG", "Promptfoo", "DeepEval", "prompt regression"],
-          res: [{ name: "DeepEval", url: "https://deepeval.com/" }, { name: "Promptfoo docs", url: "https://www.promptfoo.dev/" }] },
-        { id: "i4", title: "RAG, Hallucination, Bias & Guardrails", time: "~6 hrs",
-          build: "faithfulness + relevancy evals for a RAG answer, plus runtime guardrails.",
-          skills: ["RAG metrics", "hallucination testing", "bias & fairness", "validate / sanity / fail-closed"],
-          res: [{ name: "Ragas", url: "https://docs.ragas.io/" }, { name: "Confident AI: guardrails", url: "https://www.confident-ai.com/blog/llm-guardrails-the-ultimate-guide-to-safeguard-llm-systems" }] },
-        { id: "i5", title: "Red-Teaming & Prompt Security", time: "~5 hrs",
-          build: "a red-team run against a chatbot: prompt injection, jailbreaks, PII leaks.",
-          skills: ["prompt injection", "jailbreaks", "red-teaming", "guardrail validation"],
-          res: [{ name: "Promptfoo red-team", url: "https://www.promptfoo.dev/docs/red-team/" }] },
+        { id: "i1", title: "AI-Assisted Testing (and its traps)", meta: "",
+          summary: "Generate tests with AI, then do the real work: reviewing and de-flaking the plausible-but-brittle output.",
+          project: "Generate tests with an AI + Playwright MCP, then de-flake them.",
+          lectures: [
+            { id: "i1l1", title: "Generating tests with AI + Playwright MCP", time: "14 min", outline: true },
+            { id: "i1l2", title: "Reviewing AI tests & over-reliance risks", time: "12 min", outline: true },
+            { id: "i1p", title: "Practice — de-flake an AI-written suite", time: "25 min", kind: "practice", outline: true } ] },
+        { id: "i2", title: "Testing AI Features — Evals 101", meta: "",
+          summary: "When there's no single right answer, you measure quality with evals — a test with a rubric instead of an equals sign.",
+          project: "A 15-case golden dataset scored with metrics, not equality.",
+          lectures: [
+            { id: "i2l1", title: "Why AI features break normal tests", time: "12 min", outline: true },
+            { id: "i2l2", title: "Building a golden dataset", time: "14 min", outline: true },
+            { id: "i2l3", title: "Scoring methods: exact, property, judge", time: "14 min", outline: true },
+            { id: "i2p", title: "Practice — write your first eval set", time: "30 min", kind: "practice", outline: true } ] },
+        { id: "i3", title: "LLM-as-Judge & Eval Tooling in CI", meta: "",
+          summary: "Automate eval scoring with a judge model and run it in CI on every prompt change.",
+          project: "An eval suite that scores an LLM feature on every push.",
+          lectures: [
+            { id: "i3l1", title: "LLM-as-judge: power and pitfalls", time: "14 min", outline: true },
+            { id: "i3l2", title: "Promptfoo / DeepEval in CI", time: "14 min", outline: true },
+            { id: "i3p", title: "Practice — catch a prompt regression", time: "25 min", kind: "practice", outline: true } ] },
+        { id: "i4", title: "RAG, Hallucination, Bias & Guardrails", meta: "",
+          summary: "Test retrieval quality and faithfulness, then guard the individual user at runtime.",
+          project: "Faithfulness + relevancy evals for a RAG answer, plus guardrails.",
+          lectures: [
+            { id: "i4l1", title: "RAG metrics & hallucination testing", time: "14 min", outline: true },
+            { id: "i4l2", title: "Bias, fairness & runtime guardrails", time: "12 min", outline: true },
+            { id: "i4p", title: "Practice — add validate/sanity/fail-closed", time: "25 min", kind: "practice", outline: true } ] },
+        { id: "i5", title: "Red-Teaming & Prompt Security", meta: "",
+          summary: "Attack your own AI feature before someone else does: injection, jailbreaks, and data leaks.",
+          project: "A red-team run against a chatbot: injection, jailbreaks, PII.",
+          lectures: [
+            { id: "i5l1", title: "Prompt injection & jailbreaks", time: "14 min", outline: true },
+            { id: "i5l2", title: "Red-teaming & guardrail validation", time: "12 min", outline: true },
+            { id: "i5p", title: "Practice — break a chatbot on purpose", time: "25 min", kind: "practice", outline: true } ] },
       ] },
-    { part: "Part 4 · Career & Capstone", tag: "From learner to hired", blurb: "Assemble everything into proof of skill — and a job.",
+    { part: "Part 4 · Career & Capstone", tag: "From learner to hired", blurb: "Assemble everything into proof of skill — and a job. Curriculum final; full lessons in progress.",
       modules: [
-        { id: "c1", title: "The AI-Era QA Role & Soft Skills", time: "~2 hrs",
-          build: "a one-page \"quality strategy\" memo for a feature — thinking like an orchestrator.",
-          skills: ["strategy vs execution", "defining acceptable AI behavior", "stakeholder communication"],
-          res: [{ name: "Ministry of Testing", url: "https://club.ministryoftesting.com/" }] },
-        { id: "c2", title: "Portfolio, Certifications & Interviews", time: "~4 hrs",
-          build: "a GitHub portfolio from your projects + a QA résumé; plan ISTQB CTFL & CT-AI.",
-          skills: ["portfolio", "ISTQB CTFL + CT-AI", "résumé", "interview prep"],
-          res: [{ name: "ISTQB certifications", url: "https://www.istqb.org/" }] },
-        { id: "cap", title: "Capstone — Full Quality Strategy for a Real App", time: "~15 hrs", meta: "Portfolio centerpiece",
-          build: "for one real app + its AI feature: a test plan, a Playwright suite in CI, an eval suite, and a quality report.",
-          skills: ["everything, end-to-end"],
-          res: [{ name: "Warm up in Bug Hunt", url: "#/bug-hunt" }] },
+        { id: "c1", title: "The AI-Era QA Role & Soft Skills", meta: "",
+          summary: "Thinking like a quality orchestrator: strategy over execution, and communicating it.",
+          project: "A one-page “quality strategy” memo for a feature.",
+          lectures: [
+            { id: "c1l1", title: "Strategy vs execution in the AI era", time: "10 min", outline: true },
+            { id: "c1l2", title: "Defining acceptable AI behavior & communicating risk", time: "10 min", outline: true },
+            { id: "c1p", title: "Practice — write a quality-strategy memo", time: "25 min", kind: "practice", outline: true } ] },
+        { id: "c2", title: "Portfolio, Certifications & Interviews", meta: "",
+          summary: "Turn your course projects into a portfolio and a job — plus which certifications actually help.",
+          project: "A GitHub portfolio + a QA résumé; a plan for ISTQB CTFL & CT-AI.",
+          lectures: [
+            { id: "c2l1", title: "Building a QA portfolio from your projects", time: "12 min", outline: true },
+            { id: "c2l2", title: "Certifications (CTFL, CT-AI) & résumé", time: "10 min", outline: true },
+            { id: "c2l3", title: "Interview prep for QA roles", time: "12 min", outline: true },
+            { id: "c2p", title: "Practice — mock interview & résumé review", time: "30 min", kind: "practice", outline: true } ] },
+        { id: "cap", title: "Capstone — Full Quality Strategy for a Real App", meta: "Portfolio centerpiece",
+          summary: "Everything, end to end, on one real app: a test plan, an automated suite in CI, an eval suite, and a quality report.",
+          project: "The portfolio piece that proves you can do the whole job.",
+          lectures: [
+            { id: "capl1", title: "Scoping your capstone & writing the test plan", time: "20 min", outline: true },
+            { id: "capl2", title: "Building the automated suite + CI", time: "20 min", outline: true },
+            { id: "capl3", title: "Evals + the final quality report", time: "20 min", outline: true } ] },
       ] },
   ];
-  const TOTAL_MODULES = COURSE.reduce((n, p) => n + p.modules.length, 0);
-  const lKey = "qaera_course";
+  /* Flatten lectures into one ordered list with navigation + module context. */
+  const LECTURES = [];
+  COURSE.forEach((p) => p.modules.forEach((m) => (m.lectures || []).forEach((l) => {
+    LECTURES.push(Object.assign({}, l, {
+      partName: p.part, partTag: p.tag, moduleId: m.id, moduleTitle: m.title,
+      moduleMeta: m.meta || "", moduleProject: m.project || "", moduleSummary: m.summary || "",
+      idx: LECTURES.length,
+    }));
+  })));
+  const byLec = (id) => LECTURES.find((l) => l.id === id);
+  const AVAILABLE = LECTURES.filter((l) => !l.outline);
+  const TOTAL_AVAIL = AVAILABLE.length;
+  const TOTAL_LEC = LECTURES.length;
+
+  const lKey = "qaera_course_v2";
+  const rKey = "qaera_resume";
   function lGet() { try { return JSON.parse(localStorage.getItem(lKey) || "[]"); } catch (e) { return []; } }
-  window.lToggle = function (id) {
+  function courseDone() { const s = new Set(lGet()); return AVAILABLE.filter((l) => s.has(l.id)).length; }
+
+  const PREREQS = [
+    { cls: "req", lvl: "Required", title: "Web & computer literacy", desc: "Comfortable with a browser, installing apps, and reading technical English. That's the only hard requirement." },
+    { cls: "rec", lvl: "Do before Part 2", title: "JavaScript basics", desc: "We teach just enough JS to test with — but a short intro-JS course first makes automation click much faster." },
+    { cls: "rec", lvl: "Do before Module 15", title: "SQL fundamentals", desc: "Grab a free SQL primer (SELECT, WHERE, JOIN). We use SQL to validate data behind the UI, not teach it from scratch." },
+    { cls: "rec", lvl: "Sit after Part 1", title: "ISTQB CTFL exam", desc: "Part 1 maps to the Foundation syllabus. Passing the real exam is a strong, separate credential worth having." },
+  ];
+  const OUTCOMES = [
+    "Speak QA fluently — the vocabulary, principles, and mindset teams expect on day one",
+    "Design test cases with formal techniques instead of guessing at inputs",
+    "Write bug reports that get fixed — and set severity vs priority correctly",
+    "Plan risk-based testing: smoke, sanity, and regression, prioritized under deadline",
+    "Automate real browser flows with Playwright and run them in CI",
+    "Test APIs, accessibility, performance, and visual regressions",
+    "Test AI features themselves with evals, LLM-judges, and runtime guardrails",
+    "Red-team prompts and assemble a portfolio that gets you hired",
+  ];
+
+  /* ---- Lesson interactions ---- */
+  window.toggleMod = function (id) { const el = document.getElementById("cmod_" + id); if (el) el.classList.toggle("open"); };
+  window.toggleLecComplete = function (id) {
     const s = new Set(lGet());
     if (s.has(id)) s.delete(id); else s.add(id);
     try { localStorage.setItem(lKey, JSON.stringify([...s])); } catch (e) {}
-    const done = lGet();
-    const bar = document.getElementById("lbar"); if (bar) bar.style.width = Math.round(done.length / TOTAL_MODULES * 100) + "%";
-    const note = document.getElementById("lnote"); if (note) note.textContent = done.length + " of " + TOTAL_MODULES + " modules complete";
-    const has = done.includes(id);
-    const card = document.getElementById("mod_" + id); if (card) card.classList.toggle("done", has);
-    const btn = document.getElementById("mb_" + id); if (btn) btn.textContent = has ? "✓ Completed" : "Mark complete";
+    const has = s.has(id);
+    const btn = document.getElementById("markBtn");
+    if (btn) { btn.textContent = has ? "✓ Completed" : "Mark complete"; btn.classList.toggle("primary", !has); btn.classList.toggle("ghost", has); }
+    const pr = document.getElementById("lprog"); if (pr) pr.textContent = courseDone() + " of " + TOTAL_AVAIL + " lessons complete";
   };
+  window.quizPick = function (qid, opt, correct) {
+    const wrap = document.getElementById(qid); if (!wrap || wrap.dataset.done) return;
+    wrap.dataset.done = "1";
+    wrap.querySelectorAll(".opt").forEach((o, i) => { o.disabled = true; if (i === correct) o.classList.add("correct"); else if (i === opt) o.classList.add("wrong"); });
+    const why = wrap.querySelector(".why"); if (why) why.classList.add("show");
+  };
+  window.taskReveal = function (id, btn) { const el = document.getElementById(id); if (!el) return; const show = el.classList.toggle("show"); if (btn) btn.textContent = show ? "Hide the strong answer" : "Reveal a strong answer"; };
+
+  function practiceHTML(l) {
+    const quiz = (l.quiz || []).map((q, i) => {
+      const qid = l.id + "_q" + i;
+      const opts = q.options.map((o, k) => `<button class="opt" onclick="quizPick('${qid}',${k},${q.answer})"><span class="mk">${String.fromCharCode(65 + k)}</span><span>${esc(o)}</span></button>`).join("");
+      return `<div class="qz" id="${qid}"><p class="q"><span class="n">Q${i + 1}</span>${esc(q.q)}</p><div class="opts">${opts}</div><p class="why"><b>Answer:</b> ${q.why}</p></div>`;
+    }).join("");
+    const tasks = (l.tasks || []).map((t, i) => {
+      const tid = l.id + "_t" + i;
+      return `<div class="tsk"><p class="tk">Hands-on task</p><h4>${esc(t.title)}</h4><p class="brief">${t.prompt}</p><button class="reveal" onclick="taskReveal('${tid}', this)">Reveal a strong answer</button><div class="model" id="${tid}"><p class="mh">A strong answer to compare against</p>${t.model}</div></div>`;
+    }).join("");
+    return `<div class="body">
+      ${l.intro ? `<p class="lead">${esc(l.intro)}</p>` : ""}
+      ${quiz ? `<h2>Check yourself</h2><div class="quiz">${quiz}</div>` : ""}
+      ${tasks ? `<h2>Your turn — practice it</h2>${tasks}` : ""}
+    </div>`;
+  }
+  function outlinePreview(l) {
+    return `<div class="body">
+      <div class="callout"><span class="k">Lesson in progress</span><p>The full write-up for this lecture is being built. <b>Part 1 · Foundations is complete and fully interactive today</b> — start there. Here's what this lecture will cover.</p></div>
+      ${l.moduleSummary ? `<p class="lead">${esc(l.moduleSummary)}</p>` : ""}
+      ${l.moduleProject ? `<div class="callout"><span class="k">What you'll build in this module</span><p>${esc(l.moduleProject)}</p></div>` : ""}
+      <p><a onclick="go('learn')" style="color:var(--signal);cursor:pointer;text-decoration:underline;">← Back to the full curriculum</a></p>
+    </div>`;
+  }
+
+  function renderLesson(id) {
+    const l = byLec(id);
+    if (!l) return renderLearn();
+    document.title = l.title + " — QA in the AI Era course";
+    if (!l.outline) { try { localStorage.setItem(rKey, id); } catch (e) {} }
+    const prev = l.idx > 0 ? LECTURES[l.idx - 1] : null;
+    const next = l.idx < LECTURES.length - 1 ? LECTURES[l.idx + 1] : null;
+    const has = lGet().includes(id);
+    const kindLabel = l.kind === "practice" ? "Practice" : (l.outline ? "Preview" : "Lesson");
+    const bodyHTML = l.outline ? outlinePreview(l) : (l.kind === "practice" ? practiceHTML(l) : `<div class="body">${l.body}</div>`);
+    const markBar = l.outline ? "" : `<div class="ldone">
+        <button class="btn ${has ? 'ghost' : 'primary'}" id="markBtn" onclick="toggleLecComplete('${l.id}')">${has ? '✓ Completed' : 'Mark complete'}</button>
+        <span class="prog" id="lprog">${courseDone()} of ${TOTAL_AVAIL} lessons complete</span>
+      </div>`;
+    const nav = `<div class="lec-nav">
+        ${prev ? `<a onclick="go('learn/${prev.id}')"><span class="d">← Previous</span>${esc(prev.title)}</a>` : `<a onclick="go('learn')"><span class="d">←</span>Course home</a>`}
+        ${next ? `<a class="nx" onclick="go('learn/${next.id}')"><span class="d">Next →</span>${esc(next.title)}</a>` : `<a class="nx" onclick="go('learn')"><span class="d">Finish →</span>Back to course</a>`}
+      </div>`;
+    return `<article class="article fade"><div class="wrap">
+      <a class="backlink" onclick="go('learn')">← Course home</a>
+      <p class="lbread">${esc(l.partName)} &nbsp;/&nbsp; <b>${esc(l.moduleTitle)}</b></p>
+      <h1>${esc(l.title)}</h1>
+      <div class="lmeta"><span class="kd2">${kindLabel}</span>${l.time ? `<span>${esc(l.time)}</span>` : ""}${l.moduleMeta ? `<span>${esc(l.moduleMeta)}</span>` : ""}</div>
+      ${bodyHTML}
+      ${markBar}
+      ${nav}
+    </div></article>${siteFooter()}`;
+  }
+
   function renderLearn() {
     document.title = "The Course — QA in the AI Era";
-    const done = lGet();
+    const doneSet = new Set(lGet());
+    const doneCount = AVAILABLE.filter((l) => doneSet.has(l.id)).length;
+    const pct = TOTAL_AVAIL ? Math.round(doneCount / TOTAL_AVAIL * 100) : 0;
+    let resumeLec = null;
+    try { const r = localStorage.getItem(rKey); if (r) resumeLec = byLec(r); } catch (e) {}
+    const startLec = resumeLec || AVAILABLE[0];
+    const startLabel = resumeLec ? ("Resume: " + resumeLec.title) : "Start Lesson 1";
+
     let n = 0;
-    const parts = COURSE.map((p) => {
+    const curric = COURSE.map((p) => {
       const mods = p.modules.map((m) => {
         n++;
-        const has = done.includes(m.id);
-        const resHTML = (m.res && m.res.length) ? `<div class="res">${m.res.map((r) => `<a href="${esc(r.url)}" ${r.url.charAt(0) === '#' ? '' : 'target="_blank" rel="noopener"'}>${esc(r.name)}</a>`).join("")}</div>` : "";
-        return `<div class="mod ${has ? 'done' : ''}" id="mod_${m.id}">
-          <div class="top"><span class="badge">${n}</span><div><p class="sub">${esc(m.time)}${m.meta ? ' · ' + esc(m.meta) : ''}</p><h3>${esc(m.title)}</h3></div></div>
-          <p class="build"><b>You'll build:</b> ${esc(m.build)}</p>
-          <div class="chips">${m.skills.map((s) => `<span class="chip">${esc(s)}</span>`).join("")}</div>
-          ${resHTML}
-          <div class="chk"><span></span><button class="btn ghost" id="mb_${m.id}" onclick="lToggle('${m.id}')">${has ? '✓ Completed' : 'Mark complete'}</button></div>
+        const lecs = m.lectures || [];
+        const avail = lecs.filter((l) => !l.outline);
+        const modDone = avail.length > 0 && avail.every((l) => doneSet.has(l.id));
+        const openAttr = (m.id === "f1") ? " open" : "";
+        const items = lecs.map((l) => {
+          const d = doneSet.has(l.id);
+          const ico = d ? "✓" : (l.kind === "practice" ? "✎" : (l.outline ? "◔" : "▷"));
+          const kd = l.kind === "practice" ? `<span class="kd">Practice</span>` : (l.outline ? `<span class="kd soon">Soon</span>` : "");
+          return `<button class="lec-item ${d ? 'done' : ''} ${l.outline ? 'locked' : ''}" onclick="go('learn/${l.id}')"><span class="ico">${ico}</span><span class="lt">${esc(l.title)}</span>${kd}<span class="tm">${esc(l.time || '')}</span></button>`;
+        }).join("");
+        const sub = `${esc(p.part.split(' · ')[0])} · ${lecs.length} lesson${lecs.length !== 1 ? 's' : ''}${m.meta ? ' · ' + esc(m.meta) : ''}`;
+        return `<div class="cmod${modDone ? ' done' : ''}${openAttr}" id="cmod_${m.id}">
+          <button class="cmod-h" onclick="toggleMod('${m.id}')"><span class="badge"><span class="bn">${n}</span></span><span class="cmt"><span class="sub">${sub}</span><h3>${esc(m.title)}</h3></span><span class="chev">▶</span></button>
+          <div class="cmod-lec">${items}</div>
         </div>`;
       }).join("");
       return `<div class="parth"><span class="pt">${esc(p.tag)}</span><h2>${esc(p.part)}</h2><p class="pb">${esc(p.blurb)}</p></div>${mods}`;
     }).join("");
+
+    const prereqHTML = PREREQS.map((p) => `<div class="p"><p class="lbl ${p.cls}">${esc(p.lvl)}</p><h4>${esc(p.title)}</h4><p>${esc(p.desc)}</p></div>`).join("");
+    const outcomeHTML = OUTCOMES.map((o) => `<li>${esc(o)}</li>`).join("");
+    const coming = TOTAL_LEC - TOTAL_AVAIL;
+
     return `<section class="page road fade"><div class="wrap">
       <a class="backlink" onclick="go('')">← All articles</a>
       <p class="k">The Course · free &amp; self-paced</p>
       <h1>Become a QA for the AI era — from zero</h1>
-      <p class="lede">A complete, project-based path from "what is testing?" to automating with Playwright and testing AI features themselves. Every module ends in something you build; together they become your portfolio.</p>
+      <p class="lede">A practical, project-based path from "what is testing?" to automating with Playwright and testing AI features themselves. <b>Fully written lessons, real practice after every chapter</b> — no fluff, no dead links.</p>
+      <div class="actions" style="display:flex;gap:12px;margin:0 0 26px;flex-wrap:wrap;align-items:center;">
+        <button class="btn primary" onclick="go('learn/${startLec.id}')">${esc(startLabel)} →</button>
+        <span class="pnote" style="margin:0;">${doneCount} of ${TOTAL_AVAIL} lessons complete · ${TOTAL_AVAIL} live now, ${coming} more coming</span>
+      </div>
+      <div class="pbar"><i style="width:${pct}%"></i></div>
+      <div style="height:22px;"></div>
       ${enrollBlock()}
-      <div class="pbar"><i id="lbar" style="width:${Math.round(done.length / TOTAL_MODULES * 100)}%"></i></div>
-      <p class="pnote" id="lnote">${done.length} of ${TOTAL_MODULES} modules complete</p>
-      <div class="enroll" style="border-left-color:var(--line-strong);"><p style="margin:0;font-size:15.5px;color:var(--muted);"><b style="color:var(--signal);">How it works:</b> 22 modules across 4 parts, done in order. The foundations map to the ISTQB Foundation exam; the AI-era part is where you'll stand out. Finish with a capstone you can show employers.</p></div>
-      ${parts}
-      <div class="actions" style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;"><button class="btn primary" onclick="go('bug-hunt')">Warm up in Bug Hunt →</button><a class="btn ghost" onclick="go('contact')">Ask a question</a></div>
+      <div class="before"><p class="k">Before you start</p><h3>What you should already have (and what to learn separately)</h3><p>This course stays focused on QA. A couple of foundational skills are better learned in their own dedicated courses — do these alongside or just before the parts that need them.</p><div class="pre">${prereqHTML}</div></div>
+      <p class="k" style="margin:30px 0 12px;">What you'll be able to do</p>
+      <ul class="wyl">${outcomeHTML}</ul>
+      <div class="enroll" style="border-left-color:var(--signal);margin-top:26px;"><span class="tag2">The project spine</span><h3>You practice on real apps from lesson one</h3><p style="margin:0;">No toy examples. You test <b>SauceDemo</b> (a real demo shop that ships deliberate bugs for you to find), <b>TodoMVC</b> for state, and a public REST API — then finish with a <b>capstone</b>: a full quality strategy for one real app, from test plan to an automated suite in CI to AI-feature evals. That capstone is your portfolio.</p></div>
+      <p class="k" style="margin:34px 0 4px;">The curriculum</p>
+      <p class="pnote" style="margin:0 0 14px;">${COURSE.length} parts · ${TOTAL_LEC} lessons · Part 1 fully written &amp; interactive</p>
+      <div class="curric">${curric}</div>
+      <div class="actions" style="display:flex;gap:12px;margin-top:22px;flex-wrap:wrap;"><button class="btn primary" onclick="go('learn/${startLec.id}')">${esc(startLabel)} →</button><button class="btn ghost" onclick="go('bug-hunt')">Warm up in Bug Hunt</button></div>
     </div></section>${siteFooter()}`;
   }
 
@@ -1131,6 +1750,7 @@
     const parts = h.split("/").filter(Boolean);
     let html, scrollToAbout = false;
     if (parts[0] === "post" && bySlug(parts[1])) html = renderPost(bySlug(parts[1]));
+    else if (parts[0] === "learn" && parts[1] && byLec(parts[1])) html = renderLesson(parts[1]);
     else if (parts[0] === "learn") html = renderLearn();
     else if (parts[0] === "bug-hunt") html = renderBugHunt();
     else if (parts[0] === "talks") html = renderTalks();
