@@ -131,3 +131,32 @@ CNAME   www   nadavk23.github.io.
 
 Then: wait for DNS to propagate (minutes–hours) → GitHub auto-issues an HTTPS cert →
 enable **Settings → Pages → Enforce HTTPS**. Google sign-in origin becomes `https://nadav-katz.info`.
+
+### Troubleshooting — "This Connection Is Not Private" / cert warning
+
+If a visitor sees Safari's *"This Connection Is Not Private — this website may be
+impersonating nadav-katz.info"* (or Chrome's `NET::ERR_CERT_COMMON_NAME_INVALID`), the
+site content is fine — the browser is rejecting the **HTTPS certificate** because the cert
+served for `nadav-katz.info` isn't valid for that name. It is **not** a bug in `index.html`.
+
+Almost always one of these:
+
+1. **Certificate still provisioning (most common right after connecting the domain).**
+   GitHub Pages issues the Let's Encrypt cert *only after* DNS resolves to its servers, and
+   it can take a few minutes up to ~24h. Until then `https://nadav-katz.info` serves GitHub's
+   default `*.github.io` cert, which doesn't match → the warning. Fix: wait, then tick
+   **Settings → Pages → Enforce HTTPS** once the cert shows as issued.
+2. **DNS points at the wrong host.** Confirm the apex resolves to the four GitHub IPs above:
+   ```bash
+   dig +short nadav-katz.info A          # expect 185.199.108–111.153
+   echo | openssl s_client -connect nadav-katz.info:443 -servername nadav-katz.info \
+     2>/dev/null | openssl x509 -noout -subject -issuer -dates   # CN should be nadav-katz.info
+   ```
+3. **Two hosts claiming the same domain.** This repo also contains a `vercel.json` (leftover
+   from the original template). It's harmless for GitHub Pages, but do **not** also add
+   `nadav-katz.info` to a Vercel project — one apex domain pointed at two hosts produces
+   exactly this intermittent cert error. Pick one host and delete the other's config
+   (`vercel.json` for Vercel, or the `CNAME` file for GitHub Pages).
+
+**Always-valid fallback link to share** while the custom-domain cert settles:
+`https://nadavk23.github.io/qa-in-the-ai-era/`
