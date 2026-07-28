@@ -1719,47 +1719,497 @@ test('purchase two items', async ({ page }) =&gt; {
           summary: "The patterns that keep a suite alive as the app changes: Page Object Model, fixtures, resilient locators, and the trace viewer.",
           project: "Refactor your suite with POM, fixtures, and cross-browser runs.",
           lectures: [
-            { id: "a4l1", title: "The Page Object Model", time: "14 min", outline: true },
-            { id: "a4l2", title: "Fixtures & test setup/teardown", time: "12 min", outline: true },
-            { id: "a4l3", title: "Debugging with the trace viewer", time: "12 min", outline: true },
-            { id: "a4l4", title: "Cross-browser: Chromium, Firefox, WebKit", time: "10 min", outline: true },
-            { id: "a4p", title: "Practice — refactor a flaky suite", time: "30 min", kind: "practice", outline: true } ] },
+            { id: "a4l1", title: "The Page Object Model", time: "14 min", body: `
+              <p class="lead">Your first tests work — but paste the same login steps into ten tests and you've built a maintenance trap. The Page Object Model (POM) is the pattern that keeps a growing suite from collapsing under its own weight.</p>
+              <h2>The problem POM solves</h2>
+              <p>When the login markup changes, a suite with the steps copy-pasted everywhere breaks in ten places. POM puts each page's locators and actions in <em>one class</em>, so a UI change is a one-line fix in one file.</p>
+              <pre class="cblock"><code><span class="c">// pages/LoginPage.ts — one home for everything "login"</span>
+export class LoginPage {
+  constructor(page) { this.page = page; }
+
+  async goto() {
+    await this.page.goto('https://www.saucedemo.com');
+  }
+
+  async login(user, pass) {
+    await this.page.getByTestId('username').fill(user);
+    await this.page.getByTestId('password').fill(pass);
+    await this.page.getByTestId('login-button').click();
+  }
+}</code></pre>
+              <p>Tests now read like intent, not mechanics:</p>
+              <pre class="cblock"><code>const login = new LoginPage(page);
+await login.goto();
+await login.login('standard_user', 'secret_sauce');
+await expect(page).toHaveURL(/inventory/);</code></pre>
+              <div class="callout"><span class="k">Keep assertions in the test</span><p>Page objects hold <em>actions and locators</em>; keep the <code>expect</code>s in the test itself. That way the page object stays reusable and each test still clearly states what it's verifying.</p></div>` },
+            { id: "a4l2", title: "Fixtures & test setup/teardown", time: "12 min", body: `
+              <p class="lead">Most tests share setup — a logged-in page, seeded data, a fresh cart. Fixtures give you that setup cleanly, so every test starts from a known state without copy-paste.</p>
+              <h2>The quick version: hooks</h2>
+              <p><code>beforeEach</code> runs before every test in a file; <code>afterEach</code> cleans up after. Good for simple, local setup.</p>
+              <pre class="cblock"><code>test.beforeEach(async ({ page }) =&gt; {
+  await page.goto('https://www.saucedemo.com');
+});</code></pre>
+              <h2>The powerful version: custom fixtures</h2>
+              <p>A fixture packages reusable setup as something a test can just ask for by name. Here's a fixture that hands every test a ready-to-use <code>LoginPage</code>:</p>
+              <pre class="cblock"><code>import { test as base } from '@playwright/test';
+import { LoginPage } from './pages/LoginPage';
+
+export const test = base.extend({
+  loginPage: async ({ page }, use) =&gt; {
+    await use(new LoginPage(page));   <span class="c">// setup before, teardown after</span>
+  },
+});
+
+<span class="c">// now any test can request it:</span>
+test('locked-out user is blocked', async ({ loginPage, page }) =&gt; {
+  await loginPage.goto();
+  await loginPage.login('locked_out_user', 'secret_sauce');
+  await expect(page.getByText('locked out')).toBeVisible();
+});</code></pre>
+              <div class="callout"><span class="k">Why this matters</span><p>Fixtures make each test <em>independent and repeatable</em> — a core testing principle. No test should depend on another running first; fixtures give each one its own clean starting line.</p></div>` },
+            { id: "a4l3", title: "Debugging with the trace viewer", time: "12 min", body: `
+              <p class="lead">When a test fails — especially one that only fails in CI — the trace viewer is the single most valuable tool Playwright gives you. It's a full recording of the run you can step through frame by frame.</p>
+              <h2>Turn it on</h2>
+              <p>In <code>playwright.config.ts</code>, capture a trace when a test retries:</p>
+              <pre class="cblock"><code>use: { trace: 'on-first-retry' }</code></pre>
+              <p>After a failing run, open the recorded trace:</p>
+              <pre class="cblock"><code>npx playwright show-trace trace.zip</code></pre>
+              <h2>What you get</h2>
+              <ul>
+                <li>Every action as a timeline, with a <strong>DOM snapshot</strong> before and after — you see exactly what the page looked like when it failed.</li>
+                <li>The network calls, console logs, and the source line for each step.</li>
+                <li>Time-travel: hover any step and the page state at that instant appears.</li>
+              </ul>
+              <div class="callout"><span class="k">"Works on my machine, fails in CI"</span><p>This is the tool that ends that argument. The CI trace shows the <em>actual</em> state that failed — a not-yet-loaded element, a cookie banner covering your button, a different viewport. You stop guessing and start seeing.</p></div>` },
+            { id: "a4l4", title: "Cross-browser: Chromium, Firefox, WebKit", time: "10 min", body: `
+              <p class="lead">Real users aren't all on Chrome. Playwright's superpower is running the <em>same</em> test across Chromium, Firefox, and WebKit (Safari's engine) with no code changes — just configuration.</p>
+              <h2>Projects</h2>
+              <p>In <code>playwright.config.ts</code>, each browser is a "project." Define them once and every test runs on all three:</p>
+              <pre class="cblock"><code>projects: [
+  { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+  { name: 'firefox',  use: { ...devices['Desktop Firefox'] } },
+  { name: 'webkit',   use: { ...devices['Desktop Safari'] } },
+]</code></pre>
+              <p>Run one browser while developing, all three in CI:</p>
+              <pre class="cblock"><code>npx playwright test --project=chromium   <span class="c"># fast local loop</span>
+npx playwright test                      <span class="c"># all projects</span></code></pre>
+              <div class="callout"><span class="k">Where cross-browser bugs hide</span><p>Date pickers, CSS layout, and form validation behave differently across engines — WebKit especially. Running all three is how you catch the "broken only on Safari" bug (a P0/P1 in your Part 1 triage) <em>before</em> a user does.</p></div>` },
+            { id: "a4p", title: "Practice — check yourself + refactor to POM", time: "30 min", kind: "practice",
+              intro: "Confirm the maintainability patterns, then refactor your Module 3 test to use a page object — the change that makes a suite survive a redesign.",
+              quiz: [
+                { q: "What problem does the Page Object Model primarily solve?", options: ["Tests run faster", "A UI change becomes a one-place fix instead of breaking every test", "It removes the need for assertions"], answer: 1, why: "POM centralizes each page's locators and actions, so when the markup changes you fix one file instead of hunting through every test. Assertions still belong in the tests." },
+                { q: "What is a Playwright fixture mainly for?", options: ["Styling the report", "Providing clean, reusable setup so each test starts from a known, independent state", "Making the browser visible"], answer: 1, why: "Fixtures package reusable setup/teardown and keep tests independent and repeatable — no test should depend on another having run first." },
+                { q: "A test passes locally but fails in CI. Which tool shows you the actual failing state?", options: ["console.log everywhere", "The trace viewer (DOM snapshots + timeline of the CI run)", "Re-running until it passes"], answer: 1, why: "The trace viewer records the real run — DOM snapshots, network, and the exact step that failed — so you see what actually happened in CI instead of guessing." },
+                { q: "Why run tests on WebKit as well as Chromium?", options: ["It's required by law", "To catch engine-specific bugs (layout, dates, validation) that only appear in Safari's engine", "WebKit is faster"], answer: 1, why: "Different engines render and validate differently; WebKit surfaces the 'broken only on Safari' class of bug before real users hit it." }
+              ],
+              tasks: [
+                { title: "Refactor your checkout test to use a page object", prompt: "Take your Module 3 SauceDemo test and extract the login steps into a <code>LoginPage</code> class with <code>goto()</code> and <code>login(user, pass)</code> methods. Update the test to use it. Bonus: add a <code>beforeEach</code> that navigates to the site. Then reveal to compare.",
+                  model: `
+                    <pre class="cblock"><code><span class="c">// pages/LoginPage.ts</span>
+export class LoginPage {
+  constructor(page) { this.page = page; }
+  async goto() { await this.page.goto('https://www.saucedemo.com'); }
+  async login(user, pass) {
+    await this.page.getByTestId('username').fill(user);
+    await this.page.getByTestId('password').fill(pass);
+    await this.page.getByTestId('login-button').click();
+  }
+}
+
+<span class="c">// tests/checkout.spec.ts</span>
+import { test, expect } from '@playwright/test';
+import { LoginPage } from '../pages/LoginPage';
+
+test('shopper completes a purchase', async ({ page }) =&gt; {
+  const login = new LoginPage(page);
+  await login.goto();
+  await login.login('standard_user', 'secret_sauce');
+  await expect(page).toHaveURL(/inventory/);
+  <span class="c">// ...rest of the checkout flow...</span>
+});</code></pre>
+                    <p><b>What a strong refactor shows:</b> the locators live only in <code>LoginPage</code>, the test reads as intent, and the <code>expect</code> stays in the test. Now a login redesign is a one-file change — that's the whole point.</p>` }
+              ] } ] },
         { id: "a5", title: "Visual & Accessibility Checks", meta: "",
           summary: "Catch what the model can't perceive: layout breakage and accessibility violations, automated.",
           project: "Add axe accessibility assertions + screenshot diffs to your suite.",
           lectures: [
-            { id: "a5l1", title: "Accessibility testing with axe-core", time: "14 min", outline: true },
-            { id: "a5l2", title: "Visual regression with screenshot diffs", time: "12 min", outline: true },
-            { id: "a5p", title: "Practice — fail a build on an a11y violation", time: "25 min", kind: "practice", outline: true } ] },
+            { id: "a5l1", title: "Accessibility testing with axe-core", time: "14 min", body: `
+              <p class="lead">Accessibility is where AI is most reliably blind: a model almost never checks color contrast, focus order, or whether a button has a label. axe-core drops those checks straight into your Playwright run — and it's fast to add.</p>
+              <h2>Why it's an AI-era priority</h2>
+              <p>Generated markup looks fine and reads fine to the model, but ships icon-only buttons with no accessible name, form fields with no label, and text with failing contrast. Real users relying on a screen reader or keyboard hit a wall. axe catches a large share of these automatically.</p>
+              <h2>Add it to a test</h2>
+              <pre class="cblock"><code>import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+
+test('inventory page has no critical a11y violations', async ({ page }) =&gt; {
+  await page.goto('https://www.saucedemo.com/inventory.html');
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations).toEqual([]);   <span class="c">// fail the build on any violation</span>
+});</code></pre>
+              <p>Each violation comes with the rule, the impact (minor → critical), and the exact elements — so a failure tells you precisely what to fix.</p>
+              <div class="callout"><span class="k">Scope it so it's useful</span><p>Failing on <em>every</em> violation at once can be noisy on a legacy app. Start by gating on <code>critical</code> and <code>serious</code> impacts, or scope axe to the component you're building, then ratchet up. A check people disable helps no one.</p></div>` },
+            { id: "a5l2", title: "Visual regression with screenshot diffs", time: "12 min", body: `
+              <p class="lead">Some bugs are invisible to functional tests but obvious to a human: an overlapping icon, a collapsed card, text spilling out of a button. Visual regression catches the layout breakage a model can't perceive from source.</p>
+              <h2>How it works</h2>
+              <p>The first run saves a <strong>baseline</strong> screenshot. Every later run compares against it and fails if pixels differ beyond a threshold.</p>
+              <pre class="cblock"><code>await expect(page).toHaveScreenshot('inventory.png');</code></pre>
+              <p>Update baselines intentionally when a change is expected:</p>
+              <pre class="cblock"><code>npx playwright test --update-snapshots</code></pre>
+              <h2>Taming false positives</h2>
+              <ul>
+                <li><strong>Mask dynamic areas</strong> (dates, ads, carousels) so they don't trip the diff: <code>toHaveScreenshot({ mask: [page.locator('.timestamp')] })</code>.</li>
+                <li><strong>Pin the viewport and fonts</strong> so renders are deterministic across machines.</li>
+                <li>Review diffs like code — an intentional redesign updates the baseline; an accidental one is a caught bug.</li>
+              </ul>
+              <div class="callout"><span class="k">Playwright vs Chromatic</span><p>Playwright's built-in <code>toHaveScreenshot</code> is free and lives in your suite. <b>Chromatic</b> (with Storybook) does component-level visual review with a hosted UI and is worth it once a team reviews visuals together. Start with the built-in.</p></div>` },
+            { id: "a5p", title: "Practice — check yourself + fail a build on a11y", time: "25 min", kind: "practice",
+              intro: "Confirm the two 'perception' checks, then wire axe into a test and watch it catch a real violation.",
+              quiz: [
+                { q: "Which class of bug is axe-core best at catching that AI routinely misses?", options: ["Wrong tax calculation", "Missing labels, poor contrast, broken focus order", "A slow API endpoint"], answer: 1, why: "axe checks accessibility — labels, contrast, roles, focus — exactly the things a model doesn't perceive from source. Tax math is functional; API speed is performance." },
+                { q: "Visual regression testing catches…", options: ["Logic errors in a function", "Layout breakage a human sees but functional tests miss (overlap, collapse, overflow)", "Missing await calls"], answer: 1, why: "Screenshot diffs surface visual breakage that passes every functional assertion — an overlapping icon or collapsed card the model can't perceive from code." },
+                { q: "Your visual test fails because a timestamp on the page changed. Best fix?", options: ["Delete the visual test", "Mask the dynamic timestamp region so it's excluded from the diff", "Lower the resolution"], answer: 1, why: "Mask dynamic areas (timestamps, ads) so legitimate changes don't cause false positives, while real layout regressions still fail the diff." }
+              ],
+              tasks: [
+                { title: "Add an axe check that catches a real violation", prompt: "Install <code>@axe-core/playwright</code> and add a test that runs <code>AxeBuilder</code> on a page and asserts no <b>critical/serious</b> violations. Point it at a page you know has issues (or temporarily remove a label). Read the violation output and note the rule + affected element. Reveal to compare.",
+                  model: `
+                    <pre class="cblock"><code>import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+
+test('no serious+ a11y violations', async ({ page }) =&gt; {
+  await page.goto('https://www.saucedemo.com/inventory.html');
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa'])
+    .analyze();
+
+  const serious = results.violations.filter(
+    (v) =&gt; v.impact === 'critical' || v.impact === 'serious'
+  );
+  expect(serious).toEqual([]);
+});</code></pre>
+                    <p><b>What a strong answer shows:</b> gating on <code>critical/serious</code> (not every minor nit), using WCAG tags to scope the rules, and reading the violation's <code>id</code> and <code>nodes</code> to know exactly what to fix. That output <em>is</em> your bug report.</p>` }
+              ] } ] },
         { id: "a6", title: "API Testing", meta: "",
           summary: "Test below the UI — faster, more stable — against a real public API.",
           project: "A suite testing restful-booker (REST) plus one GraphQL query.",
           lectures: [
-            { id: "a6l1", title: "HTTP & REST for testers", time: "12 min", outline: true },
-            { id: "a6l2", title: "Automated API tests (restful-booker)", time: "16 min", outline: true },
-            { id: "a6l3", title: "A first GraphQL query test", time: "10 min", outline: true },
-            { id: "a6p", title: "Practice — test a public API end to end", time: "30 min", kind: "practice", outline: true } ] },
+            { id: "a6l1", title: "HTTP & REST for testers", time: "12 min", body: `
+              <p class="lead">Under every UI is an API. Testing it directly is faster, far more stable, and reaches error cases the UI can't easily produce. First, the vocabulary.</p>
+              <h2>The request</h2>
+              <p>An HTTP request has a <strong>method</strong>, a <strong>URL</strong>, optional <strong>headers</strong> (auth, content type), and often a <strong>body</strong> (JSON). The methods map to actions:</p>
+              <div class="term"><span class="w">GET</span><span class="m">Read data. No body. Should never change anything.</span></div>
+              <div class="term"><span class="w">POST</span><span class="m">Create something new. Sends a body.</span></div>
+              <div class="term"><span class="w">PUT / PATCH</span><span class="m">Update an existing thing (fully / partially).</span></div>
+              <div class="term"><span class="w">DELETE</span><span class="m">Remove it.</span></div>
+              <h2>The response</h2>
+              <p>Back comes a <strong>status code</strong> and usually a JSON <strong>body</strong>. Learn the families:</p>
+              <ul>
+                <li><strong>2xx</strong> success — <code>200</code> OK, <code>201</code> Created.</li>
+                <li><strong>4xx</strong> you sent something wrong — <code>400</code> bad request, <code>401</code> unauthenticated, <code>403</code> forbidden, <code>404</code> not found.</li>
+                <li><strong>5xx</strong> the server broke — <code>500</code>. Never the client's fault.</li>
+              </ul>
+              <div class="callout"><span class="k">Your practice API</span><p>We'll use <b>restful-booker</b> (<code>restful-booker.herokuapp.com</code>) — a free public API built for practice, with create/read/update/delete on hotel bookings and token auth. It's the API equivalent of SauceDemo.</p></div>` },
+            { id: "a6l2", title: "Automated API tests (restful-booker)", time: "16 min", body: `
+              <p class="lead">Playwright ships an API client — the <code>request</code> fixture — so you can test APIs with the same tool, no UI involved. Let's create a booking and verify it.</p>
+              <h2>Create, then read back</h2>
+              <pre class="cblock"><code>import { test, expect } from '@playwright/test';
+
+const BASE = 'https://restful-booker.herokuapp.com';
+
+test('create and fetch a booking', async ({ request }) =&gt; {
+  <span class="c">// POST creates it</span>
+  const res = await request.post(BASE + '/booking', {
+    data: {
+      firstname: 'Ada', lastname: 'Lovelace',
+      totalprice: 100, depositpaid: true,
+      bookingdates: { checkin: '2026-01-01', checkout: '2026-01-05' },
+    },
+  });
+  expect(res.status()).toBe(200);
+
+  const body = await res.json();
+  const id = body.bookingid;
+  expect(body.booking.firstname).toBe('Ada');
+
+  <span class="c">// GET reads it back</span>
+  const got = await request.get(BASE + '/booking/' + id);
+  expect(got.status()).toBe(200);
+  expect((await got.json()).lastname).toBe('Lovelace');
+});</code></pre>
+              <h2>What to assert</h2>
+              <ul>
+                <li><strong>Status code</strong> — the first, cheapest signal.</li>
+                <li><strong>Body shape and values</strong> — the fields you sent came back correct.</li>
+                <li><strong>Error paths</strong> — request a missing id, expect <code>404</code>; send bad data, expect <code>400/500</code>. These are trivial via API and painful via UI.</li>
+              </ul>
+              <div class="callout"><span class="k">Auth for writes</span><p>Updating or deleting a booking needs a token: POST to <code>/auth</code> with the demo credentials, grab the token from the response, and send it as a cookie/header on your <code>PUT</code>/<code>DELETE</code>. Testing the auth boundary — a write with <em>no</em> token should be rejected — is exactly the kind of seam bug the manifesto warned about.</p></div>` },
+            { id: "a6l3", title: "A first GraphQL query test", time: "10 min", body: `
+              <p class="lead">GraphQL is increasingly common, and testing it is simpler than it looks: it's usually one endpoint you POST a query to, and you assert on the JSON that comes back.</p>
+              <h2>The shape</h2>
+              <p>Instead of many URLs, GraphQL has a single endpoint (often <code>/graphql</code>). You POST a <em>query</em> describing exactly the fields you want, and get back JSON in that shape.</p>
+              <pre class="cblock"><code>test('graphql: fetch a country name', async ({ request }) =&gt; {
+  const res = await request.post('https://countries.trevorblades.com/', {
+    data: { query: '{ country(code: "IL") { name capital } }' },
+  });
+  expect(res.status()).toBe(200);
+
+  const body = await res.json();
+  expect(body.data.country.name).toBe('Israel');
+});</code></pre>
+              <div class="callout"><span class="k">Two GraphQL gotchas testers must know</span><p>First, GraphQL often returns <code>200</code> even on errors — the real errors live in an <code>errors</code> array in the body, so assert on <code>body.errors</code>, not just the status. Second, you only get the fields you ask for, so a test can under-fetch and miss a broken field — request what you actually need to verify.</p></div>` },
+            { id: "a6p", title: "Practice — check yourself + test an API end to end", time: "30 min", kind: "practice",
+              intro: "Confirm the HTTP fundamentals, then write a real create-read-delete flow against restful-booker — the most portable testing skill you'll learn.",
+              quiz: [
+                { q: "You request a booking id that doesn't exist. Which status code do you expect?", options: ["200 OK", "404 Not Found", "500 Server Error"], answer: 1, why: "A missing resource should return <code>404</code>. A <code>500</code> here would itself be a bug (the server failing instead of cleanly saying 'not found')." },
+                { q: "Why test the API layer directly instead of only through the UI?", options: ["It looks nicer", "It's faster, more stable, and can reach error cases the UI can't easily produce", "The UI can't be tested"], answer: 1, why: "API tests skip browser flakiness, run in milliseconds, and can trigger 400/401/404/500 paths that are hard to force through the UI." },
+                { q: "A GraphQL request returns status 200 but the data is wrong. Where do you look?", options: ["The status code — it must be lying", "The <code>errors</code> array in the response body", "The browser console"], answer: 1, why: "GraphQL commonly returns 200 even on failures; the actual problems are in the response body's <code>errors</code> array, so you must assert on it." }
+              ],
+              tasks: [
+                { title: "Create → read → delete a booking", prompt: "Against <code>restful-booker.herokuapp.com</code>: <b>(1)</b> POST <code>/auth</code> to get a token; <b>(2)</b> POST <code>/booking</code> to create one and capture its <code>bookingid</code>; <b>(3)</b> GET it back and assert a field; <b>(4)</b> DELETE it with the token and assert it's gone (a follow-up GET returns 404). Reveal to compare.",
+                  model: `
+                    <pre class="cblock"><code>const BASE = 'https://restful-booker.herokuapp.com';
+
+test('full booking lifecycle', async ({ request }) =&gt; {
+  <span class="c">// 1. auth</span>
+  const auth = await request.post(BASE + '/auth', {
+    data: { username: 'admin', password: 'password123' },
+  });
+  const token = (await auth.json()).token;
+
+  <span class="c">// 2. create</span>
+  const created = await request.post(BASE + '/booking', {
+    data: { firstname: 'Grace', lastname: 'Hopper', totalprice: 200,
+            depositpaid: true,
+            bookingdates: { checkin: '2026-02-01', checkout: '2026-02-03' } },
+  });
+  const id = (await created.json()).bookingid;
+
+  <span class="c">// 3. read back</span>
+  const got = await request.get(BASE + '/booking/' + id);
+  expect((await got.json()).firstname).toBe('Grace');
+
+  <span class="c">// 4. delete + confirm gone</span>
+  const del = await request.delete(BASE + '/booking/' + id, {
+    headers: { Cookie: 'token=' + token },
+  });
+  expect(del.status()).toBe(201);
+  const gone = await request.get(BASE + '/booking/' + id);
+  expect(gone.status()).toBe(404);
+});</code></pre>
+                    <p><b>What a strong answer shows:</b> it captures the token and threads it into the authenticated DELETE, and it <em>proves</em> the delete worked by asserting a follow-up GET returns 404 — verifying the outcome, not just trusting the delete's status.</p>` }
+              ] } ] },
         { id: "a7", title: "CI/CD — Run Everything Automatically", meta: "",
           summary: "The enforcement layer: your suite runs on every push and blocks merge on red.",
           project: "A GitHub Actions pipeline that gates merges on your tests.",
           lectures: [
-            { id: "a7l1", title: "Your first GitHub Actions workflow", time: "14 min", outline: true },
-            { id: "a7l2", title: "Quality gates, parallelization & reports", time: "12 min", outline: true },
-            { id: "a7p", title: "Practice — gate a repo on green", time: "25 min", kind: "practice", outline: true } ] },
+            { id: "a7l1", title: "Your first GitHub Actions workflow", time: "14 min", body: `
+              <p class="lead">A test suite no one runs is theater. CI is what turns "we have tests" into "you physically cannot merge past them." It's the single change that stops the AI — and you — from re-breaking things, because the failing build blocks the door.</p>
+              <h2>A workflow is a YAML file in your repo</h2>
+              <p>Create <code>.github/workflows/tests.yml</code>. GitHub runs it automatically on every push and pull request:</p>
+              <pre class="cblock"><code>name: tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npx playwright test</code></pre>
+              <p>Read it top-down: on a push, spin up a fresh Linux machine, check out the code, install Node, install dependencies and browsers, run the suite. If any test fails, the job fails — and that failure is visible right on the pull request.</p>
+              <div class="callout"><span class="k">This closes the loop from Article 1</span><p>Remember the manifesto: the AI re-broke the same feature three times because nothing held the fix in place. <em>This file is what holds it.</em> Every bug you turned into a test now runs here, on every change, forever — the ratchet that only moves quality forward.</p></div>` },
+            { id: "a7l2", title: "Quality gates, parallelization & reports", time: "12 min", body: `
+              <p class="lead">Running the tests is step one. Making them an enforceable gate — fast, and diagnosable when they fail — is what makes CI trustworthy instead of ignorable.</p>
+              <h2>The gate: block merge on red</h2>
+              <p>In GitHub → Settings → Branches, add a <strong>branch protection rule</strong> on <code>main</code> that requires the <code>tests</code> check to pass before merging. Now a red build isn't a suggestion — it's a locked door. That's the difference between having tests and being governed by them.</p>
+              <h2>Keep it fast</h2>
+              <ul>
+                <li><strong>Parallelize / shard</strong> — Playwright splits tests across workers automatically, and you can shard across CI machines so a big suite still finishes in minutes.</li>
+                <li><strong>Cache</strong> dependencies and browser binaries between runs.</li>
+                <li><strong>Run smoke first</strong> — your Part 1 smoke layer as a quick gate, the full regression suite after.</li>
+              </ul>
+              <h2>When it fails, make it diagnosable</h2>
+              <p>Upload the Playwright HTML report and traces as build artifacts, so a failure gives you the report and a time-travel trace instead of a wall of log text:</p>
+              <pre class="cblock"><code>- uses: actions/upload-artifact@v4
+  if: always()
+  with:
+    name: playwright-report
+    path: playwright-report/</code></pre>
+              <div class="callout"><span class="k">Handle flakiness honestly</span><p>Set a small retry count for genuinely flaky tests, but <em>track</em> what retried — a test that only passes on retry is a bug in the test or the app, not a win. Silent retries hide rot; visible ones get fixed.</p></div>` },
+            { id: "a7p", title: "Practice — check yourself + gate a repo on green", time: "25 min", kind: "practice",
+              intro: "Confirm what CI is really for, then add a workflow to a repo and make a red build block a merge.",
+              quiz: [
+                { q: "What's the core purpose of CI for quality?", options: ["To make tests look official", "To run the suite automatically on every change and block merges when it's red", "To replace writing tests"], answer: 1, why: "CI is the enforcement layer — it runs your tests on every push/PR and, with branch protection, prevents merging broken code. It doesn't replace tests; it makes them binding." },
+                { q: "A test in CI only passes when it's retried. What does that mean?", options: ["Success — ship it", "It's a signal of a real flaky bug in the test or app that should be investigated, not hidden", "CI is broken"], answer: 1, why: "Passing only on retry means something is genuinely unstable. Retries can keep the pipeline moving, but a tracked retry is a bug to fix — not a pass to celebrate." },
+                { q: "Why upload the Playwright report and traces as CI artifacts?", options: ["To use more storage", "So a failure is diagnosable — you get the report and a time-travel trace instead of just logs", "It makes tests faster"], answer: 1, why: "Artifacts turn a CI failure into something you can actually debug: the HTML report and trace show the exact failing state, no guessing." }
+              ],
+              tasks: [
+                { title: "Add CI and watch a red build block a merge", prompt: "Add <code>.github/workflows/tests.yml</code> to your Playwright repo so the suite runs on every push and PR. Enable a branch protection rule requiring the check to pass on <code>main</code>. Then open a PR that deliberately breaks a test and confirm the merge button is blocked. Reveal to compare.",
+                  model: `
+                    <pre class="cblock"><code><span class="c"># .github/workflows/tests.yml</span>
+name: tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/</code></pre>
+                    <p><b>Then:</b> Settings → Branches → add rule on <code>main</code> → "Require status checks to pass" → select <code>test</code>. Open a PR that changes an assertion to something false. <b>What a strong result shows:</b> the check goes red and the merge button is disabled — you've turned your tests into a law, exactly the outcome Article 2 argued for.</p>` }
+              ] } ] },
         { id: "a8", title: "Performance & Load Testing", meta: "",
           summary: "Put numbers and thresholds on “fast enough” with k6.",
           project: "A k6 load test with pass/fail thresholds on an endpoint.",
           lectures: [
-            { id: "a8l1", title: "Performance concepts & metrics", time: "12 min", outline: true },
-            { id: "a8l2", title: "Writing a k6 test with thresholds", time: "14 min", outline: true },
-            { id: "a8p", title: "Practice — set and defend a threshold", time: "25 min", kind: "practice", outline: true } ] },
-        { id: "a9", title: "Mobile, Cross-Device & SQL Essentials", meta: "Recommend the SQL prereq first",
+            { id: "a8l1", title: "Performance concepts & metrics", time: "12 min", body: `
+              <p class="lead">"Is it fast enough?" isn't an opinion — it's a measurement against a target. Performance testing turns vague worry into pass/fail numbers. First, the concepts that keep you honest.</p>
+              <h2>The metrics that matter</h2>
+              <div class="term"><span class="w">Latency / response time</span><span class="m">How long one request takes. The number users feel.</span></div>
+              <div class="term"><span class="w">Throughput</span><span class="m">Requests handled per second. How much load the system takes.</span></div>
+              <div class="term"><span class="w">Percentiles (p95, p99)</span><span class="m">"95% of requests were faster than X." The honest way to report speed — because averages hide the slow tail.</span></div>
+              <h2>Why the average lies</h2>
+              <p>If 90 requests take 100ms and 10 take 5 seconds, the "average" looks fine while one user in ten has a terrible time. <strong>p95 and p99</strong> expose that tail. Always set targets on percentiles, never the mean.</p>
+              <h2>Kinds of performance test</h2>
+              <ul>
+                <li><strong>Load</strong> — expected traffic. Does it hold up on a normal day?</li>
+                <li><strong>Stress</strong> — push past the limit to find the breaking point and how it fails.</li>
+                <li><strong>Soak</strong> — normal load for hours, to catch memory leaks and slow degradation (a bug-over-time the AI never sees).</li>
+                <li><strong>Spike</strong> — sudden surge, like a launch or a sale.</li>
+              </ul>
+              <div class="callout"><span class="k">This is a non-functional type</span><p>From Part 1's map: performance is a <em>non-functional</em> requirement. "The product list loads for 500 concurrent users with p95 under 500ms" is testable, measurable, and exactly the kind of requirement you learned to demand instead of "it should be fast."</p></div>` },
+            { id: "a8l2", title: "Writing a k6 test with thresholds", time: "14 min", body: `
+              <p class="lead">k6 is a modern load-testing tool where you write the test in JavaScript — familiar ground now — and set <strong>thresholds</strong> that make it pass or fail automatically, so it can live in CI like any other test.</p>
+              <h2>A complete load test</h2>
+              <pre class="cblock"><code>import http from 'k6/http';
+import { check, sleep } from 'k6';
+
+export const options = {
+  vus: 10,               <span class="c">// 10 virtual users, concurrently</span>
+  duration: '30s',       <span class="c">// for 30 seconds</span>
+  thresholds: {
+    http_req_duration: ['p(95)&lt;500'],   <span class="c">// 95% of requests under 500ms — or FAIL</span>
+    http_req_failed:   ['rate&lt;0.01'],    <span class="c">// under 1% errors</span>
+  },
+};
+
+export default function () {
+  const res = http.get('https://test.k6.io');
+  check(res, { 'status is 200': (r) =&gt; r.status === 200 });
+  sleep(1);
+}</code></pre>
+              <p>Run it with <code>k6 run script.js</code>. The magic is the <code>thresholds</code> block: if p95 latency exceeds 500ms or the error rate passes 1%, k6 exits non-zero — which means CI marks the build red, exactly like a failed functional test.</p>
+              <div class="callout"><span class="k">Set the threshold from a real target, then defend it</span><p>A threshold is only meaningful if the number comes from a requirement ("checkout must feel instant → p95 &lt; 500ms"), not a guess. When it fails, you have a concrete, defensible bug: "at 10 concurrent users, p95 was 820ms against a 500ms target" — not "the site felt slow."</p></div>` },
+            { id: "a8p", title: "Practice — check yourself + set a threshold", time: "25 min", kind: "practice",
+              intro: "Confirm the concepts, then write a k6 test with a real threshold and interpret what it tells you.",
+              quiz: [
+                { q: "Why report p95 instead of the average response time?", options: ["It's a bigger number", "The average hides a slow tail; p95 shows what most users' worst experience really is", "Percentiles are required by k6"], answer: 1, why: "Averages can look healthy while a meaningful fraction of users suffer. p95/p99 expose the slow tail that the mean conceals." },
+                { q: "What does a k6 <code>threshold</code> do?", options: ["Makes the test prettier", "Turns a performance target into an automatic pass/fail so it can gate CI", "Increases the number of users"], answer: 1, why: "Thresholds define pass/fail conditions (e.g. p95 under 500ms); if they're breached, k6 exits non-zero and CI fails — performance becomes an enforceable gate." },
+                { q: "You want to find the point where the system breaks and how it fails. Which test?", options: ["Load test", "Stress test", "Soak test"], answer: 1, why: "A stress test pushes past expected capacity to find the breaking point and failure mode. Load is normal traffic; soak is long-duration to find leaks." }
+              ],
+              tasks: [
+                { title: "Write a k6 test with a p95 threshold", prompt: "Install k6 and write a test that sends traffic to a public endpoint (e.g. <code>https://test.k6.io</code>) with 10 virtual users for 30s, a threshold of <b>p95 under 500ms</b>, and an error-rate threshold under 1%. Run it, then write one sentence interpreting the result as you would in a bug report. Reveal to compare.",
+                  model: `
+                    <pre class="cblock"><code>import http from 'k6/http';
+import { check, sleep } from 'k6';
+
+export const options = {
+  vus: 10,
+  duration: '30s',
+  thresholds: {
+    http_req_duration: ['p(95)&lt;500'],
+    http_req_failed:   ['rate&lt;0.01'],
+  },
+};
+
+export default function () {
+  const res = http.get('https://test.k6.io');
+  check(res, { 'status is 200': (r) =&gt; r.status === 200 });
+  sleep(1);
+}</code></pre>
+                    <p><b>Interpreting the result (bug-report style):</b> "At 10 concurrent users over 30s, p95 latency was 640ms against a 500ms target (threshold FAILED); error rate 0%. Recommend profiling the endpoint before increasing load." <b>What a strong answer shows:</b> the number is compared to a stated target and the verdict is objective — measurement, not vibe.</p>` }
+              ] } ] },
+        { id: "a9", title: "Mobile, Cross-Device & SQL Essentials", meta: "SQL prereq recommended first",
           summary: "A taste of mobile automation and the SQL every tester needs to validate the data behind the UI.",
           project: "A basic Appium check + SQL queries validating UI data.",
           lectures: [
-            { id: "a9l1", title: "Mobile automation basics (Appium)", time: "14 min", outline: true },
-            { id: "a9l2", title: "SQL for testers: verifying the data layer", time: "16 min", outline: true },
-            { id: "a9p", title: "Practice — verify UI against the database", time: "25 min", kind: "practice", outline: true } ] },
+            { id: "a9l1", title: "Mobile automation basics (Appium)", time: "14 min", body: `
+              <p class="lead">Mobile is where a huge share of real users live, and it adds failure modes the web doesn't have. You don't need to master it here — you need to know how it differs and when to reach for it.</p>
+              <h2>What's different from web</h2>
+              <ul>
+                <li><strong>Real devices &amp; emulators</strong> — you test on iOS Simulators / Android emulators and, ideally, some real hardware, because sensors, gestures, and performance differ.</li>
+                <li><strong>The app lifecycle</strong> — foreground, backgrounded, killed, resumed; interruptions from calls and notifications; offline and flaky networks. These states are a rich source of bugs (and a personal QA priority worth its own checklist).</li>
+                <li><strong>Locators differ</strong> — accessibility ids and platform selectors instead of CSS.</li>
+              </ul>
+              <h2>Appium: one API, both platforms</h2>
+              <p><strong>Appium</strong> drives native iOS and Android apps through the WebDriver protocol — the same shape of script for both. A test looks familiar: find an element, act, assert.</p>
+              <pre class="cblock"><code><span class="c">// pseudocode — the shape, not the setup</span>
+const field = await driver.$('~username');   <span class="c">// ~ = accessibility id</span>
+await field.setValue('standard_user');
+await (await driver.$('~login')).click();
+await expect(await driver.$('~products-title')).toBeDisplayed();</code></pre>
+              <div class="callout"><span class="k">When to invest</span><p>If your product is mobile-first, mobile automation earns its keep. For many teams, a smaller set of critical mobile flows plus a device cloud (BrowserStack, Sauce Labs) to cover the device matrix is the pragmatic 80/20. Know it exists; go deep when the product demands it.</p></div>` },
+            { id: "a9l2", title: "SQL for testers: verifying the data layer", time: "16 min", body: `
+              <p class="lead">The UI can lie. It shows "Order placed!" while the database saved the wrong total — or nothing at all. SQL lets you check the source of truth directly, and it's one of the most reused skills on any QA team.</p>
+              <div class="callout"><span class="k">Prerequisite reminder</span><p>This lecture shows <em>how testers use</em> SQL, not SQL from scratch. If <code>SELECT</code> / <code>WHERE</code> / <code>JOIN</code> are new, do a short SQL primer first (that's the prerequisite we flagged) — an hour is enough to follow along.</p></div>
+              <h2>Read the truth behind the screen</h2>
+              <p>After an action in the UI, query the database to confirm what actually persisted:</p>
+              <pre class="cblock"><code>-- did the order save with the right total and status?
+SELECT id, status, total
+FROM orders
+WHERE id = 1042;
+
+-- join to check the order is linked to the right user
+SELECT u.email, o.total, o.created_at
+FROM orders o
+JOIN users u ON u.id = o.user_id
+WHERE o.created_at &gt; '2026-01-01';</code></pre>
+              <h2>Where this catches bugs the UI hides</h2>
+              <ul>
+                <li><strong>Silent data corruption</strong> — the screen rounds to $32.40 but the stored value is 32.399999; only the query shows it.</li>
+                <li><strong>Orphaned or duplicate rows</strong> — a "successful" action that wrote twice, or wrote nothing.</li>
+                <li><strong>State that must persist</strong> — the all-time-low price from the Bug Hunt lived only in memory; a query proves whether it truly hit storage.</li>
+              </ul>
+              <div class="callout"><span class="k">Read-only, always</span><p>Testers query with <code>SELECT</code>; you don't <code>UPDATE</code>/<code>DELETE</code> production data to "fix" a test. Verifying the data layer is about <em>observing</em> the truth, not changing it.</p></div>` },
+            { id: "a9p", title: "Practice — check yourself + verify UI against the DB", time: "25 min", kind: "practice",
+              intro: "Confirm the mobile and SQL essentials, then write the queries you'd use to prove a UI action really happened.",
+              quiz: [
+                { q: "What's a key extra risk mobile testing must cover that web usually doesn't?", options: ["Font choice", "App lifecycle states — backgrounded, killed, resumed, interrupted, offline", "The color of buttons"], answer: 1, why: "Mobile apps get backgrounded, killed, resumed, and interrupted by calls/notifications on flaky networks — a rich, distinct source of bugs the web rarely faces." },
+                { q: "The UI shows 'Order placed!' Why also check the database?", options: ["The UI is always right", "The UI can show success while the data saved wrong (bad total, duplicate, or nothing)", "To make the test slower"], answer: 1, why: "The screen and the stored truth can diverge — wrong total, orphaned or duplicate rows, or no row at all. A <code>SELECT</code> verifies what actually persisted." },
+                { q: "As a tester validating data, which SQL should you stick to?", options: ["UPDATE and DELETE to fix issues", "Read-only SELECT (and JOIN) to observe the truth", "DROP TABLE to reset"], answer: 1, why: "Verification means observing, not mutating. Use <code>SELECT</code>/<code>JOIN</code> to read the source of truth; never alter production data to make a test pass." }
+              ],
+              tasks: [
+                { title: "Write the queries to verify a checkout", prompt: "Imagine you just completed a checkout in a UI as user <code>ada@example.com</code> for a $59.98 order. Write the SQL you'd run to: <b>(1)</b> confirm exactly one order row was created for that user, and <b>(2)</b> confirm its stored total matches $59.98. Assume tables <code>users(id, email)</code> and <code>orders(id, user_id, total, status, created_at)</code>. Reveal to compare.",
+                  model: `
+                    <pre class="cblock"><code>-- 1. exactly one recent order for this user?
+SELECT o.id, o.total, o.status, o.created_at
+FROM orders o
+JOIN users u ON u.id = o.user_id
+WHERE u.email = 'ada@example.com'
+ORDER BY o.created_at DESC;
+-- expect: one new row, status = 'placed'
+
+-- 2. is the stored total exactly right (no rounding drift)?
+SELECT total
+FROM orders o
+JOIN users u ON u.id = o.user_id
+WHERE u.email = 'ada@example.com'
+  AND o.total = 59.98;
+-- expect: one row. If empty, the UI and the data disagree — a bug.</code></pre>
+                    <p><b>What a strong answer shows:</b> a JOIN from the known email to the order, an ordering to grab the newest row, and an exact-match check on <code>total</code> that would return <em>empty</em> if the stored value drifted — turning "the screen looked right" into "the data is provably right."</p>` }
+              ] } ] },
       ] },
     { part: "Part 3 · The AI Era", tag: "Your differentiator — least-taught, fastest-growing", blurb: "Use AI to test faster, then learn the genuinely new discipline: testing features that think. Curriculum final; full lessons in progress.",
       modules: [
