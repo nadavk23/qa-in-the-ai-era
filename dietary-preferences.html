@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Dietary preferences & RSVP form — name, email, meal preference, and allergies. Bilingual (English/Hebrew), RTL-aware, with a saved-entries list view and CSV export.">
+<meta name="author" content="Nadav Katz">
+<meta name="theme-color" content="#0d131e">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%8D%BD%3C/text%3E%3C/svg%3E">
+<title>Dietary Preferences — QA in the AI Era</title>
+<style>
+  :root {
+    --paper: #eceff4; --card: #ffffff; --ink: #141b28; --muted: #57616f; --faint: #808b99;
+    --line: #d7dbe3; --line-strong: #c1c8d2; --signal: #b23c1c; --signal-soft: #f3e3dc;
+    --field: #f6f7fa; --ok: #1c7a4a; --ok-soft: #e0f0e6; --err: #c0341d; --err-soft: #f7e2dd;
+    --shadow: 0 1px 2px rgba(20,27,40,.05), 0 14px 30px -20px rgba(20,27,40,.30);
+    --serif: ui-serif, "New York", "Iowan Old Style", Georgia, "Times New Roman", serif;
+    --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, "Cascadia Code", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0d131e; --card: #151d2b; --ink: #e7ebf2; --muted: #9aa4b3; --faint: #6f7a8a;
+      --line: #24303f; --line-strong: #33404f; --signal: #f07040; --signal-soft: #2a1a12;
+      --field: #101825; --ok: #4cc98a; --ok-soft: #10251b; --err: #f07a5f; --err-soft: #2a1512;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 18px 36px -22px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #eceff4; --card: #ffffff; --ink: #141b28; --muted: #57616f; --faint: #808b99;
+    --line: #d7dbe3; --line-strong: #c1c8d2; --signal: #b23c1c; --signal-soft: #f3e3dc;
+    --field: #f6f7fa; --ok: #1c7a4a; --ok-soft: #e0f0e6; --err: #c0341d; --err-soft: #f7e2dd;
+    --shadow: 0 1px 2px rgba(20,27,40,.05), 0 14px 30px -20px rgba(20,27,40,.30);
+  }
+  :root[data-theme="dark"] {
+    --paper: #0d131e; --card: #151d2b; --ink: #e7ebf2; --muted: #9aa4b3; --faint: #6f7a8a;
+    --line: #24303f; --line-strong: #33404f; --signal: #f07040; --signal-soft: #2a1a12;
+    --field: #101825; --ok: #4cc98a; --ok-soft: #10251b; --err: #f07a5f; --err-soft: #2a1512;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 18px 36px -22px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: var(--sans); line-height: 1.55;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 20px; }
+  .mono { font-family: var(--mono); }
+
+  /* ---- Top bar ---- */
+  .topbar {
+    border-bottom: 1px solid var(--line-strong);
+    background: color-mix(in srgb, var(--paper) 90%, transparent);
+    backdrop-filter: saturate(1.4) blur(8px);
+    position: sticky; top: 0; z-index: 20;
+  }
+  .topbar .row { max-width: 640px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .brand { display: flex; align-items: baseline; gap: 8px; text-decoration: none; color: inherit; }
+  .brand .mark { font-family: var(--mono); font-weight: 600; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; }
+  .brand .mark .dot { color: var(--signal); }
+  .controls { display: flex; align-items: center; gap: 8px; }
+  .pill {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .04em;
+    background: var(--field); color: var(--muted); border: 1px solid var(--line);
+    border-radius: 999px; padding: 5px 12px; cursor: pointer; line-height: 1;
+  }
+  .pill:hover { border-color: var(--signal); color: var(--signal); }
+  .pill[aria-pressed="true"] { color: var(--ink); border-color: var(--line-strong); }
+
+  /* ---- Header ---- */
+  header.page { padding: 40px 0 8px; }
+  header.page .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); margin: 0 0 12px; }
+  header.page h1 { font-family: var(--serif); font-weight: 620; font-size: clamp(28px, 6vw, 40px); line-height: 1.08; letter-spacing: -.015em; margin: 0; }
+  header.page p.deck { color: var(--muted); font-size: 16px; margin: 14px 0 0; max-width: 34em; }
+
+  /* ---- Tabs ---- */
+  .tabs { display: flex; gap: 6px; margin: 28px 0 0; border-bottom: 1px solid var(--line); }
+  .tab {
+    font-family: var(--mono); font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase;
+    background: none; border: 0; color: var(--muted); cursor: pointer;
+    padding: 10px 4px; margin: 0 12px -1px 0; border-bottom: 2px solid transparent;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab[aria-selected="true"] { color: var(--signal); border-bottom-color: var(--signal); }
+  .count-badge { display: inline-block; min-width: 18px; text-align: center; margin-inline-start: 6px; padding: 1px 6px; border-radius: 999px; font-size: 11px; background: var(--field); color: var(--muted); border: 1px solid var(--line); }
+
+  main { padding: 24px 0 80px; }
+
+  /* ---- Form ---- */
+  form { margin: 0; }
+  .field { margin: 0 0 20px; }
+  .field > label.lbl { display: block; font-weight: 600; font-size: 14px; margin: 0 0 7px; }
+  .field .req { color: var(--signal); margin-inline-start: 3px; }
+  .field .opt { color: var(--faint); font-weight: 400; font-size: 12.5px; margin-inline-start: 6px; }
+  .hint { color: var(--faint); font-size: 12.5px; margin: 6px 0 0; }
+
+  input[type="text"], input[type="email"], textarea {
+    width: 100%; font-family: var(--sans); font-size: 15px; color: var(--ink);
+    background: var(--field); border: 1px solid var(--line-strong); border-radius: 6px;
+    padding: 11px 12px; line-height: 1.4; transition: border-color .12s, box-shadow .12s;
+  }
+  textarea { resize: vertical; min-height: 84px; }
+  input:focus, textarea:focus {
+    outline: none; border-color: var(--signal);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--signal) 22%, transparent);
+  }
+  .field.invalid input, .field.invalid textarea { border-color: var(--err); }
+  .field.invalid input:focus, .field.invalid textarea:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--err) 24%, transparent); }
+  .err-msg { display: none; color: var(--err); font-size: 12.5px; margin: 6px 0 0; }
+  .field.invalid .err-msg { display: block; }
+
+  /* ---- Radio group ---- */
+  .radios { display: flex; flex-direction: column; gap: 8px; }
+  .radio {
+    display: flex; align-items: center; gap: 10px; cursor: pointer;
+    border: 1px solid var(--line-strong); background: var(--field); border-radius: 6px;
+    padding: 11px 12px; font-size: 15px; transition: border-color .12s, background .12s;
+  }
+  .radio:hover { border-color: var(--signal); }
+  .radio input { accent-color: var(--signal); width: 17px; height: 17px; margin: 0; flex: none; }
+  .radio:has(input:checked) { border-color: var(--signal); background: color-mix(in srgb, var(--signal-soft) 60%, var(--field)); }
+  .radio:has(input:focus-visible) { box-shadow: 0 0 0 3px color-mix(in srgb, var(--signal) 22%, transparent); }
+  #otherWrap { margin: 10px 0 0; }
+  #otherWrap[hidden] { display: none; }
+
+  /* ---- Buttons ---- */
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 26px 0 0; }
+  .btn {
+    font-family: var(--mono); font-size: 13px; letter-spacing: .04em; cursor: pointer;
+    border-radius: 6px; padding: 11px 18px; border: 1px solid var(--line-strong);
+    background: var(--card); color: var(--ink); transition: border-color .12s, background .12s, color .12s;
+  }
+  .btn:hover { border-color: var(--signal); color: var(--signal); }
+  .btn.primary { background: var(--signal); border-color: var(--signal); color: #fff; }
+  .btn.primary:hover { filter: brightness(1.06); color: #fff; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* ---- Toast / confirmation ---- */
+  .toast {
+    display: none; align-items: center; gap: 10px; margin: 18px 0 0;
+    background: var(--ok-soft); border: 1px solid color-mix(in srgb, var(--ok) 45%, var(--line));
+    color: var(--ok); border-radius: 6px; padding: 11px 14px; font-size: 14px;
+  }
+  .toast.show { display: flex; }
+  .toast svg { flex: none; }
+
+  /* ---- List view ---- */
+  .list-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 4px 0 18px; }
+  .list-toolbar .meta { font-family: var(--mono); font-size: 12.5px; color: var(--faint); }
+  .list-toolbar .grp { display: flex; gap: 8px; flex-wrap: wrap; }
+  .empty { text-align: center; color: var(--muted); padding: 46px 20px; border: 1px dashed var(--line-strong); border-radius: 8px; background: var(--card); }
+  .empty .big { font-size: 30px; margin: 0 0 8px; }
+
+  .entry {
+    background: var(--card); border: 1px solid var(--line); border-inline-start: 3px solid var(--signal);
+    border-radius: 6px; box-shadow: var(--shadow); padding: 16px 16px 14px; margin: 0 0 12px;
+  }
+  .entry .top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .entry .name { font-family: var(--serif); font-weight: 600; font-size: 18px; }
+  .entry .when { font-family: var(--mono); font-size: 11.5px; color: var(--faint); white-space: nowrap; }
+  .entry .email { font-size: 13.5px; color: var(--muted); margin: 2px 0 0; word-break: break-all; }
+  .entry .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 11px 0 0; }
+  .entry .tag { font-family: var(--mono); font-size: 11.5px; letter-spacing: .04em; padding: 3px 9px; border-radius: 999px; background: var(--field); border: 1px solid var(--line); color: var(--muted); }
+  .entry .tag.meal { color: var(--signal); border-color: color-mix(in srgb, var(--signal) 40%, var(--line)); background: color-mix(in srgb, var(--signal-soft) 55%, var(--field)); }
+  .entry .allergy { margin: 10px 0 0; font-size: 13.5px; color: var(--ink); }
+  .entry .allergy b { color: var(--muted); font-weight: 600; font-family: var(--mono); font-size: 11.5px; letter-spacing: .04em; text-transform: uppercase; display: block; margin: 0 0 2px; }
+  .entry .row-actions { margin: 12px 0 0; }
+  .link-btn { background: none; border: 0; padding: 0; cursor: pointer; font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  .link-btn:hover { color: var(--err); }
+
+  footer { border-top: 1px solid var(--line); padding: 22px 0 40px; }
+  footer p { font-family: var(--mono); font-size: 12px; color: var(--faint); margin: 0; line-height: 1.7; }
+  footer a { color: var(--signal); }
+
+  .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+  /* RTL niceties: numbers/emails stay LTR inside an RTL page */
+  [dir="rtl"] .entry .email, [dir="rtl"] .entry .when { direction: ltr; unicode-bidi: isolate; }
+  [dir="rtl"] input[type="email"] { text-align: right; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="row">
+      <a class="brand" href="./index.html" id="homeLink">
+        <span class="mark">QA<span class="dot">.</span></span>
+      </a>
+      <div class="controls">
+        <button class="pill" id="langBtn" type="button" aria-label="Switch language">עברית</button>
+        <button class="pill" id="themeBtn" type="button" aria-label="Toggle theme">◑</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <header class="page">
+      <p class="eyebrow" data-i18n="eyebrow">RSVP · Dietary preferences</p>
+      <h1 data-i18n="title">Dietary preferences</h1>
+      <p class="deck" data-i18n="deck">Tell us how to feed you. Takes under a minute.</p>
+
+      <div class="tabs" role="tablist" aria-label="Views">
+        <button class="tab" id="tabForm" role="tab" aria-selected="true" aria-controls="panelForm" data-i18n="tabForm">Form</button>
+        <button class="tab" id="tabList" role="tab" aria-selected="false" aria-controls="panelList">
+          <span data-i18n="tabList">Responses</span><span class="count-badge" id="countBadge">0</span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <!-- ===== FORM PANEL ===== -->
+      <section id="panelForm" role="tabpanel" aria-labelledby="tabForm">
+        <form id="rsvpForm" novalidate>
+          <div class="field" id="f-name">
+            <label class="lbl" for="name"><span data-i18n="name">Name</span><span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="name" name="name" autocomplete="name" required
+                   aria-required="true" aria-describedby="err-name">
+            <p class="err-msg" id="err-name" data-i18n="errName">Please enter your name.</p>
+          </div>
+
+          <div class="field" id="f-email">
+            <label class="lbl" for="email"><span data-i18n="email">Email</span><span class="req" aria-hidden="true">*</span></label>
+            <input type="email" id="email" name="email" autocomplete="email" inputmode="email" required
+                   aria-required="true" aria-describedby="err-email" dir="ltr">
+            <p class="err-msg" id="err-email" data-i18n="errEmail">Please enter a valid email address.</p>
+          </div>
+
+          <div class="field" id="f-meal">
+            <span class="lbl" id="meal-label"><span data-i18n="meal">Meal preference</span><span class="req" aria-hidden="true">*</span></span>
+            <div class="radios" role="radiogroup" aria-labelledby="meal-label" aria-describedby="err-meal">
+              <label class="radio"><input type="radio" name="meal" value="Kosher" required><span data-i18n="kosher">Kosher</span></label>
+              <label class="radio"><input type="radio" name="meal" value="Vegetarian"><span data-i18n="vegetarian">Vegetarian</span></label>
+              <label class="radio"><input type="radio" name="meal" value="Other"><span data-i18n="other">Other</span></label>
+            </div>
+            <div id="otherWrap" hidden>
+              <input type="text" id="mealOther" name="mealOther"
+                     data-ph="ph-other" placeholder="Please specify…" aria-label="Please specify your meal preference">
+            </div>
+            <p class="err-msg" id="err-meal" data-i18n="errMeal">Please choose a meal preference.</p>
+          </div>
+
+          <div class="field" id="f-allergies">
+            <label class="lbl" for="allergies"><span data-i18n="allergies">Allergies &amp; dietary restrictions</span><span class="opt" data-i18n="optional">optional</span></label>
+            <textarea id="allergies" name="allergies" data-ph="ph-allergies"
+                      placeholder="e.g. nut allergy, lactose intolerant, gluten-free…"></textarea>
+            <p class="hint" data-i18n="allergiesHint">Anything we should know? Leave blank if none.</p>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn primary" data-i18n="submit">Save response</button>
+            <button type="reset" class="btn" id="clearBtn" data-i18n="clear">Clear</button>
+          </div>
+
+          <div class="toast" id="toast" role="status" aria-live="polite">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span id="toastMsg" data-i18n="saved">Saved. Thank you!</span>
+          </div>
+        </form>
+      </section>
+
+      <!-- ===== LIST PANEL ===== -->
+      <section id="panelList" role="tabpanel" aria-labelledby="tabList" hidden>
+        <div class="list-toolbar">
+          <span class="meta" id="listMeta"></span>
+          <div class="grp">
+            <button class="btn" id="exportBtn" data-i18n="exportCsv">Export CSV</button>
+            <button class="btn" id="clearAllBtn" data-i18n="clearAll">Clear all</button>
+          </div>
+        </div>
+        <div id="entries"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p data-i18n="footer">Saved to this browser only (localStorage) — no server, no tracking. Export a CSV to keep a copy.</p>
+    </footer>
+  </div>
+
+<script>
+(function () {
+  "use strict";
+
+  var STORE_KEY = "dietaryResponses.v1";
+  var THEME_KEY = "themePref";           // shared convention: 'light' | 'dark'
+  var LANG_KEY  = "dietaryLang";         // 'en' | 'he'
+
+  /* ---------------- i18n ---------------- */
+  var I18N = {
+    en: {
+      dir: "ltr", langBtnLabel: "עברית", htmlLang: "en",
+      eyebrow: "RSVP · Dietary preferences",
+      title: "Dietary preferences",
+      deck: "Tell us how to feed you. Takes under a minute.",
+      tabForm: "Form", tabList: "Responses",
+      name: "Name", email: "Email", meal: "Meal preference",
+      kosher: "Kosher", vegetarian: "Vegetarian", other: "Other",
+      allergies: "Allergies & dietary restrictions", optional: "optional",
+      allergiesHint: "Anything we should know? Leave blank if none.",
+      submit: "Save response", clear: "Clear",
+      errName: "Please enter your name.",
+      errEmail: "Please enter a valid email address.",
+      errMeal: "Please choose a meal preference.",
+      errOther: "Please specify your meal preference.",
+      saved: "Saved. Thank you!",
+      "ph-other": "Please specify…",
+      "ph-allergies": "e.g. nut allergy, lactose intolerant, gluten-free…",
+      exportCsv: "Export CSV", clearAll: "Clear all",
+      footer: "Saved to this browser only (localStorage) — no server, no tracking. Export a CSV to keep a copy.",
+      emptyTitle: "No responses yet",
+      emptyBody: "Submitted responses will appear here.",
+      countLabel: function (n) { return n + (n === 1 ? " response" : " responses"); },
+      remove: "Remove", confirmRemove: "Remove this response?",
+      confirmClearAll: "Delete all saved responses? This cannot be undone.",
+      justNow: "just now"
+    },
+    he: {
+      dir: "rtl", langBtnLabel: "English", htmlLang: "he",
+      eyebrow: "אישור הגעה · העדפות תזונה",
+      title: "העדפות תזונה",
+      deck: "ספרו לנו איך להאכיל אתכם. לוקח פחות מדקה.",
+      tabForm: "טופס", tabList: "תגובות",
+      name: "שם", email: "אימייל", meal: "העדפת ארוחה",
+      kosher: "כשר", vegetarian: "צמחוני", other: "אחר",
+      allergies: "אלרגיות והגבלות תזונתיות", optional: "לא חובה",
+      allergiesHint: "משהו שכדאי שנדע? אפשר להשאיר ריק.",
+      submit: "שמירת תגובה", clear: "ניקוי",
+      errName: "נא להזין שם.",
+      errEmail: "נא להזין כתובת אימייל תקינה.",
+      errMeal: "נא לבחור העדפת ארוחה.",
+      errOther: "נא לפרט את העדפת הארוחה.",
+      saved: "נשמר. תודה!",
+      "ph-other": "נא לפרט…",
+      "ph-allergies": "לדוגמה: אלרגיה לאגוזים, רגישות ללקטוז, ללא גלוטן…",
+      exportCsv: "ייצוא CSV", clearAll: "מחיקת הכל",
+      footer: "נשמר בדפדפן זה בלבד (localStorage) — ללא שרת וללא מעקב. ייצאו CSV כדי לשמור עותק.",
+      emptyTitle: "אין תגובות עדיין",
+      emptyBody: "תגובות שיישלחו יופיעו כאן.",
+      countLabel: function (n) { return n + (n === 1 ? " תגובה" : " תגובות"); },
+      remove: "הסרה", confirmRemove: "להסיר את התגובה הזו?",
+      confirmClearAll: "למחוק את כל התגובות השמורות? לא ניתן לבטל.",
+      justNow: "עכשיו"
+    }
+  };
+  // Localized meal labels for display (values are stored in English canonical form)
+  var MEAL_LABEL = {
+    en: { Kosher: "Kosher", Vegetarian: "Vegetarian", Other: "Other" },
+    he: { Kosher: "כשר", Vegetarian: "צמחוני", Other: "אחר" }
+  };
+
+  var lang = "en";
+  function t(key) { return I18N[lang][key]; }
+
+  /* ---------------- tiny DOM helpers ---------------- */
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+
+  /* ---------------- storage ---------------- */
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORE_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) { return []; }
+  }
+  function save(list) {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(list)); return true; }
+    catch (e) { alert("Could not save — storage may be full or blocked."); return false; }
+  }
+
+  /* ---------------- language ---------------- */
+  function applyLang(next) {
+    lang = (next === "he") ? "he" : "en";
+    var d = I18N[lang];
+    document.documentElement.setAttribute("lang", d.htmlLang);
+    document.documentElement.setAttribute("dir", d.dir);
+    $("#langBtn").textContent = d.langBtnLabel;
+
+    $all("[data-i18n]").forEach(function (el) {
+      var v = t(el.getAttribute("data-i18n"));
+      if (typeof v === "string") el.textContent = v;
+    });
+    $all("[data-ph]").forEach(function (el) {
+      var v = t(el.getAttribute("data-ph"));
+      if (typeof v === "string") el.setAttribute("placeholder", v);
+    });
+    try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
+    render(); // refresh list labels + counts in the new language
+  }
+
+  /* ---------------- theme ---------------- */
+  function applyTheme(next) {
+    document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+  }
+  function initTheme() {
+    var saved = null;
+    try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
+    if (saved === "light" || saved === "dark") {
+      document.documentElement.setAttribute("data-theme", saved);
+    }
+  }
+
+  /* ---------------- validation ---------------- */
+  // Pragmatic email check: something@something.tld
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  function setInvalid(fieldId, invalid) {
+    var f = document.getElementById(fieldId);
+    if (f) f.classList.toggle("invalid", !!invalid);
+  }
+
+  function validate(showAll) {
+    var ok = true, firstBad = null;
+    var nameVal = $("#name").value.trim();
+    var emailVal = $("#email").value.trim();
+    var mealEl = $('input[name="meal"]:checked');
+    var otherVal = $("#mealOther").value.trim();
+
+    // name
+    var nameBad = nameVal.length === 0;
+    if (showAll || nameBad) setInvalid("f-name", nameBad);
+    if (nameBad) { ok = false; firstBad = firstBad || "#name"; }
+
+    // email
+    var emailBad = !EMAIL_RE.test(emailVal);
+    if (showAll || emailBad) setInvalid("f-email", emailBad);
+    if (emailBad) { ok = false; firstBad = firstBad || "#email"; }
+
+    // meal
+    var mealBad = !mealEl;
+    if (showAll || mealBad) setInvalid("f-meal", mealBad);
+    if (mealBad) { ok = false; firstBad = firstBad || 'input[name="meal"]'; }
+
+    // "Other" needs a specification
+    var otherErr = document.getElementById("err-meal");
+    if (mealEl && mealEl.value === "Other" && otherVal.length === 0) {
+      setInvalid("f-meal", true);
+      if (otherErr) otherErr.textContent = t("errOther");
+      ok = false; firstBad = firstBad || "#mealOther";
+    } else if (otherErr) {
+      otherErr.textContent = t("errMeal");
+    }
+
+    return { ok: ok, firstBad: firstBad };
+  }
+
+  /* ---------------- rendering the list ---------------- */
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function mealDisplay(entry) {
+    if (entry.meal === "Other") {
+      return (entry.mealOther && entry.mealOther.trim())
+        ? entry.mealOther.trim()
+        : MEAL_LABEL[lang].Other;
+    }
+    return (MEAL_LABEL[lang][entry.meal]) || entry.meal;
+  }
+
+  function fmtWhen(iso) {
+    try {
+      var d = new Date(iso);
+      if (isNaN(d.getTime())) return "";
+      return d.toLocaleString(lang === "he" ? "he-IL" : "en-US",
+        { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+    } catch (e) { return ""; }
+  }
+
+  function render() {
+    var list = load();
+    var n = list.length;
+
+    // tab badge + toolbar meta
+    $("#countBadge").textContent = String(n);
+    $("#listMeta").textContent = t("countLabel")(n);
+    $("#exportBtn").disabled = (n === 0);
+    $("#clearAllBtn").disabled = (n === 0);
+
+    var box = $("#entries");
+    if (n === 0) {
+      box.innerHTML =
+        '<div class="empty"><p class="big">🍽️</p>' +
+        '<p><strong>' + escapeHtml(t("emptyTitle")) + '</strong></p>' +
+        '<p>' + escapeHtml(t("emptyBody")) + '</p></div>';
+      return;
+    }
+
+    var html = "";
+    // newest first
+    for (var i = list.length - 1; i >= 0; i--) {
+      var e = list[i];
+      var meal = mealDisplay(e);
+      html +=
+        '<article class="entry">' +
+          '<div class="top">' +
+            '<span class="name">' + escapeHtml(e.name) + '</span>' +
+            '<span class="when">' + escapeHtml(fmtWhen(e.createdAt)) + '</span>' +
+          '</div>' +
+          '<div class="email">' + escapeHtml(e.email) + '</div>' +
+          '<div class="tags"><span class="tag meal">' + escapeHtml(meal) + '</span></div>' +
+          (e.allergies && e.allergies.trim()
+            ? '<div class="allergy"><b>' + escapeHtml(t("allergies")) + '</b>' + escapeHtml(e.allergies.trim()) + '</div>'
+            : '') +
+          '<div class="row-actions">' +
+            '<button type="button" class="link-btn" data-remove="' + escapeHtml(e.id) + '">✕ ' + escapeHtml(t("remove")) + '</button>' +
+          '</div>' +
+        '</article>';
+    }
+    box.innerHTML = html;
+  }
+
+  /* ---------------- CSV export ---------------- */
+  function csvCell(v) {
+    var s = (v == null) ? "" : String(v);
+    if (/[",\n\r]/.test(s)) s = '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+  function exportCsv() {
+    var list = load();
+    if (!list.length) return;
+    var headers = ["Name", "Email", "Meal preference", "Other (specified)", "Allergies / restrictions", "Submitted at"];
+    var rows = [headers.map(csvCell).join(",")];
+    list.forEach(function (e) {
+      rows.push([
+        csvCell(e.name),
+        csvCell(e.email),
+        csvCell(e.meal),
+        csvCell(e.meal === "Other" ? (e.mealOther || "") : ""),
+        csvCell(e.allergies || ""),
+        csvCell(e.createdAt)
+      ].join(","));
+    });
+    // BOM so Excel reads UTF-8 (Hebrew) correctly
+    var blob = new Blob(["﻿" + rows.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "dietary-responses-" + new Date().toISOString().slice(0, 10) + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  /* ---------------- unique id (no crypto dependency required) ---------------- */
+  function makeId() {
+    if (window.crypto && crypto.randomUUID) { try { return crypto.randomUUID(); } catch (e) {} }
+    return "id-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+  }
+
+  /* ---------------- tabs ---------------- */
+  function selectTab(which) {
+    var isForm = which === "form";
+    $("#tabForm").setAttribute("aria-selected", String(isForm));
+    $("#tabList").setAttribute("aria-selected", String(!isForm));
+    $("#panelForm").hidden = !isForm;
+    $("#panelList").hidden = isForm;
+    if (!isForm) render();
+  }
+
+  /* ---------------- wire up ---------------- */
+  document.addEventListener("DOMContentLoaded", function () {
+    initTheme();
+
+    // language: saved pref, else browser default
+    var startLang = null;
+    try { startLang = localStorage.getItem(LANG_KEY); } catch (e) {}
+    if (startLang !== "he" && startLang !== "en") {
+      startLang = (navigator.language || "").toLowerCase().indexOf("he") === 0 ? "he" : "en";
+    }
+    applyLang(startLang);
+
+    // theme toggle
+    $("#themeBtn").addEventListener("click", function () {
+      var cur = document.documentElement.getAttribute("data-theme");
+      if (!cur) {
+        cur = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      applyTheme(cur === "dark" ? "light" : "dark");
+    });
+
+    // language toggle
+    $("#langBtn").addEventListener("click", function () {
+      applyLang(lang === "en" ? "he" : "en");
+    });
+
+    // tabs
+    $("#tabForm").addEventListener("click", function () { selectTab("form"); });
+    $("#tabList").addEventListener("click", function () { selectTab("list"); });
+
+    // meal radios -> toggle "Other" text field
+    $all('input[name="meal"]').forEach(function (r) {
+      r.addEventListener("change", function () {
+        var isOther = $('input[name="meal"]:checked').value === "Other";
+        $("#otherWrap").hidden = !isOther;
+        if (isOther) { $("#mealOther").focus(); }
+        // live-clear the meal error once a choice is made
+        if ($("#f-meal").classList.contains("invalid")) validate(false);
+      });
+    });
+
+    // live validation: clear errors as the user fixes them
+    $("#name").addEventListener("input", function () { if ($("#f-name").classList.contains("invalid")) validate(false); });
+    $("#email").addEventListener("input", function () { if ($("#f-email").classList.contains("invalid")) validate(false); });
+    $("#mealOther").addEventListener("input", function () { if ($("#f-meal").classList.contains("invalid")) validate(false); });
+
+    // submit
+    $("#rsvpForm").addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var res = validate(true);
+      if (!res.ok) {
+        var el = res.firstBad && document.querySelector(res.firstBad);
+        if (el && el.focus) el.focus();
+        return;
+      }
+      var mealVal = $('input[name="meal"]:checked').value;
+      var entry = {
+        id: makeId(),
+        name: $("#name").value.trim(),
+        email: $("#email").value.trim(),
+        meal: mealVal,
+        mealOther: mealVal === "Other" ? $("#mealOther").value.trim() : "",
+        allergies: $("#allergies").value.trim(),
+        createdAt: new Date().toISOString()
+      };
+      var list = load();
+      list.push(entry);
+      if (!save(list)) return;
+
+      // reset + confirm
+      var form = $("#rsvpForm");
+      form.reset();
+      $("#otherWrap").hidden = true;
+      $all(".field").forEach(function (f) { f.classList.remove("invalid"); });
+
+      var toast = $("#toast");
+      $("#toastMsg").textContent = t("saved");
+      toast.classList.add("show");
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(function () { toast.classList.remove("show"); }, 3500);
+
+      $("#countBadge").textContent = String(list.length);
+      $("#name").focus();
+    });
+
+    // clear button also drops any error styling / other field
+    $("#clearBtn").addEventListener("click", function () {
+      setTimeout(function () {
+        $("#otherWrap").hidden = true;
+        $all(".field").forEach(function (f) { f.classList.remove("invalid"); });
+        $("#toast").classList.remove("show");
+      }, 0);
+    });
+
+    // export + clear all + per-row remove (event delegation)
+    $("#exportBtn").addEventListener("click", exportCsv);
+    $("#clearAllBtn").addEventListener("click", function () {
+      if (!load().length) return;
+      if (confirm(t("confirmClearAll"))) { save([]); render(); }
+    });
+    $("#entries").addEventListener("click", function (ev) {
+      var btn = ev.target.closest("[data-remove]");
+      if (!btn) return;
+      if (!confirm(t("confirmRemove"))) return;
+      var id = btn.getAttribute("data-remove");
+      save(load().filter(function (e) { return e.id !== id; }));
+      render();
+    });
+
+    render();
+  });
+})();
+</script>
+</body>
+</html>

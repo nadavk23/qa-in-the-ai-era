@@ -7,6 +7,26 @@ Everything — styles, articles, routing, comments, contact form — lives in th
 
 ---
 
+## Extra page: Dietary preferences / RSVP form (`dietary-preferences.html`)
+
+A standalone, self-contained page for collecting dietary preferences (e.g. for an event or dinner):
+
+- **Fields** — Name (required), Email (required, validated), Meal preference (Kosher / Vegetarian /
+  Other → reveals a "please specify" field), Allergies & restrictions (optional).
+- **Client-side validation** — required fields and email format, with inline errors that clear as you fix them.
+- **Responses tab** — submissions are saved and shown in a list (newest first), with per-row remove and a
+  one-click **CSV export** (UTF-8 BOM so Excel reads Hebrew correctly).
+- **Bilingual** — English/Hebrew toggle with full **RTL-aware** layout; light/dark theme aware.
+
+> Storage note: because the site is fully static (no backend), responses are saved in the visitor's own
+> browser via `localStorage` — great for personal/local collection and CSV export, but not shared across
+> devices. To collect responses centrally you'd need a backend or a form service (Google Forms, Formspree,
+> a small serverless function, etc.).
+
+Open it at `/dietary-preferences.html`.
+
+---
+
 ## Before you publish — 3 quick edits in `index.html`
 
 1. **Contact email** — find `const EMAIL = "you@example.com";` (near the top of the `<script>`)
