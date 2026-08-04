@@ -7,9 +7,10 @@ Everything — styles, articles, routing, comments, contact form — lives in th
 
 ---
 
-## Extra page: Dietary preferences / RSVP form (`dietary-preferences.html`)
+## Extra page: Dietary preferences form (`dietary-preferences.html`)
 
-A standalone, self-contained page for collecting dietary preferences (e.g. for an event or dinner):
+A standalone, self-contained page for collecting dietary preferences for the
+**Israel National Pickleball Team** (e.g. team catering for a training camp, tournament, or event):
 
 - **Fields** — Name (required), Email (required, validated), Meal preference (Kosher / Vegetarian /
   Other → reveals a "please specify" field), Allergies & restrictions (optional).

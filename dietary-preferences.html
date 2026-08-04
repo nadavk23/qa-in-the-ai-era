@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Dietary preferences & RSVP form — name, email, meal preference, and allergies. Bilingual (English/Hebrew), RTL-aware, with a saved-entries list view and CSV export.">
-<meta name="author" content="Nadav Katz">
+<meta name="description" content="Dietary preferences form for the Israel National Pickleball Team — name, email, meal preference, and allergies. Bilingual (Hebrew/English), RTL-aware, with a saved-entries list view and CSV export.">
+<meta name="author" content="Israel National Pickleball Team">
 <meta name="theme-color" content="#0d131e">
 <meta name="robots" content="noindex">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%8D%BD%3C/text%3E%3C/svg%3E">
-<title>Dietary Preferences — QA in the AI Era</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%8F%93%3C/text%3E%3C/svg%3E">
+<title>Dietary Preferences — Israel National Pickleball Team</title>
 <style>
   :root {
     --paper: #eceff4; --card: #ffffff; --ink: #141b28; --muted: #57616f; --faint: #808b99;
-    --line: #d7dbe3; --line-strong: #c1c8d2; --signal: #b23c1c; --signal-soft: #f3e3dc;
+    --line: #d7dbe3; --line-strong: #c1c8d2; --signal: #1550a8; --signal-soft: #dde7f6;
     --field: #f6f7fa; --ok: #1c7a4a; --ok-soft: #e0f0e6; --err: #c0341d; --err-soft: #f7e2dd;
     --shadow: 0 1px 2px rgba(20,27,40,.05), 0 14px 30px -20px rgba(20,27,40,.30);
     --serif: ui-serif, "New York", "Iowan Old Style", Georgia, "Times New Roman", serif;
@@ -22,20 +22,20 @@
   @media (prefers-color-scheme: dark) {
     :root {
       --paper: #0d131e; --card: #151d2b; --ink: #e7ebf2; --muted: #9aa4b3; --faint: #6f7a8a;
-      --line: #24303f; --line-strong: #33404f; --signal: #f07040; --signal-soft: #2a1a12;
+      --line: #24303f; --line-strong: #33404f; --signal: #5f95e8; --signal-soft: #10203a;
       --field: #101825; --ok: #4cc98a; --ok-soft: #10251b; --err: #f07a5f; --err-soft: #2a1512;
       --shadow: 0 1px 2px rgba(0,0,0,.3), 0 18px 36px -22px rgba(0,0,0,.7);
     }
   }
   :root[data-theme="light"] {
     --paper: #eceff4; --card: #ffffff; --ink: #141b28; --muted: #57616f; --faint: #808b99;
-    --line: #d7dbe3; --line-strong: #c1c8d2; --signal: #b23c1c; --signal-soft: #f3e3dc;
+    --line: #d7dbe3; --line-strong: #c1c8d2; --signal: #1550a8; --signal-soft: #dde7f6;
     --field: #f6f7fa; --ok: #1c7a4a; --ok-soft: #e0f0e6; --err: #c0341d; --err-soft: #f7e2dd;
     --shadow: 0 1px 2px rgba(20,27,40,.05), 0 14px 30px -20px rgba(20,27,40,.30);
   }
   :root[data-theme="dark"] {
     --paper: #0d131e; --card: #151d2b; --ink: #e7ebf2; --muted: #9aa4b3; --faint: #6f7a8a;
-    --line: #24303f; --line-strong: #33404f; --signal: #f07040; --signal-soft: #2a1a12;
+    --line: #24303f; --line-strong: #33404f; --signal: #5f95e8; --signal-soft: #10203a;
     --field: #101825; --ok: #4cc98a; --ok-soft: #10251b; --err: #f07a5f; --err-soft: #2a1512;
     --shadow: 0 1px 2px rgba(0,0,0,.3), 0 18px 36px -22px rgba(0,0,0,.7);
   }
@@ -58,8 +58,8 @@
     position: sticky; top: 0; z-index: 20;
   }
   .topbar .row { max-width: 640px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .brand { display: flex; align-items: baseline; gap: 8px; text-decoration: none; color: inherit; }
-  .brand .mark { font-family: var(--mono); font-weight: 600; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; }
+  .brand { display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; }
+  .brand .mark { font-family: var(--mono); font-weight: 600; font-size: 12.5px; letter-spacing: .07em; text-transform: uppercase; }
   .brand .mark .dot { color: var(--signal); }
   .controls { display: flex; align-items: center; gap: 8px; }
   .pill {
@@ -185,9 +185,9 @@
 <body>
   <div class="topbar">
     <div class="row">
-      <a class="brand" href="./index.html" id="homeLink">
-        <span class="mark">QA<span class="dot">.</span></span>
-      </a>
+      <div class="brand">
+        <span class="mark">🏓 Israel<span class="dot"> Pickleball</span></span>
+      </div>
       <div class="controls">
         <button class="pill" id="langBtn" type="button" aria-label="Switch language">עברית</button>
         <button class="pill" id="themeBtn" type="button" aria-label="Toggle theme">◑</button>
@@ -197,9 +197,9 @@
 
   <div class="wrap">
     <header class="page">
-      <p class="eyebrow" data-i18n="eyebrow">RSVP · Dietary preferences</p>
+      <p class="eyebrow" data-i18n="eyebrow">Israel National Pickleball Team</p>
       <h1 data-i18n="title">Dietary preferences</h1>
-      <p class="deck" data-i18n="deck">Tell us how to feed you. Takes under a minute.</p>
+      <p class="deck" data-i18n="deck">Team catering — tell us how to feed you. Takes under a minute.</p>
 
       <div class="tabs" role="tablist" aria-label="Views">
         <button class="tab" id="tabForm" role="tab" aria-selected="true" aria-controls="panelForm" data-i18n="tabForm">Form</button>
@@ -290,9 +290,9 @@
   var I18N = {
     en: {
       dir: "ltr", langBtnLabel: "עברית", htmlLang: "en",
-      eyebrow: "RSVP · Dietary preferences",
+      eyebrow: "Israel National Pickleball Team",
       title: "Dietary preferences",
-      deck: "Tell us how to feed you. Takes under a minute.",
+      deck: "Team catering — tell us how to feed you. Takes under a minute.",
       tabForm: "Form", tabList: "Responses",
       name: "Name", email: "Email", meal: "Meal preference",
       kosher: "Kosher", vegetarian: "Vegetarian", other: "Other",
@@ -317,9 +317,9 @@
     },
     he: {
       dir: "rtl", langBtnLabel: "English", htmlLang: "he",
-      eyebrow: "אישור הגעה · העדפות תזונה",
+      eyebrow: "נבחרת ישראל בפיקלבול",
       title: "העדפות תזונה",
-      deck: "ספרו לנו איך להאכיל אתכם. לוקח פחות מדקה.",
+      deck: "קייטרינג לנבחרת — ספרו לנו איך להאכיל אתכם. לוקח פחות מדקה.",
       tabForm: "טופס", tabList: "תגובות",
       name: "שם", email: "אימייל", meal: "העדפת ארוחה",
       kosher: "כשר", vegetarian: "צמחוני", other: "אחר",
