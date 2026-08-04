@@ -1,33 +1,57 @@
-# נמל — Landed Cost Monitor · Clickable Prototype
+# נמל — Landed Cost Monitor · Working Prototype
 
-A **fake, click-through prototype** of the Landed Cost Monitor described in
-`../BUILD-PROMPT`-style brief (`landedcostbuildplan.md`). Built to show importers
-what the full product will look and feel like — **all data is fabricated**, nothing
-is saved, and there is no backend.
+A **working, self-contained front-end** of the Landed Cost Monitor from
+`landedcostbuildplan.md`. Real importers can open it, type in their own supplier
+quotes, and see a **truthful landed-cost calculation** — no server required.
+Sample data is loaded on first run; anything you enter is saved in **your own
+browser** (localStorage) and never leaves the device.
 
 ## View it
 
-Single self-contained file: [`index.html`](./index.html). Open it directly, or on the
-deployed site at `/nemal/`.
+Single page: [`index.html`](./index.html) — open directly or via the deployed
+site at `/nemal/`. No build step, no dependencies.
 
-## What's inside (all three phases, demoed)
+## What actually works (not just mockups)
 
-| Screen | Phase | Shows |
-|---|---|---|
-| לוח בקרה (Dashboard) | 1 | KPIs, BOI FX ticker, per-SKU landed-cost movement, latest alerts |
-| פריטים (SKUs) | 1 | Table with HS code, incoterm, duty/FTA, inline cost composition |
-| **SKU slide-over** | 1 | **The cost waterfall** — FOB / freight / duty / fees, with a ghosted previous snapshot; full numeric breakdown; VAT shown separately; snapshot history |
-| ספקים / הצעות מחיר / משלוחים | 1 | Suppliers, quotes (validity + MOQ), shipments with **freight allocation by CBM** and the CIF double-count guard |
-| התראות (Alerts) | 2 | Alert feed with **change attribution** ("what moved and why"), alert rules with toggles |
-| תיבת הצעות (Inbox) | 3 | Forwarding address + **AI-parsed quote candidates** (price, currency, MOQ tiers, incoterm, validity) presented for confirmation |
-| מפת הדרכים (Roadmap) | — | How the product is built, phase by phase |
+- **Real landed-cost engine** (`ENGINE START/END` block in `index.html`) — a pure
+  function implementing the plan's math: money as **integer minor units**, rounding
+  only at display, **FX frozen** into each snapshot, VAT excluded from the basis by
+  default, FTA origin cert → 0% duty, and per-incoterm cost inclusion.
+- **The incoterm double-count guard** — CIF/DDP never re-add freight already inside
+  the supplier price. This is the plan's "single most likely correctness bug", and
+  it's covered by an explicit test.
+- **Freight allocation** across shipment lines by CBM / weight / value
+  (largest-remainder, conserves the total exactly). Switch the basis live.
+- **Functional forms** — add a supplier, enter a new quote, or accept an
+  AI-parsed email candidate; the SKU's cost **recomputes** and the change is saved.
+- **Live alerting with attribution** — alerts are derived from the engine and state
+  *which input moved* (FX vs supplier price vs freight vs duty). Change an FX rate in
+  Settings (or use the built-in "USD +2%" simulation) and watch the alerts update.
+- **The cost waterfall** — FOB / freight / duty / fees with a ghosted previous
+  snapshot, driven entirely by the engine.
 
-## Design
+Screens (all three phases): לוח בקרה · פריטים · ספקים · הצעות מחיר · משלוחים ·
+התראות (שלב 2) · תיבת הצעות (שלב 3) · מפת הדרכים.
 
-Hebrew-first, full RTL. Palette and type drawn from shipping paperwork
-(bill-of-lading navy, manila kraft, customs-stamp red, ledger green), IBM Plex
-Sans Hebrew + IBM Plex Mono with tabular figures. No framework, no build step.
+## Tests
 
-> This is a design/feel prototype for gathering importer feedback — **not** the
-> production app. The real landed-cost engine, persistence, FX job, scheduler and
-> AI parsing are described in the build plan.
+The engine is the single source of truth inside `index.html`; the test file
+extracts that exact code and exercises it — so the tests validate what ships.
+
+```bash
+node --test nemal/engine.test.js
+```
+
+16 tests cover: hand-computed FOB landed cost, integer-money invariants, the
+incoterm double-count guard (CIF/DDP), FTA duty=0, VAT exclusion, FX freezing,
+freight-allocation conservation and basis sensitivity, and change attribution
+(FX vs freight vs duty vs price vs flat).
+
+## Reset
+
+The banner's **"אפס לדוגמה"** button (and Settings → אפס לדוגמה) restores the
+sample data at any time.
+
+> This is a feel-and-function prototype for importer feedback. The production app
+> would add the server-side FX job, scheduler, alert dispatch (email/WhatsApp), and
+> the real AI email parsing — all described in the build plan.
