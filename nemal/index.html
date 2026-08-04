@@ -1,0 +1,1328 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>נמל — ניטור עלות נחיתה ליבואן</title>
+<meta name="description" content="אב-טיפוס להדגמה: מודל עלות נחיתה אמיתית ליחידה בשקלים, עם ניטור ומעקב אחרי הצעות ספקים.">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Hebrew:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --ink:#16233A;      /* bill-of-lading navy */
+  --kraft:#E8E0D2;    /* manila envelope */
+  --stamp:#A8332B;    /* customs stamp red */
+  --ledger:#2F6B4F;   /* ledger green */
+  --carbon:#6B6F76;   /* carbon-copy grey */
+  --paper:#FBF9F3;
+  --white:#FFFFFF;
+  --line:rgba(22,35,58,.14);
+  --line-soft:rgba(22,35,58,.08);
+  --ink-08:rgba(22,35,58,.06);
+  --stamp-08:rgba(168,51,43,.08);
+  --ledger-08:rgba(47,107,79,.10);
+  --shadow:0 1px 2px rgba(22,35,58,.06), 0 8px 24px rgba(22,35,58,.08);
+  --rail:264px;
+  --sans:'IBM Plex Sans Hebrew', system-ui, 'Segoe UI', Arial, sans-serif;
+  --mono:'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--sans);
+  color:var(--ink);
+  background:var(--kraft);
+  font-size:14px;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+button{font-family:inherit;cursor:pointer}
+a{color:inherit}
+::selection{background:rgba(22,35,58,.18)}
+
+/* ---------- demo banner ---------- */
+.demo-banner{
+  background:var(--ink);color:var(--kraft);
+  font-size:12px;letter-spacing:.02em;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:6px 16px;text-align:center;
+}
+.demo-banner b{color:var(--white);font-weight:600}
+.demo-banner .dot{width:6px;height:6px;border-radius:50%;background:var(--stamp);display:inline-block}
+
+/* ---------- shell ---------- */
+.shell{display:grid;grid-template-columns:var(--rail) 1fr;min-height:100vh}
+
+/* right rail (RTL) */
+.rail{
+  background:var(--paper);
+  border-inline-start:1px solid var(--line);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow:auto;
+}
+.brand{padding:20px 20px 16px;border-bottom:1px solid var(--line-soft)}
+.brand .logo{display:flex;align-items:center;gap:11px}
+.brand .mark{
+  width:38px;height:38px;border-radius:9px;background:var(--ink);
+  color:var(--kraft);display:grid;place-items:center;flex:none;
+  font-weight:600;font-size:19px;position:relative;overflow:hidden;
+}
+.brand .mark svg{width:24px;height:24px}
+.brand .name{font-size:20px;font-weight:600;letter-spacing:-.01em;line-height:1}
+.brand .tag{font-size:11px;color:var(--carbon);margin-top:3px;letter-spacing:.01em}
+.brand .ws{
+  margin-top:14px;display:flex;align-items:center;justify-content:space-between;
+  padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--white);
+  font-size:12.5px;cursor:pointer;
+}
+.brand .ws .who{display:flex;align-items:center;gap:8px}
+.brand .ws .av{width:22px;height:22px;border-radius:6px;background:var(--kraft);display:grid;place-items:center;font-size:11px;font-weight:600}
+.brand .ws .chev{color:var(--carbon)}
+
+.nav{padding:10px 12px;flex:1}
+.nav .group-label{font-size:10.5px;font-weight:600;letter-spacing:.09em;color:var(--carbon);text-transform:uppercase;padding:14px 10px 6px}
+.nav a{
+  display:flex;align-items:center;gap:10px;text-decoration:none;
+  padding:8px 10px;border-radius:8px;color:var(--ink);font-size:13.5px;font-weight:500;
+  position:relative;
+}
+.nav a .ic{width:18px;height:18px;flex:none;color:var(--carbon)}
+.nav a:hover{background:var(--ink-08)}
+.nav a.active{background:var(--ink);color:var(--white)}
+.nav a.active .ic{color:var(--kraft)}
+.nav a .count{margin-inline-start:auto;font-size:11px;color:var(--carbon);font-family:var(--mono)}
+.nav a.active .count{color:var(--kraft)}
+.nav a .phase{
+  margin-inline-start:auto;font-size:9.5px;font-weight:600;letter-spacing:.03em;
+  padding:1.5px 6px;border-radius:100px;border:1px solid var(--line);color:var(--carbon);
+}
+.nav a.active .phase{border-color:rgba(232,224,210,.4);color:var(--kraft)}
+.nav .alert-dot{margin-inline-start:auto;background:var(--stamp);color:#fff;font-size:11px;font-family:var(--mono);border-radius:100px;min-width:20px;height:18px;padding:0 6px;display:grid;place-items:center}
+
+.rail-foot{padding:12px 16px;border-top:1px solid var(--line-soft);font-size:11px;color:var(--carbon)}
+.rail-foot .fx{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.rail-foot .fx .num{color:var(--ink)}
+
+/* ---------- main ---------- */
+.main{min-width:0;display:flex;flex-direction:column}
+.topbar{
+  position:sticky;top:0;z-index:20;background:rgba(232,224,210,.86);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+  padding:14px 28px;display:flex;align-items:center;gap:16px;
+}
+.topbar h1{font-size:19px;font-weight:600;margin:0;letter-spacing:-.01em}
+.topbar .crumb{font-size:12px;color:var(--carbon);margin-top:2px}
+.topbar .sp{flex:1}
+.topbar .search{
+  display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--line);
+  border-radius:8px;padding:7px 11px;min-width:220px;color:var(--carbon);font-size:12.5px;
+}
+.topbar .search input{border:0;background:transparent;outline:none;font-family:inherit;font-size:12.5px;width:100%;color:var(--ink)}
+.btn{
+  display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--white);
+  color:var(--ink);padding:8px 13px;border-radius:8px;font-size:13px;font-weight:500;
+}
+.btn:hover{background:var(--paper)}
+.btn.primary{background:var(--ink);color:var(--white);border-color:var(--ink)}
+.btn.primary:hover{background:#0f1a2c}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.ghost:hover{background:var(--ink-08)}
+.btn svg{width:16px;height:16px}
+.btn.sm{padding:5px 10px;font-size:12px;border-radius:7px}
+
+.content{padding:24px 28px 64px;max-width:1240px;width:100%}
+
+/* ---------- generic bits ---------- */
+.section-title{display:flex;align-items:center;gap:10px;margin:0 0 14px}
+.section-title h2{font-size:15px;font-weight:600;margin:0}
+.section-title .hint{font-size:12px;color:var(--carbon)}
+.section-title .sp{flex:1}
+
+.phase-chip{
+  font-size:10px;font-weight:600;letter-spacing:.04em;padding:2px 8px;border-radius:100px;
+  border:1px solid var(--line);color:var(--carbon);background:var(--white);white-space:nowrap;
+}
+.phase-chip.p1{border-color:rgba(47,107,79,.4);color:var(--ledger);background:var(--ledger-08)}
+.phase-chip.p2{border-color:rgba(22,35,58,.3);color:var(--ink);background:var(--ink-08)}
+.phase-chip.p3{border-color:rgba(168,51,43,.35);color:var(--stamp);background:var(--stamp-08)}
+
+/* stat cards */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:16px 16px 14px}
+.stat .lbl{font-size:11.5px;color:var(--carbon);font-weight:500;letter-spacing:.01em}
+.stat .val{font-size:26px;font-weight:600;margin-top:6px;line-height:1}
+.stat .sub{font-size:11.5px;color:var(--carbon);margin-top:7px;display:flex;align-items:center;gap:6px}
+.delta{font-family:var(--mono);font-weight:600;font-size:12px;display:inline-flex;align-items:center;gap:3px}
+.delta.up{color:var(--stamp)}
+.delta.down{color:var(--ledger)}
+.delta.flat{color:var(--carbon)}
+
+/* tables */
+.card{background:var(--white);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.card + .card{margin-top:20px}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{
+  text-align:start;font-weight:600;font-size:11px;letter-spacing:.04em;color:var(--carbon);
+  text-transform:uppercase;padding:11px 16px;border-bottom:1px solid var(--line);background:var(--paper);
+  white-space:nowrap;position:sticky;top:0;
+}
+tbody td{padding:12px 16px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
+tbody tr:last-child td{border-bottom:0}
+tbody tr.click{cursor:pointer}
+tbody tr.click:hover{background:var(--paper)}
+td .sku-id{font-family:var(--mono);font-weight:500;font-size:12.5px}
+td .desc{color:var(--carbon);font-size:12px;margin-top:2px}
+.flag{font-size:14px;margin-inline-end:6px}
+.pill{font-size:11px;padding:2px 8px;border-radius:100px;border:1px solid var(--line);color:var(--carbon);white-space:nowrap;font-weight:500}
+.pill.ok{color:var(--ledger);border-color:rgba(47,107,79,.35);background:var(--ledger-08)}
+.pill.warn{color:var(--stamp);border-color:rgba(168,51,43,.3);background:var(--stamp-08)}
+.pill.mono{font-family:var(--mono)}
+.right{text-align:end}
+.center{text-align:center}
+.money{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:500;white-space:nowrap}
+.money .cur{color:var(--carbon);font-size:11px;margin-inline-start:2px}
+
+/* mini bar for inline duty/composition */
+.microbar{display:flex;height:7px;border-radius:4px;overflow:hidden;background:var(--kraft);width:120px}
+.microbar span{display:block;height:100%}
+
+/* FX ticker row */
+.fxrow{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+.fxcard{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:11px 14px;flex:1;min-width:150px}
+.fxcard .pair{font-size:11px;color:var(--carbon);font-weight:600;letter-spacing:.03em}
+.fxcard .r{font-size:18px;font-weight:600;margin-top:3px;font-family:var(--mono)}
+.fxcard .m{font-size:11px;margin-top:3px}
+.fxcard .src{font-size:10px;color:var(--carbon);margin-top:6px}
+
+/* ---------- slide over ---------- */
+.overlay{position:fixed;inset:0;background:rgba(22,35,58,.34);z-index:60;opacity:0;pointer-events:none;transition:opacity .18s ease}
+.overlay.open{opacity:1;pointer-events:auto}
+.slideover{
+  position:fixed;top:0;bottom:0;right:0;width:min(640px,94vw);background:var(--kraft);
+  z-index:61;transform:translateX(100%);transition:transform .24s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;box-shadow:var(--shadow);
+}
+.slideover.open{transform:translateX(0)}
+.so-head{padding:18px 22px;border-bottom:1px solid var(--line);background:var(--paper);display:flex;align-items:flex-start;gap:14px}
+.so-head .x{margin-inline-start:auto}
+.so-head .t{font-size:12px;color:var(--carbon)}
+.so-head h3{margin:2px 0 0;font-size:18px;font-weight:600}
+.so-head .id{font-family:var(--mono);font-size:13px;color:var(--carbon);margin-top:3px}
+.so-body{padding:22px;overflow:auto;flex:1}
+.so-foot{padding:14px 22px;border-top:1px solid var(--line);background:var(--paper);display:flex;gap:10px}
+
+/* ---------- waterfall (signature element) ---------- */
+.waterfall-wrap{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:20px 20px 16px;margin-bottom:20px}
+.waterfall-wrap .wf-title{display:flex;align-items:baseline;gap:10px;margin-bottom:2px}
+.waterfall-wrap .wf-title h4{margin:0;font-size:14px;font-weight:600}
+.waterfall-wrap .wf-title .unit{font-size:12px;color:var(--carbon)}
+.wf-total{font-size:30px;font-weight:600;font-family:var(--mono);letter-spacing:-.01em;margin:8px 0 2px}
+.wf-total .cur{font-size:15px;color:var(--carbon);font-weight:500;margin-inline-end:3px}
+.wf-move{font-size:12.5px;margin-bottom:16px;display:flex;align-items:center;gap:7px}
+
+.wf-bar{position:relative;height:46px;border-radius:8px;overflow:hidden;display:flex;background:var(--kraft)}
+.wf-seg{height:100%;position:relative;display:flex;align-items:center;justify-content:center;min-width:2px;transition:flex-basis .4s ease}
+.wf-seg .lab{font-size:10.5px;font-weight:600;color:#fff;opacity:.95;white-space:nowrap;padding:0 4px;text-shadow:0 1px 1px rgba(0,0,0,.15)}
+.seg-fob{background:var(--ink)}
+.seg-freight{background:#3E6E8E}
+.seg-duty{background:var(--stamp)}
+.seg-fees{background:var(--carbon)}
+/* ghost previous overlay */
+.wf-ghost{position:relative;height:16px;margin-top:5px;display:flex}
+.wf-ghost .gseg{height:100%;border-inline-end:1px solid rgba(22,35,58,.25)}
+.wf-ghost .gwrap{position:relative;display:flex;border:1px dashed rgba(22,35,58,.35);border-radius:5px;overflow:hidden}
+.wf-ghost .gseg.seg-fob{background:rgba(22,35,58,.22)}
+.wf-ghost .gseg.seg-freight{background:rgba(62,110,142,.22)}
+.wf-ghost .gseg.seg-duty{background:rgba(168,51,43,.22)}
+.wf-ghost .gseg.seg-fees{background:rgba(107,111,118,.22)}
+.wf-ghost-label{font-size:10px;color:var(--carbon);margin-top:4px}
+
+.wf-legend{display:flex;flex-wrap:wrap;gap:14px 18px;margin-top:18px}
+.wf-legend .li{display:flex;align-items:center;gap:8px;font-size:12px}
+.wf-legend .sw{width:11px;height:11px;border-radius:3px;flex:none}
+.wf-legend .li .v{font-family:var(--mono);font-weight:600;margin-inline-start:auto}
+.wf-legend .li .p{color:var(--carbon);font-size:11px}
+
+/* breakdown detail table */
+.kv{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+.kv td{padding:9px 0;border-bottom:1px solid var(--line-soft)}
+.kv td:first-child{color:var(--carbon)}
+.kv td:last-child{text-align:end;font-family:var(--mono);font-weight:500}
+.kv tr.total td{border-top:2px solid var(--line);border-bottom:0;font-weight:600;padding-top:12px}
+.kv tr.total td:first-child{color:var(--ink);font-weight:600}
+.kv tr.sub td:last-child{color:var(--carbon);font-weight:400}
+.kv .neg{color:var(--ledger)}
+
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.dbox{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:13px 14px}
+.dbox .l{font-size:11px;color:var(--carbon);font-weight:500}
+.dbox .v{font-size:15px;font-weight:600;margin-top:3px}
+.dbox .v.mono{font-family:var(--mono)}
+.dbox.hl{border-color:rgba(47,107,79,.4);background:var(--ledger-08)}
+.dbox .note{font-size:11px;color:var(--carbon);margin-top:5px}
+
+.snap-hist{margin-top:6px}
+.snap-hist .row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line-soft);font-size:12.5px}
+.snap-hist .row:last-child{border-bottom:0}
+.snap-hist .row .d{color:var(--carbon);font-family:var(--mono);width:90px;flex:none}
+.snap-hist .row .v{font-family:var(--mono);font-weight:600;width:72px}
+.snap-hist .row .cause{color:var(--carbon);font-size:11.5px}
+
+/* ---------- alerts ---------- */
+.alert-item{display:flex;gap:14px;padding:16px 18px;border-bottom:1px solid var(--line-soft)}
+.alert-item:last-child{border-bottom:0}
+.alert-item .ai-ic{width:34px;height:34px;border-radius:9px;flex:none;display:grid;place-items:center}
+.alert-item.sev-up .ai-ic{background:var(--stamp-08);color:var(--stamp)}
+.alert-item.sev-down .ai-ic{background:var(--ledger-08);color:var(--ledger)}
+.alert-item.sev-info .ai-ic{background:var(--ink-08);color:var(--ink)}
+.alert-item .ai-body{flex:1;min-width:0}
+.alert-item .ai-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.alert-item .ai-title{font-weight:600;font-size:13.5px}
+.alert-item .ai-time{font-size:11px;color:var(--carbon);font-family:var(--mono);margin-inline-start:auto}
+.alert-item .ai-msg{font-size:13px;color:var(--ink);margin-top:4px}
+.alert-item .ai-attr{
+  font-size:12px;margin-top:8px;padding:8px 11px;background:var(--paper);border:1px solid var(--line-soft);
+  border-radius:8px;display:flex;align-items:center;gap:8px;color:var(--carbon);
+}
+.alert-item .ai-attr b{color:var(--ink);font-weight:600}
+.alert-item .ai-actions{display:flex;gap:8px;margin-top:10px}
+
+/* rule cards */
+.rule{display:flex;align-items:center;gap:14px;padding:13px 16px;border-bottom:1px solid var(--line-soft)}
+.rule:last-child{border-bottom:0}
+.rule .rt{font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:var(--ink-08);white-space:nowrap}
+.rule .rd{flex:1;font-size:13px}
+.rule .rd .sub{color:var(--carbon);font-size:11.5px;margin-top:2px}
+.toggle{width:38px;height:22px;border-radius:100px;background:var(--ledger);position:relative;border:0;flex:none}
+.toggle.off{background:var(--carbon);opacity:.5}
+.toggle::after{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;inset-inline-end:3px;transition:inset-inline-end .16s}
+.toggle.off::after{inset-inline-end:19px}
+
+/* ---------- inbox (phase 3) ---------- */
+.inbox-split{display:grid;grid-template-columns:320px 1fr;gap:0;background:var(--white);border:1px solid var(--line);border-radius:12px;overflow:hidden;min-height:460px}
+.inbox-list{border-inline-end:1px solid var(--line);overflow:auto}
+.inbox-fwd{padding:14px 16px;border-bottom:1px solid var(--line);background:var(--paper)}
+.inbox-fwd .l{font-size:11px;color:var(--carbon)}
+.inbox-fwd .addr{font-family:var(--mono);font-size:12.5px;font-weight:600;margin-top:4px;display:flex;align-items:center;gap:8px}
+.inbox-fwd .copy{margin-inline-start:auto;color:var(--carbon)}
+.msg{padding:13px 16px;border-bottom:1px solid var(--line-soft);cursor:pointer;display:flex;gap:11px}
+.msg:hover{background:var(--paper)}
+.msg.active{background:var(--ink-08)}
+.msg .mav{width:30px;height:30px;border-radius:7px;background:var(--kraft);display:grid;place-items:center;font-size:12px;font-weight:600;flex:none}
+.msg .mfrom{font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:6px}
+.msg .msub{font-size:12px;color:var(--carbon);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msg .mtime{font-size:10.5px;color:var(--carbon);font-family:var(--mono);margin-inline-start:auto;flex:none}
+.msg .status-dot{width:7px;height:7px;border-radius:50%;flex:none}
+.msg .status-dot.new{background:var(--stamp)}
+.msg .status-dot.done{background:var(--ledger)}
+
+.parse{padding:20px 22px;overflow:auto}
+.parse .pm-head{display:flex;align-items:flex-start;gap:12px;padding-bottom:16px;border-bottom:1px solid var(--line-soft);margin-bottom:18px}
+.parse .pm-head .mav{width:40px;height:40px;font-size:15px}
+.ai-banner{display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--kraft);padding:10px 14px;border-radius:9px;font-size:12.5px;margin-bottom:18px}
+.ai-banner .spark{color:#E8C77A}
+.ai-banner b{color:#fff}
+.cand{border:1px solid var(--line);border-radius:11px;padding:16px;margin-bottom:14px;background:var(--paper)}
+.cand .ch{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+.cand .ch .sku{font-family:var(--mono);font-weight:600;font-size:13px}
+.cand .ch .conf{margin-inline-start:auto;font-size:11px;color:var(--carbon)}
+.cand-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.cand-grid .f{background:var(--white);border:1px solid var(--line-soft);border-radius:8px;padding:9px 10px}
+.cand-grid .f .l{font-size:10.5px;color:var(--carbon)}
+.cand-grid .f .v{font-family:var(--mono);font-weight:600;font-size:13px;margin-top:3px}
+.cand-grid .f .v input{width:100%;border:0;background:transparent;font-family:var(--mono);font-weight:600;font-size:13px;color:var(--ink);outline:none;border-bottom:1px dashed var(--line)}
+.moq-tiers{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.moq-tiers .tier{font-family:var(--mono);font-size:11.5px;border:1px solid var(--line);border-radius:7px;padding:5px 9px;background:var(--white)}
+.moq-tiers .tier b{color:var(--ink)}
+.cand-actions{display:flex;gap:9px}
+
+/* ---------- forms / modal ---------- */
+.modal-wrap{position:fixed;inset:0;z-index:70;display:none;align-items:flex-start;justify-content:center;padding:48px 16px;overflow:auto}
+.modal-wrap.open{display:flex}
+.modal-bg{position:fixed;inset:0;background:rgba(22,35,58,.4)}
+.modal{position:relative;background:var(--kraft);border-radius:14px;width:min(680px,100%);box-shadow:var(--shadow);overflow:hidden}
+.modal-head{padding:18px 22px;border-bottom:1px solid var(--line);background:var(--paper);display:flex;align-items:center}
+.modal-head h3{margin:0;font-size:16px;font-weight:600}
+.modal-head .x{margin-inline-start:auto}
+.modal-body{padding:22px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1/-1}
+.field label{font-size:12px;font-weight:600;color:var(--ink)}
+.field .req{color:var(--stamp)}
+.field input,.field select,.field textarea{
+  border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-family:inherit;font-size:13px;
+  background:var(--white);color:var(--ink);outline:none;
+}
+.field input.num-in{font-family:var(--mono)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--ink);box-shadow:0 0 0 3px var(--ink-08)}
+.field .help{font-size:11px;color:var(--carbon)}
+.incoterm-hint{grid-column:1/-1;font-size:12px;color:var(--carbon);background:var(--stamp-08);border:1px solid rgba(168,51,43,.2);border-radius:8px;padding:10px 12px;display:flex;gap:9px}
+.incoterm-hint b{color:var(--stamp)}
+.modal-foot{padding:15px 22px;border-top:1px solid var(--line);background:var(--paper);display:flex;gap:10px;justify-content:flex-end}
+.disabled-field{opacity:.42;position:relative}
+.disabled-field .lock{position:absolute;inset-inline-end:10px;top:32px;font-size:11px;color:var(--carbon)}
+
+/* allocation basis */
+.alloc-pick{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
+.alloc-pick button{border:1px solid var(--line);background:var(--white);border-radius:8px;padding:7px 12px;font-size:12.5px;color:var(--carbon);font-weight:500}
+.alloc-pick button.on{background:var(--ink);color:var(--white);border-color:var(--ink)}
+
+/* empty state */
+.empty{padding:48px 24px;text-align:center;color:var(--carbon)}
+.empty svg{width:40px;height:40px;opacity:.5;margin-bottom:12px}
+.empty h3{color:var(--ink);font-size:15px;margin:0 0 6px}
+.empty p{margin:0 0 16px;font-size:13px}
+
+/* roadmap */
+.road{display:grid;gap:16px}
+.road .ph{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:18px 20px;position:relative;overflow:hidden}
+.road .ph::before{content:"";position:absolute;inset-block:0;inset-inline-start:0;width:4px}
+.road .ph.p1::before{background:var(--ledger)}
+.road .ph.p2::before{background:var(--ink)}
+.road .ph.p3::before{background:var(--stamp)}
+.road .ph .h{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.road .ph .h h3{margin:0;font-size:16px;font-weight:600}
+.road .ph .h .st{margin-inline-start:auto;font-size:11.5px;color:var(--carbon)}
+.road .ph ul{margin:0;padding-inline-start:20px;font-size:13px;color:var(--ink)}
+.road .ph ul li{margin:4px 0}
+.road .ph ul li.done::marker{color:var(--ledger)}
+
+.toast{position:fixed;inset-block-end:24px;inset-inline-start:50%;transform:translateX(50%);background:var(--ink);color:var(--white);padding:11px 18px;border-radius:10px;font-size:13px;box-shadow:var(--shadow);z-index:90;opacity:0;pointer-events:none;transition:opacity .2s, transform .2s}
+[dir=rtl] .toast{transform:translateX(-50%)}
+.toast.show{opacity:1;transform:translateX(50%) translateY(-4px)}
+[dir=rtl] .toast.show{transform:translateX(-50%) translateY(-4px)}
+
+/* responsive */
+@media (max-width:1080px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .detail-grid,.cand-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:860px){
+  :root{--rail:0px}
+  .shell{grid-template-columns:1fr}
+  .rail{position:fixed;inset-inline-start:-300px;width:280px;z-index:80;transition:inset-inline-start .2s;box-shadow:var(--shadow)}
+  [dir=rtl] .rail{inset-inline-start:auto;inset-inline-end:-300px;transition:inset-inline-end .2s}
+  .rail.open{inset-inline-start:0}
+  [dir=rtl] .rail.open{inset-inline-end:0}
+  .menu-btn{display:inline-flex!important}
+  .topbar{padding:12px 16px;gap:10px}
+  .topbar .search{display:none}
+  .topbar h1{font-size:17px}
+  .topbar .crumb{display:none}
+  #topAction{font-size:12px;padding:8px 11px}
+  .content{padding:18px 16px 60px}
+  .form-grid,.cand-grid{grid-template-columns:1fr}
+  .inbox-split{grid-template-columns:1fr}
+  .inbox-list{max-height:220px;border-inline-end:0;border-bottom:1px solid var(--line)}
+}
+.menu-btn{display:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:4px}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">
+  <span class="dot"></span>
+  <span><b>אב-טיפוס עובד</b> — נתוני דוגמה טעונים. הזינו הצעות משלכם — החישוב אמיתי ונשמר בדפדפן שלכם בלבד.</span>
+  <button onclick="resetDemo()" style="background:transparent;border:1px solid rgba(232,224,210,.4);color:var(--kraft);border-radius:6px;font-size:11px;padding:3px 9px;margin-inline-start:6px">אפס לדוגמה</button>
+</div>
+
+<div class="shell">
+  <!-- ================= RIGHT RAIL ================= -->
+  <aside class="rail" id="rail">
+    <div class="brand">
+      <div class="logo">
+        <div class="mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2 L12 22"/><path d="M4 8 L20 8"/><path d="M4 8 C4 15 8 20 12 22 C16 20 20 15 20 8"/><circle cx="12" cy="8" r="1.4" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <div>
+          <div class="name">נמל</div>
+          <div class="tag">עלות נחיתה, בשליטה.</div>
+        </div>
+      </div>
+      <div class="brand ws" onclick="toast('החלפת סביבת עבודה — לא פעיל בהדגמה')" style="padding:8px 10px;border-radius:8px;margin-top:14px;border:1px solid var(--line)">
+        <div class="who">
+          <div class="av">ד</div>
+          <div>
+            <div style="font-weight:600;font-size:12.5px">דלתא יבוא בע״מ</div>
+            <div style="font-size:10.5px;color:var(--carbon)">עוסק מורשה · יבואן</div>
+          </div>
+        </div>
+        <div class="chev">⌄</div>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav"></nav>
+
+    <div class="rail-foot">
+      <div style="font-weight:600;color:var(--ink);margin-bottom:6px;font-size:11px;letter-spacing:.04em">שערים יציגים · בנק ישראל</div>
+      <div class="fx"><span>USD / ILS</span><span class="num" id="fxUSD">3.7180</span></div>
+      <div class="fx"><span>EUR / ILS</span><span class="num" id="fxEUR">4.0350</span></div>
+      <div class="fx"><span>CNY / ILS</span><span class="num" id="fxCNY">0.5124</span></div>
+      <div style="margin-top:8px;font-size:10px;display:flex;align-items:center;gap:6px">
+        <span>עודכן היום 08:15</span>
+        <button onclick="openSettings()" style="background:transparent;border:0;color:var(--carbon);text-decoration:underline;font-size:10px;cursor:pointer;padding:0">הגדרות ושערים</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="main">
+    <header class="topbar">
+      <button class="btn ghost menu-btn" onclick="document.getElementById('rail').classList.toggle('open')" aria-label="תפריט">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div>
+        <h1 id="pageTitle">לוח בקרה</h1>
+        <div class="crumb" id="pageCrumb">מבט־על על עלות הנחיתה שלך</div>
+      </div>
+      <div class="sp"></div>
+      <div class="search">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input placeholder="חיפוש פריט / ספק / פרט מכס…" onkeydown="if(event.key==='Enter')toast('חיפוש — לא פעיל בהדגמה')">
+      </div>
+      <button class="btn ghost" onclick="openSettings()" aria-label="הגדרות" title="הגדרות ושערים">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.06.65.51 1.2 1.15 1.4H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <button class="btn primary" id="topAction" onclick="openQuoteModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        הצעת מחיר חדשה
+      </button>
+    </header>
+
+    <div class="content" id="view"></div>
+  </main>
+</div>
+
+<!-- slideover -->
+<div class="overlay" id="overlay" onclick="closeSlide()"></div>
+<aside class="slideover" id="slideover" aria-hidden="true"></aside>
+
+<!-- modal -->
+<div class="modal-wrap" id="modal"></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =======================================================================
+   נמל — Landed Cost Monitor · working prototype
+   Real landed-cost engine + localStorage persistence + live recompute.
+   All money is stored as INTEGER minor units (cents / agorot). Rounding
+   happens only at display time. FX is frozen into each snapshot.
+   ======================================================================= */
+
+/* ============================ ENGINE ============================
+   Pure, side-effect-free. Extracted & unit-tested by engine.test.js
+   (between the START/END markers below). Do not add DOM access here. */
+// ===ENGINE START===
+var NemalEngine = (function(){
+  'use strict';
+  // Which cost components an incoterm already bakes into the supplier price.
+  // Getting this wrong double-counts freight — the likeliest correctness bug.
+  var INCOTERM_INCLUDES = {
+    EXW: {},                                              // ex-works: buyer pays everything onward
+    FOB: {},                                              // free on board: intl freight/ins added by us
+    CIF: { freight:true, insurance:true },               // cost+ins+freight already in price
+    DDP: { freight:true, insurance:true, duty:true }     // delivered duty paid: almost all included
+  };
+  var r = Math.round;
+
+  // i: all *Minor are integers in the SOURCE currency's minor unit.
+  function computeLandedCost(i){
+    var inc = INCOTERM_INCLUDES[i.incoterm] || {};
+    var qty = i.qty|0;
+    var fob = (i.unitPriceMinor|0) * qty;
+    // incoterm guard: zero out anything already inside the supplier price
+    var freight   = inc.freight   ? 0 : (i.freightMinor|0);
+    var insurance = inc.insurance ? 0 : (i.insuranceMinor|0);
+    var other     = (i.otherCostsMinor|0);
+    var customsValue = fob + freight + insurance;         // CIF value for duty
+    var dutyRate = i.hasFtaCert ? 0 : (+i.dutyRatePct||0);// valid origin cert -> 0%
+    var duty  = inc.duty ? 0 : r(customsValue * dutyRate/100);
+    var ptax  = r((customsValue + duty) * (+i.purchaseTaxRatePct||0)/100);
+    var vatBase = customsValue + duty + ptax;
+    var vat   = r(vatBase * (+i.vatRatePct||0)/100);      // recoverable — shown separately
+    var includeVat = !!i.includeVatInBasis;               // default false for a registered dealer
+
+    // exact integer partition of the total (source minor units)
+    var fobPart     = fob;
+    var freightPart = freight + insurance;
+    var dutyPart    = duty + ptax;
+    var feesPart    = other + (includeVat ? vat : 0);
+    var totalMinor  = fobPart + freightPart + dutyPart + feesPart;
+
+    var fx = +i.fxRateToIls;                              // ILS per 1 source unit
+    // agorot = round(minorUnits * fx)   (1 cent * 3.718 -> 3.718 agorot)
+    var seg = {
+      fob:     r(fobPart * fx),
+      freight: r(freightPart * fx),
+      duty:    r(dutyPart * fx),
+      fees:    r(feesPart * fx)
+    };
+    var landedAgorot = seg.fob + seg.freight + seg.duty + seg.fees; // bar sums exactly
+    return {
+      currency: i.currency,
+      qty: qty,
+      customsValueMinor: customsValue,
+      dutyMinor: duty, dutyRateApplied: dutyRate,
+      purchaseTaxMinor: ptax,
+      vatMinor: vat, vatIncludedInBasis: includeVat,
+      vatAgorot: r(vat * fx),
+      totalMinor: totalMinor,
+      seg: seg,
+      landedAgorot: landedAgorot,
+      landedPerUnitAgorot: qty>0 ? landedAgorot/qty : 0,  // not rounded; round at display
+      fxRateToIls: fx
+    };
+  }
+
+  // Largest-remainder allocation: integer shares that sum EXACTLY to total.
+  function allocate(totalMinor, weights){
+    var sum = weights.reduce(function(a,b){return a+b;},0);
+    if(sum<=0) return weights.map(function(){return 0;});
+    var raw = weights.map(function(w){return totalMinor*w/sum;});
+    var out = raw.map(Math.floor);
+    var used = out.reduce(function(a,b){return a+b;},0);
+    var rem = totalMinor - used;
+    var order = raw.map(function(v,idx){return {idx:idx, frac:v-Math.floor(v)};})
+                   .sort(function(a,b){return b.frac-a.frac;});
+    for(var k=0;k<rem;k++) out[order[k%order.length].idx]++;
+    return out;
+  }
+  function allocateBy(totalMinor, lines, basis){
+    var key = basis==='weight'?'weightG':basis==='value'?'valueMinor':'cbmMilli';
+    return allocate(totalMinor, lines.map(function(l){return l[key]||0;}));
+  }
+
+  function deltaPct(cur, prev){ return prev>0 ? (cur-prev)/prev*100 : 0; }
+
+  // Attribution: state which INPUT moved. Detects uniform scaling (FX/qty)
+  // vs a single-segment outlier (price / freight / duty / fees).
+  function attribute(cur, prev){
+    if(!prev || prev.landedAgorot===0) return {driver:'new'};
+    var keys=['fob','freight','duty','fees'];
+    var best={k:null,contrib:0};
+    keys.forEach(function(k){
+      var c=(cur.seg[k]||0)-(prev.seg[k]||0);
+      if(Math.abs(c)>Math.abs(best.contrib)) best={k:k,contrib:c};
+    });
+    if(best.contrib===0) return {driver:'flat', seg:null, contrib:0};
+    var ratios=keys.filter(function(k){return prev.seg[k]>0 && cur.seg[k]>0;})
+                   .map(function(k){return cur.seg[k]/prev.seg[k];});
+    var uniform = ratios.length>=2 && (Math.max.apply(null,ratios)-Math.min.apply(null,ratios) < 0.01);
+    var fxMoved = Math.abs((cur.fxRateToIls||0)-(prev.fxRateToIls||0))>1e-9;
+    if(uniform && fxMoved) return {driver:'fx', seg:'fob', contrib: cur.landedAgorot-prev.landedAgorot};
+    var map={fob:'price', freight:'freight', duty:'duty', fees:'fees'};
+    return {driver: map[best.k]||'price', seg:best.k, contrib:best.contrib};
+  }
+
+  var api={ computeLandedCost:computeLandedCost, allocate:allocate, allocateBy:allocateBy,
+            deltaPct:deltaPct, attribute:attribute, INCOTERM_INCLUDES:INCOTERM_INCLUDES };
+  if(typeof module!=='undefined' && module.exports) module.exports=api;
+  return api;
+})();
+// ===ENGINE END===
+
+/* ============================ SEED DATA ============================ */
+function seedDb(){
+  return {
+    settings: {
+      vatRatePct: 18,
+      includeVatInBasis: false,
+      fxUpdated: 'היום 08:15',
+      fx: { USD:3.7180, EUR:4.0350, CNY:0.5124, TRY:0.1148 }
+    },
+    suppliers: [
+      {id:'S-01', name:'Ningbo Homeward Trading', flag:'🇨🇳', country:'סין', incoterm:'FOB', cur:'USD', contact:'Lily Chen · WhatsApp'},
+      {id:'S-02', name:'Guangzhou LEDbright Co.', flag:'🇨🇳', country:'סין', incoterm:'EXW', cur:'USD', contact:'Kevin Wu · אימייל'},
+      {id:'S-03', name:'Ceramica Toscana S.r.l.', flag:'🇮🇹', country:'איטליה', incoterm:'CIF', cur:'EUR', contact:'Marco Bianchi · אימייל'},
+      {id:'S-04', name:'İstanbul Ev Tekstil', flag:'🇹🇷', country:'טורקיה', incoterm:'FOB', cur:'USD', contact:'Emre Y. · WhatsApp'}
+    ],
+    // unitPriceMinor & sellPriceAgorot are integers. price story lives in `prev`.
+    skus: [
+      {id:'SKU-4471', desc:'ספל קרמיקה 350 מ״ל, זיגוג מט', hs:'6912.00', supplier:'S-01', flag:'🇨🇳', cur:'USD',
+       incoterm:'FOB', dutyRatePct:12, ptaxRatePct:0, hasFta:false, qty:5000, unitPriceMinor:210, sellPriceAgorot:1990,
+       validUntil:'2026-08-21', moq:5000, prev:{fxRateToIls:3.47}, story:'USD/ILS 3.47 → 3.72'},
+      {id:'SKU-2210', desc:'סרט LED 5 מ׳ RGB, IP65', hs:'9405.40', supplier:'S-02', flag:'🇨🇳', cur:'USD',
+       incoterm:'EXW', dutyRatePct:0, ptaxRatePct:0, hasFta:false, qty:3000, unitPriceMinor:340, sellPriceAgorot:3900,
+       validUntil:'2026-08-09', moq:2000, prev:{freightScale:1/1.17, insScale:1/1.17}, story:'שינוע ימי עלה 17%'},
+      {id:'SKU-8834', desc:'מגש הגשה במבוק 40 ס״מ', hs:'4419.19', supplier:'S-01', flag:'🇨🇳', cur:'USD',
+       incoterm:'FOB', dutyRatePct:8, ptaxRatePct:0, hasFta:false, qty:2400, unitPriceMinor:185, sellPriceAgorot:2490,
+       validUntil:'2026-10-02', moq:2000, prev:{}, story:'ללא שינוי מהותי'},
+      {id:'SKU-1109', desc:'צלחת פורצלן איטלקית 27 ס״מ', hs:'6911.10', supplier:'S-03', flag:'🇮🇹', cur:'EUR',
+       incoterm:'CIF', dutyRatePct:10, ptaxRatePct:0, hasFta:true, qty:1200, unitPriceMinor:420, sellPriceAgorot:5900,
+       validUntil:'2026-09-15', moq:600, prev:{hasFta:false}, story:'תעודת מקור EUR1 אושרה → מכס 0%'},
+      {id:'SKU-6620', desc:'מגבת כותנה 70×140, 450 גרם', hs:'6302.60', supplier:'S-04', flag:'🇹🇷', cur:'USD',
+       incoterm:'FOB', dutyRatePct:6, ptaxRatePct:0, hasFta:true, qty:4000, unitPriceMinor:275, sellPriceAgorot:3490,
+       validUntil:'2026-08-28', moq:3000, prev:{hasFta:false}, story:'תעודת מקור טורקיה → מכס 0%'}
+    ],
+    quotes: [
+      {sku:'SKU-4471', priceMinor:210, cur:'USD', incoterm:'FOB', moq:5000, from:'2026-07-24', until:'2026-08-21', src:'ידני', doc:'quote_ningbo_0724.pdf'},
+      {sku:'SKU-8834', priceMinor:185, cur:'USD', incoterm:'FOB', moq:2000, from:'2026-07-18', until:'2026-10-02', src:'ידני', doc:'—'},
+      {sku:'SKU-2210', priceMinor:340, cur:'USD', incoterm:'EXW', moq:2000, from:'2026-07-11', until:'2026-08-09', src:'ידני', doc:'—'},
+      {sku:'SKU-1109', priceMinor:420, cur:'EUR', incoterm:'CIF', moq:600, from:'2026-07-02', until:'2026-09-15', src:'אימייל · AI', doc:'toscana_listino.pdf'},
+      {sku:'SKU-6620', priceMinor:275, cur:'USD', incoterm:'FOB', moq:3000, from:'2026-06-29', until:'2026-08-28', src:'ידני', doc:'—'}
+    ],
+    // shipment costs are integer minor units of the shipment currency (= supplier currency)
+    shipments: [
+      {id:'SH-119', supplier:'S-01', flag:'🇨🇳', cur:'USD', eta:'2026-08-14', status:'בים',
+       freightMinor:140000, insMinor:12000, brokerMinor:25000, portMinor:18000, inlandMinor:22000, bankMinor:6000, certMinor:0, basis:'cbm',
+       lines:[{sku:'SKU-4471', qty:5000, cbmMilli:11200, weightG:4200000, valueMinor:1050000},
+              {sku:'SKU-8834', qty:2400, cbmMilli:7200,  weightG:1560000, valueMinor:444000}]},
+      {id:'SH-121', supplier:'S-02', flag:'🇨🇳', cur:'USD', eta:'2026-08-11', status:'בים',
+       freightMinor:90000, insMinor:8000, brokerMinor:20000, portMinor:15000, inlandMinor:18000, bankMinor:5500, certMinor:0, basis:'cbm',
+       lines:[{sku:'SKU-2210', qty:3000, cbmMilli:8000, weightG:900000, valueMinor:1020000}]},
+      {id:'SH-120', supplier:'S-03', flag:'🇮🇹', cur:'EUR', eta:'2026-08-20', status:'בתהליך שחרור',
+       freightMinor:0, insMinor:0, brokerMinor:32000, portMinor:21000, inlandMinor:18000, bankMinor:7000, certMinor:0, basis:'cbm',
+       lines:[{sku:'SKU-1109', qty:1200, cbmMilli:4100, weightG:960000, valueMinor:504000}]},
+      {id:'SH-118', supplier:'S-04', flag:'🇹🇷', cur:'USD', eta:'2026-07-30', status:'שוחרר',
+       freightMinor:64000, insMinor:7000, brokerMinor:24000, portMinor:16000, inlandMinor:19000, bankMinor:5500, certMinor:0, basis:'cbm',
+       lines:[{sku:'SKU-6620', qty:4000, cbmMilli:9000, weightG:1800000, valueMinor:1100000}]}
+    ]
+  };
+}
+
+/* ============================ STORE ============================ */
+var DB_KEY='nemal_db_v2';
+var db;
+function loadDb(){
+  try{ var raw=localStorage.getItem(DB_KEY); if(raw){ db=JSON.parse(raw); return; } }catch(e){}
+  db=seedDb();
+}
+function saveDb(){ try{ localStorage.setItem(DB_KEY, JSON.stringify(db)); }catch(e){} }
+function resetDemo(){ db=seedDb(); saveDb(); toast('אופס לנתוני הדוגמה'); render(currentView); }
+
+/* ============================ DERIVE / COMPUTE ============================ */
+function supById(id){ return db.suppliers.find(function(s){return s.id===id;})||{}; }
+function supName(id){ return (supById(id).name)||id; }
+function skuById(id){ return db.skus.find(function(s){return s.id===id;}); }
+function shipmentForSku(id){ return db.shipments.find(function(sh){ return sh.lines.some(function(l){return l.sku===id;}); }); }
+
+// allocate every shipment cost across its lines by the chosen basis
+function shipmentAllocation(sh){
+  var other = sh.brokerMinor+sh.portMinor+sh.inlandMinor+sh.bankMinor+sh.certMinor;
+  var freight = NemalEngine.allocateBy(sh.freightMinor, sh.lines, sh.basis);
+  var ins     = NemalEngine.allocateBy(sh.insMinor,     sh.lines, sh.basis);
+  var oth     = NemalEngine.allocateBy(other,           sh.lines, sh.basis);
+  var map={};
+  sh.lines.forEach(function(l,idx){ map[l.sku]={freight:freight[idx], ins:ins[idx], other:oth[idx]}; });
+  return map;
+}
+
+// build engine inputs for a SKU from its data + shipment allocation + settings
+function skuInputs(sku, patch){
+  var sh=shipmentForSku(sku.id);
+  var f=0,ins=0,oth=0;
+  if(sh){ var a=shipmentAllocation(sh)[sku.id]; if(a){ f=a.freight; ins=a.ins; oth=a.other; } }
+  var inp={
+    unitPriceMinor: sku.unitPriceMinor, currency: sku.cur, qty: sku.qty,
+    incoterm: sku.incoterm, dutyRatePct: sku.dutyRatePct, purchaseTaxRatePct: sku.ptaxRatePct||0,
+    hasFtaCert: !!sku.hasFta, vatRatePct: db.settings.vatRatePct,
+    includeVatInBasis: db.settings.includeVatInBasis,
+    freightMinor: f, insuranceMinor: ins, otherCostsMinor: oth,
+    fxRateToIls: db.settings.fx[sku.cur]
+  };
+  if(patch){
+    if(patch.hasFta!==undefined) inp.hasFtaCert=patch.hasFta;
+    if(patch.fxRateToIls!==undefined) inp.fxRateToIls=patch.fxRateToIls;
+    if(patch.freightScale!==undefined) inp.freightMinor=Math.round(inp.freightMinor*patch.freightScale);
+    if(patch.insScale!==undefined) inp.insuranceMinor=Math.round(inp.insuranceMinor*patch.insScale);
+    if(patch.unitPriceMinor!==undefined) inp.unitPriceMinor=patch.unitPriceMinor;
+  }
+  return inp;
+}
+function snap(sku){ return NemalEngine.computeLandedCost(skuInputs(sku)); }
+function prevSnap(sku){
+  if(sku.ack) return sku.ack;                              // user-acknowledged baseline wins
+  return NemalEngine.computeLandedCost(skuInputs(sku, sku.prev||{}));
+}
+
+/* ============================ ALERTS (derived live) ============================ */
+function relThreshold(){ return 5; }
+function buildAlerts(){
+  var out=[];
+  db.skus.forEach(function(sku){
+    var cur=snap(sku), prev=prevSnap(sku);
+    var d=NemalEngine.deltaPct(cur.landedPerUnitAgorot, prev.landedPerUnitAgorot);
+    var attr=NemalEngine.attribute(cur,prev);
+    if(Math.abs(d)>=1.5){
+      out.push({
+        sev: d>0?'up':'down', sku:sku.id, deltaPct:d, cur:cur, prev:prev, attr:attr,
+        title:(d>0?'עלות נחיתה עלתה ':'עלות נחיתה ירדה ')+Math.abs(d).toFixed(1)+'%',
+        msg: skuShort(sku)+': '+ils(prev.landedPerUnitAgorot)+' → '+ils(cur.landedPerUnitAgorot)+' ליחידה.',
+        attrHtml: attributionText(sku,cur,prev,attr),
+        rule: Math.abs(d)>=5?'יחסי · מעל 5%':'יחסי · מעל 1.5%'
+      });
+    }
+  });
+  // quote-expiry alerts (within 7 days)
+  db.quotes.forEach(function(q){
+    var days=daysUntil(q.until);
+    if(days>=0 && days<=7){
+      var sku=skuById(q.sku);
+      out.push({sev:'info', sku:q.sku, title:'הצעת מחיר פגה בעוד '+days+' ימים',
+        msg:'ההצעה של '+supName(sku?sku.supplier:'')+' ל'+(sku?sku.desc:q.sku)+' תפוג ב־'+isoToIl(q.until)+'.',
+        attrHtml:'המניע: <b>תוקף הצעה</b>. בקשו חידוש לפני שהמחיר משתנה.', rule:'תפוגת הצעה · 7 ימים'});
+    }
+  });
+  // stable order: rising first, then falling, then info
+  var rank={up:0,down:1,info:2};
+  out.sort(function(a,b){ return (rank[a.sev]-rank[b.sev]) || (Math.abs(b.deltaPct||0)-Math.abs(a.deltaPct||0)); });
+  return out;
+}
+function attributionText(sku,cur,prev,attr){
+  if(attr.driver==='fx'){
+    return 'המניע: <b>'+sku.cur+'/ILS</b> נע מ־'+fmt(prev.fxRateToIls,4)+' ל־'+fmt(cur.fxRateToIls,4)+'. מחיר הספק לא השתנה.';
+  }
+  if(attr.driver==='freight'){
+    var dp=NemalEngine.deltaPct(cur.seg.freight, prev.seg.freight);
+    return 'המניע: <b>עלות שינוע</b> '+(dp>0?'עלתה ':'ירדה ')+Math.abs(dp).toFixed(0)+'%. מחיר הספק והמכס ללא שינוי.';
+  }
+  if(attr.driver==='duty'){
+    if(cur.dutyMinor===0 && prev.dutyMinor>0)
+      return 'המניע: <b>תעודת מקור (FTA)</b> אושרה — מכס ירד מ־'+sku.dutyRatePct+'% ל־0%. חיסכון של '+ils((prev.seg.duty-cur.seg.duty)/cur.qty)+' ליחידה.';
+    return 'המניע: <b>שיעור המכס</b> השתנה.';
+  }
+  if(attr.driver==='price'){
+    return 'המניע: <b>מחיר הספק</b> השתנה מ־'+(prev.seg.fob/prev.qty/prev.fxRateToIls/100).toFixed(2)+' ל־'+(cur.seg.fob/cur.qty/cur.fxRateToIls/100).toFixed(2)+' '+sku.cur+' ליחידה.';
+  }
+  return 'המניע: עמלות ואגרות.';
+}
+
+/* ============================ FORMAT HELPERS ============================ */
+function fmt(n,d){ d=(d===undefined?2:d); return Number(n).toLocaleString('he-IL',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+function ils(agorot,d){ return '₪'+fmt(agorot/100, d===undefined?2:d); }             // agorot -> ₪
+function cur2(minor){ return fmt(minor/100,2); }                                     // source minor -> x.xx
+function pctTxt(n,d){ d=(d===undefined?1:d); return (n>0?'+':'')+fmt(n,d)+'%'; }
+function skuShort(sku){ return sku.desc.split(',')[0]; }
+function isoToIl(iso){ var p=iso.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+function daysUntil(d){ var t=new Date(d+'T00:00:00'), now=new Date('2026-08-04T00:00:00'); return Math.round((t-now)/86400000); }
+
+/* ============================ NAV ============================ */
+var NAV=[
+  {sec:'ניהול'},
+  {id:'dashboard', label:'לוח בקרה', icon:'grid'},
+  {id:'skus', label:'פריטים', icon:'box', count:function(){return db.skus.length;}},
+  {id:'suppliers', label:'ספקים', icon:'truck', count:function(){return db.suppliers.length;}},
+  {id:'quotes', label:'הצעות מחיר', icon:'tag', count:function(){return db.quotes.length;}},
+  {id:'shipments', label:'משלוחים', icon:'ship', count:function(){return db.shipments.length;}},
+  {sec:'ניטור'},
+  {id:'alerts', label:'התראות', icon:'bell', phase:'שלב 2', alerts:function(){return buildAlerts().filter(function(a){return a.sev==='up';}).length;}},
+  {sec:'קליטת מחירים'},
+  {id:'inbox', label:'תיבת הצעות', icon:'mail', phase:'שלב 3'},
+  {sec:'על המוצר'},
+  {id:'roadmap', label:'מפת הדרכים', icon:'map'}
+];
+var ICONS={
+  grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  box:'<path d="M21 8V16L12 21 3 16V8L12 3z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/>',
+  truck:'<rect x="1" y="6" width="13" height="10" rx="1"/><path d="M14 9h4l3 3v4h-7z"/><circle cx="5.5" cy="18" r="1.6"/><circle cx="17.5" cy="18" r="1.6"/>',
+  tag:'<path d="M20 12 12 20l-8-8V4h8z"/><circle cx="8" cy="8" r="1.4"/>',
+  ship:'<path d="M3 15l1.5 5h15L21 15"/><path d="M4 15V9l8-3 8 3v6"/><path d="M12 3v3"/><path d="M12 9v6"/>',
+  bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+  mail:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 6 10 7 10-7"/>',
+  map:'<path d="M9 3 3 6v15l6-3 6 3 6-3V3l-6 3z"/><path d="M9 3v15"/><path d="M15 6v15"/>'
+};
+function renderNav(active){
+  document.getElementById('nav').innerHTML=NAV.map(function(it){
+    if(it.sec) return '<div class="group-label">'+it.sec+'</div>';
+    var right='';
+    if(it.alerts && it.alerts()>0) right='<span class="alert-dot">'+it.alerts()+'</span>';
+    else if(it.phase) right='<span class="phase">'+it.phase+'</span>';
+    else if(it.count) right='<span class="count">'+it.count()+'</span>';
+    return '<a href="#'+it.id+'" class="'+(active===it.id?'active':'')+'" onclick="go(\''+it.id+'\');return false">'
+      +'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+ICONS[it.icon]+'</svg>'
+      +'<span>'+it.label+'</span>'+right+'</a>';
+  }).join('');
+}
+function syncRailFx(){
+  document.getElementById('fxUSD').textContent=fmt(db.settings.fx.USD,4);
+  document.getElementById('fxEUR').textContent=fmt(db.settings.fx.EUR,4);
+  document.getElementById('fxCNY').textContent=fmt(db.settings.fx.CNY,4);
+}
+
+/* ============================ ROUTER ============================ */
+var TITLES={
+  dashboard:['לוח בקרה','מבט־על על עלות הנחיתה שלך'],
+  skus:['פריטים','עלות נחיתה ליחידה לכל פריט'],
+  suppliers:['ספקים','מקורות ההצעות שלך'],
+  quotes:['הצעות מחיר','הצעות פעילות, תוקף ו־MOQ'],
+  shipments:['משלוחים','עלויות משלוח והקצאת שינוע'],
+  alerts:['התראות','מה זז ולמה — עם ייחוס הגורם'],
+  inbox:['תיבת הצעות','העברת הצעות לכתובת ייעודית — פענוח ב־AI'],
+  roadmap:['מפת הדרכים','איך המוצר נבנה, שלב אחר שלב']
+};
+var currentView='dashboard';
+function go(id){ location.hash=id; render(id); }
+function render(id){
+  id=id||'dashboard'; if(!TITLES[id]) id='dashboard'; currentView=id;
+  renderNav(id); syncRailFx();
+  document.getElementById('pageTitle').textContent=TITLES[id][0];
+  document.getElementById('pageCrumb').textContent=TITLES[id][1];
+  document.getElementById('rail').classList.remove('open');
+  document.getElementById('topAction').style.display=(id==='inbox'||id==='roadmap'||id==='alerts')?'none':'inline-flex';
+  document.getElementById('view').innerHTML=VIEWS[id]();
+  window.scrollTo(0,0);
+}
+
+/* ============================ VIEWS ============================ */
+var VIEWS={};
+var segColors={fob:'var(--ink)', freight:'#3E6E8E', duty:'var(--stamp)', fees:'var(--carbon)'};
+var segLabels={fob:'FOB / מחיר ספק', freight:'שינוע + ביטוח', duty:'מכס', fees:'עמלות ואגרות'};
+
+function movePill(cur,prev){
+  var d=NemalEngine.deltaPct(cur.landedPerUnitAgorot, prev.landedPerUnitAgorot);
+  var cls=d>0.3?'up':(d<-0.3?'down':'flat'); var arw=d>0.3?'▲':(d<-0.3?'▼':'—');
+  return '<span class="delta '+cls+'">'+arw+' '+pctTxt(d)+'</span>';
+}
+function driverPill(attr,cur){
+  var map={fx:['מט״ח','warn'],freight:['שינוע','warn'],duty:[cur&&cur.dutyMinor===0?'תעודת מקור':'מכס', cur&&cur.dutyMinor===0?'ok':'warn'],price:['מחיר ספק','warn'],fees:['עמלות',''],flat:['ללא שינוי',''],'new':['חדש','']};
+  var m=map[attr.driver]||['ללא שינוי',''];
+  return '<span class="pill '+m[1]+'">'+m[0]+'</span>';
+}
+
+VIEWS.dashboard=function(){
+  var al=buildAlerts();
+  var rising=al.filter(function(a){return a.sev==='up';}).length;
+  var savings=0;
+  db.skus.forEach(function(sku){ var c=snap(sku),p=prevSnap(sku); if(c.dutyMinor===0 && p.dutyMinor>0) savings+=(p.seg.duty-c.seg.duty); });
+  return ''
+  +'<div class="stats">'
+    +statCard('פריטים בניטור', db.skus.length, 'אצל '+db.suppliers.length+' ספקים','')
+    +statCard('התראות פתוחות', al.filter(function(a){return a.sev!=='down';}).length, '<span class="delta up">▲ '+rising+'</span> פריטים בעלייה','var(--stamp)')
+    +statCard('חשיפת מט״ח פעילה', db.skus.filter(function(s){return s.cur!=='ILS';}).length, 'פריטים רגישים לשער','')
+    +statCard('חיסכון מזוהה (FTA)', ils(savings,0), '<span class="delta down">▼</span> תעודות מקור','var(--ledger)')
+  +'</div>'
+  +'<div class="fxrow">'
+    +fxCard('USD/ILS',db.settings.fx.USD,+1.9,'עלה 7.2% ב־30 יום')
+    +fxCard('EUR/ILS',db.settings.fx.EUR,+0.4,'יציב יחסית')
+    +fxCard('CNY/ILS',db.settings.fx.CNY,+1.1,'עלה 3.4% ב־30 יום')
+    +fxCard('TRY/ILS',db.settings.fx.TRY,-2.2,'ירד — חיובי ליבוא')
+  +'</div>'
+  +'<div class="card">'
+    +'<div style="padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px">'
+      +'<h2 style="margin:0;font-size:14px;font-weight:600">פריטים — תזוזת עלות נחיתה</h2>'
+      +'<span class="phase-chip p1">שלב 1 · המחשבון</span><div style="flex:1"></div>'
+      +'<button class="btn sm" onclick="go(\'skus\')">כל הפריטים ←</button></div>'
+    +'<div class="table-scroll"><table><thead><tr>'
+      +'<th>פריט</th><th>ספק</th><th class="right">עלות נחיתה / יח׳</th><th class="right">תזוזה</th><th>מה זז</th><th></th>'
+      +'</tr></thead><tbody>'
+      +db.skus.map(function(s){
+        var c=snap(s),p=prevSnap(s),attr=NemalEngine.attribute(c,p);
+        return '<tr class="click" onclick="openSku(\''+s.id+'\')">'
+          +'<td><div class="sku-id">'+s.id+'</div><div class="desc">'+s.desc+'</div></td>'
+          +'<td><span class="flag">'+s.flag+'</span>'+supName(s.supplier)+'</td>'
+          +'<td class="right money">'+ils(c.landedPerUnitAgorot)+'</td>'
+          +'<td class="right">'+movePill(c,p)+'</td>'
+          +'<td>'+driverPill(attr,c)+'</td>'
+          +'<td class="right"><span style="color:var(--carbon)">›</span></td></tr>';
+      }).join('')
+    +'</tbody></table></div></div>'
+  +'<div class="card"><div style="padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px">'
+    +'<h2 style="margin:0;font-size:14px;font-weight:600">התראות אחרונות</h2><span class="phase-chip p2">שלב 2 · ניטור</span>'
+    +'<div style="flex:1"></div><button class="btn sm" onclick="go(\'alerts\')">כל ההתראות ←</button></div>'
+    +al.slice(0,3).map(alertRow).join('')
+  +'</div>';
+};
+function statCard(lbl,val,sub,color){
+  return '<div class="stat"><div class="lbl">'+lbl+'</div>'
+    +'<div class="val num"'+(color?' style="color:'+color+'"':'')+'>'+val+'</div>'
+    +'<div class="sub">'+sub+'</div></div>';
+}
+function fxCard(pair,rate,mv,note){
+  var cls=mv>0?'up':(mv<0?'down':'flat'), arw=mv>0?'▲':(mv<0?'▼':'—');
+  return '<div class="fxcard"><div class="pair">'+pair+'</div><div class="r">'+fmt(rate,4)+'</div>'
+    +'<div class="m"><span class="delta '+cls+'">'+arw+' '+pctTxt(mv)+'</span></div><div class="src">'+note+'</div></div>';
+}
+
+VIEWS.skus=function(){
+  return '<div class="card"><div class="table-scroll"><table><thead><tr>'
+    +'<th>פריט</th><th>פרט מכס</th><th>ספק</th><th class="center">Incoterm</th><th class="right">מכס</th><th>הרכב עלות</th><th class="right">נחיתה / יח׳</th><th class="right">תזוזה</th>'
+    +'</tr></thead><tbody>'
+    +db.skus.map(function(s){
+      var c=snap(s),p=prevSnap(s);
+      return '<tr class="click" onclick="openSku(\''+s.id+'\')">'
+        +'<td><div class="sku-id">'+s.id+'</div><div class="desc">'+s.desc+'</div></td>'
+        +'<td><span class="pill mono">'+s.hs+'</span></td>'
+        +'<td><span class="flag">'+s.flag+'</span>'+supName(s.supplier)+'</td>'
+        +'<td class="center"><span class="pill">'+s.incoterm+'</span></td>'
+        +'<td class="right">'+(s.hasFta && s.dutyRatePct>0?'<span class="pill ok">0% · FTA</span>':'<span class="money">'+s.dutyRatePct+'%</span>')+'</td>'
+        +'<td>'+microbar(c)+'</td>'
+        +'<td class="right money">'+ils(c.landedPerUnitAgorot)+'</td>'
+        +'<td class="right">'+movePill(c,p)+'</td></tr>';
+    }).join('')
+    +'</tbody></table></div></div>'
+    +'<p style="font-size:12px;color:var(--carbon);margin-top:14px;display:flex;align-items:center;gap:8px">'
+    +'<span class="phase-chip p1">שלב 1</span> לחצו על פריט כדי לראות את מפל העלות המלא — הפירוק של מה שאתם באמת משלמים ליחידה.</p>';
+};
+function microbar(c){
+  var t=c.landedAgorot||1;
+  var parts=['fob','freight','duty','fees'].map(function(k){ return '<span style="width:'+(c.seg[k]/t*100)+'%;background:'+segColors[k]+'"></span>'; }).join('');
+  return '<div class="microbar" title="FOB / שינוע / מכס / עמלות">'+parts+'</div>';
+}
+
+VIEWS.suppliers=function(){
+  return '<div class="section-title"><h2>ספקים</h2><span class="hint">כל ספק מגדיר ברירת מחדל ל־Incoterm ולמטבע</span>'
+    +'<div class="sp"></div><button class="btn" onclick="openSupplierModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>ספק חדש</button></div>'
+    +'<div class="card"><div class="table-scroll"><table><thead><tr><th>ספק</th><th>מדינה</th><th class="center">Incoterm</th><th class="center">מטבע</th><th class="center">פריטים</th><th>איש קשר</th></tr></thead><tbody>'
+    +db.suppliers.map(function(s){
+      var n=db.skus.filter(function(k){return k.supplier===s.id;}).length;
+      return '<tr><td><span class="flag">'+s.flag+'</span><b>'+s.name+'</b><div class="desc">'+s.id+'</div></td>'
+        +'<td>'+s.country+'</td><td class="center"><span class="pill">'+s.incoterm+'</span></td>'
+        +'<td class="center"><span class="pill mono">'+s.cur+'</span></td><td class="center money">'+n+'</td>'
+        +'<td style="color:var(--carbon)">'+s.contact+'</td></tr>';
+    }).join('')
+    +'</tbody></table></div></div>';
+};
+
+VIEWS.quotes=function(){
+  return '<div class="section-title"><h2>הצעות מחיר</h2><span class="hint">כל הצעה נשמרת עם תוקף, MOQ ומקור</span>'
+    +'<div class="sp"></div><button class="btn primary" onclick="openQuoteModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>הצעת מחיר חדשה</button></div>'
+    +'<div class="card"><div class="table-scroll"><table><thead><tr><th>פריט</th><th class="right">מחיר יח׳</th><th class="center">Incoterm</th><th class="right">MOQ</th><th>תוקף</th><th>מקור</th><th>מסמך</th></tr></thead><tbody>'
+    +db.quotes.map(function(q){
+      var s=skuById(q.sku), days=daysUntil(q.until), exp=days<=7?'warn':'';
+      return '<tr class="click" onclick="openSku(\''+q.sku+'\')">'
+        +'<td><div class="sku-id">'+q.sku+'</div><div class="desc">'+(s?s.desc:'')+'</div></td>'
+        +'<td class="right money">'+cur2(q.priceMinor)+'<span class="cur">'+q.cur+'</span></td>'
+        +'<td class="center"><span class="pill">'+q.incoterm+'</span></td>'
+        +'<td class="right money">'+q.moq.toLocaleString()+'</td>'
+        +'<td><span class="pill '+exp+'">'+isoToIl(q.until)+' · '+(days>0?'בעוד '+days+' ימים':'פג')+'</span></td>'
+        +'<td>'+(q.src.indexOf('AI')>=0?'<span class="pill" style="color:var(--stamp);border-color:rgba(168,51,43,.3)">✦ '+q.src+'</span>':q.src)+'</td>'
+        +'<td style="color:var(--carbon);font-size:12px">'+q.doc+'</td></tr>';
+    }).join('')
+    +'</tbody></table></div></div>';
+};
+
+VIEWS.shipments=function(){
+  return db.shipments.map(function(sh){
+    var alloc=shipmentAllocation(sh);
+    var other=sh.brokerMinor+sh.portMinor+sh.inlandMinor+sh.bankMinor+sh.certMinor;
+    var totalIls=(sh.freightMinor+sh.insMinor+other)*db.settings.fx[sh.cur];
+    var basisBtn=function(b,lab){ return '<button class="'+(sh.basis===b?'on':'')+'" onclick="setBasis(\''+sh.id+'\',\''+b+'\')">'+lab+'</button>'; };
+    return '<div class="card" style="margin-bottom:20px">'
+      +'<div style="padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;flex-wrap:wrap">'
+        +'<span class="flag" style="font-size:18px">'+sh.flag+'</span>'
+        +'<div><div style="font-weight:600;font-size:15px">משלוח '+sh.id+'</div><div style="font-size:12px;color:var(--carbon)">'+supName(sh.supplier)+' · ETA '+isoToIl(sh.eta)+'</div></div>'
+        +'<span class="pill '+(sh.status==='שוחרר'?'ok':(sh.status==='בים'?'':'warn'))+'">'+sh.status+'</span><div style="flex:1"></div>'
+        +'<div style="text-align:end"><div style="font-size:11px;color:var(--carbon)">סה״כ עלויות משלוח</div><div class="money" style="font-size:16px">'+ils(totalIls)+'</div></div></div>'
+      +'<div style="padding:16px 18px"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">'
+        +costLine('שינוע ימי',sh.freightMinor,sh.cur)+costLine('ביטוח',sh.insMinor,sh.cur)+costLine('עמלת עמיל מכס',sh.brokerMinor,sh.cur)
+        +costLine('אגרות נמל',sh.portMinor,sh.cur)+costLine('הובלה יבשתית',sh.inlandMinor,sh.cur)+costLine('עמלת העברה בנקאית',sh.bankMinor,sh.cur)
+      +'</div>'
+      +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap"><span style="font-size:12.5px;font-weight:600">בסיס הקצאת שינוע</span>'
+        +'<div class="alloc-pick">'+basisBtn('cbm','לפי CBM')+basisBtn('weight','לפי משקל')+basisBtn('value','לפי ערך')+'</div>'
+        +'<span style="font-size:11px;color:var(--carbon)">· יבואנים מתווכחים על זה, אז זה גלוי וניתן לשינוי</span></div>'
+      +'<div class="table-scroll"><table style="margin-top:6px"><thead><tr><th>פריט בשורת משלוח</th><th class="right">כמות</th><th class="right">נפח (CBM)</th><th class="right">שינוע מוקצה</th><th class="right">ליחידה</th></tr></thead><tbody>'
+        +sh.lines.map(function(l){
+          var s=skuById(l.sku); var a=alloc[l.sku]; var fIls=(a.freight+a.ins)*db.settings.fx[sh.cur];
+          var included=(sh.incoterm==='CIF'); var cif=(NemalEngine.INCOTERM_INCLUDES[(s&&s.incoterm)||'FOB'].freight);
+          return '<tr class="click" onclick="openSku(\''+l.sku+'\')"><td><div class="sku-id">'+l.sku+'</div><div class="desc">'+(s?s.desc:'')+'</div></td>'
+            +'<td class="right money">'+l.qty.toLocaleString()+'</td><td class="right money">'+fmt(l.cbmMilli/1000,1)+'</td>'
+            +'<td class="right money">'+(cif?'<span style="color:var(--ledger)">כלול ב־CIF</span>':ils(fIls,0))+'</td>'
+            +'<td class="right money">'+(cif?'—':ils(fIls/l.qty))+'</td></tr>';
+        }).join('')
+      +'</tbody></table></div></div></div>';
+  }).join('')
+  +'<p style="font-size:12px;color:var(--carbon);display:flex;align-items:center;gap:8px"><span class="phase-chip p1">שלב 1</span> משלוח CIF (איטליה) — השינוע כבר בתוך מחיר הספק, אז המנוע לא סופר אותו שוב. זו הטעות הכי נפוצה במוצר הזה, ולכן היא חסומה במנוע ומגובה בבדיקה אוטומטית.</p>';
+};
+function costLine(l,minor,cur){
+  return '<div class="dbox"><div class="l">'+l+'</div><div class="v mono">'+(minor>0?ils(minor*db.settings.fx[cur],0):'—')
+    +'<span style="font-size:11px;color:var(--carbon);font-weight:400"> · '+cur2(minor)+' '+cur+'</span></div></div>';
+}
+function setBasis(shId,b){ var sh=db.shipments.find(function(x){return x.id===shId;}); if(sh){ sh.basis=b; saveDb(); render('shipments'); toast('הקצאה לפי '+(b==='cbm'?'CBM':b==='weight'?'משקל':'ערך')+' — חושב מחדש'); } }
+
+VIEWS.alerts=function(){
+  var al=buildAlerts();
+  return '<div class="section-title"><h2>התראות</h2><span class="phase-chip p2">שלב 2 · ניטור</span>'
+    +'<span class="hint">כל התראה אומרת מה זז — לא סתם ״העלות השתנתה״</span><div class="sp"></div>'
+    +'<button class="btn" onclick="ackAll()">אשר הכל</button></div>'
+    +'<div class="card" style="margin-bottom:22px">'+(al.length?al.map(alertRow).join(''):emptyAlerts())+'</div>'
+    +'<div class="section-title"><h2>כללי התראה</h2><span class="hint">הסף חי בהגדרות, לא בקוד</span></div>'
+    +'<div class="card">'
+    +[['יחסי','כל הפריטים','התראה כשעלות נחיתה נעה מעל 5% מהסנכרון האחרון',true],
+      ['FX','כל הפריטים','שינוי מונע־מטבע — פעם ביום, מינימום 1.5%',true],
+      ['מרווח','SKU-4471','התראה כשהמרווח מול מחיר מכירה יורד מתחת ל־45%',true],
+      ['תפוגה','כל הפריטים','התראה 7 ימים לפני שהצעת מחיר פגה',true],
+      ['מוחלט','SKU-1109','התראה כשעלות נחיתה חוצה ₪22.00 ליחידה',false]
+     ].map(function(r){ return '<div class="rule"><span class="rt">'+r[0]+'</span><div class="rd">'+r[2]+'<div class="sub">היקף: '+r[1]+'</div></div>'
+        +'<button class="toggle '+(r[3]?'':'off')+'" onclick="this.classList.toggle(\'off\');toast(\'כלל עודכן — הדגמה\')" aria-label="הפעל/כבה"></button></div>'; }).join('')
+    +'</div>';
+};
+function emptyAlerts(){ return '<div class="empty"><h3>אין תזוזות פתוחות</h3><p>כל הפריטים במסגרת הסף. שנו שער מט״ח בהגדרות או הזינו הצעת מחיר חדשה כדי לראות התראה עם ייחוס גורם.</p></div>'; }
+function alertRow(a){
+  var icon=a.sev==='up'?'▲':(a.sev==='down'?'▼':'⏱');
+  return '<div class="alert-item sev-'+a.sev+'"><div class="ai-ic">'+icon+'</div><div class="ai-body">'
+    +'<div class="ai-top"><span class="ai-title">'+a.title+'</span>'
+    +'<span class="pill mono" style="cursor:pointer" onclick="openSku(\''+a.sku+'\')">'+a.sku+'</span>'
+    +'<span class="ai-time">'+(a.rule||'')+'</span></div>'
+    +'<div class="ai-msg">'+a.msg+'</div>'
+    +'<div class="ai-attr"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" style="flex:none"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg><span>'+a.attrHtml+'</span></div>'
+    +'<div class="ai-actions"><button class="btn sm" onclick="openSku(\''+a.sku+'\')">פתח פירוק עלות</button>'
+    +'<button class="btn sm ghost" onclick="ackSku(\''+a.sku+'\')">אשר תזוזה</button></div></div></div>';
+}
+function ackSku(id){ var s=skuById(id); if(s){ s.ack=snap(s); saveDb(); toast('התזוזה אושרה — בסיס ההשוואה עודכן'); render(currentView); } }
+function ackAll(){ db.skus.forEach(function(s){ s.ack=snap(s); }); saveDb(); toast('כל התזוזות אושרו'); render('alerts'); }
+
+/* ---- inbox (phase 3) ---- */
+var INBOX=[
+  {id:'m1', from:'Lily Chen — Ningbo Homeward', av:'N', sub:'Re: Q3 price update — mugs & trays', time:'09:24', status:'new',
+   cands:[{sku:'SKU-4471', desc:'Ceramic mug 350ml (matte)', conf:96, price:'2.18', cur:'USD', incoterm:'FOB', valid:'2026-09-30', moq:[{q:'3,000',p:'2.28'},{q:'5,000',p:'2.18'},{q:'10,000',p:'2.05'}]},
+          {sku:'SKU-8834', desc:'Bamboo serving tray 40cm', conf:91, price:'1.92', cur:'USD', incoterm:'FOB', valid:'2026-09-30', moq:[{q:'2,000',p:'1.92'},{q:'5,000',p:'1.81'}]}]},
+  {id:'m2', from:'Marco Bianchi — Ceramica Toscana', av:'C', sub:'Listino prezzi 2026 — allegato PDF', time:'אתמול', status:'done',
+   cands:[{sku:'SKU-1109', desc:'Porcelain plate 27cm', conf:88, price:'4.20', cur:'EUR', incoterm:'CIF', valid:'2026-09-15', moq:[{q:'600',p:'4.20'},{q:'1,200',p:'3.95'}]}]},
+  {id:'m3', from:'Emre Y. — İstanbul Ev Tekstil', av:'İ', sub:'Fwd: Towel quotation + origin certificate', time:'ב׳', status:'done',
+   cands:[{sku:'SKU-6620', desc:'Cotton towel 70×140', conf:93, price:'2.75', cur:'USD', incoterm:'FOB', valid:'2026-08-28', moq:[{q:'3,000',p:'2.75'},{q:'6,000',p:'2.61'}]}]}
+];
+var activeMsg='m1';
+VIEWS.inbox=function(){
+  return '<div class="ai-banner"><span class="spark">✦</span>'
+    +'<span>הצעות שנשלחות ל־<b class="num">quotes@delta.nemal.co.il</b> מפוענחות אוטומטית ב־AI — מחיר, מטבע, מדרגות MOQ, Incoterm ותוקף. כל שדה מוצג לאישור לפני שהוא הופך להצעה.</span></div>'
+    +'<div class="inbox-split"><div class="inbox-list">'
+      +'<div class="inbox-fwd"><div class="l">כתובת העברה ייעודית לסביבה שלך</div><div class="addr"><span class="num">quotes@delta.nemal.co.il</span><span class="copy" style="cursor:pointer" onclick="toast(\'הועתק ללוח\')">⧉</span></div></div>'
+      +INBOX.map(function(m){ return '<div class="msg '+(activeMsg===m.id?'active':'')+'" onclick="activeMsg=\''+m.id+'\';render(\'inbox\')">'
+        +'<div class="status-dot '+m.status+'"></div><div class="mav">'+m.av+'</div>'
+        +'<div style="min-width:0;flex:1"><div class="mfrom">'+m.from+'</div><div class="msub">'+m.sub+'</div></div>'
+        +'<div class="mtime">'+m.time+'</div></div>'; }).join('')
+    +'</div><div class="parse">'+renderParse(INBOX.find(function(m){return m.id===activeMsg;}))+'</div></div>';
+};
+function renderParse(m){
+  if(!m) return '';
+  return '<div class="pm-head"><div class="mav" style="width:40px;height:40px;font-size:15px">'+m.av+'</div>'
+    +'<div><div style="font-weight:600;font-size:14px">'+m.from+'</div><div style="font-size:12.5px;color:var(--carbon);margin-top:2px">'+m.sub+'</div></div>'
+    +'<div style="margin-inline-start:auto;text-align:end"><span class="pill" style="color:var(--stamp);border-color:rgba(168,51,43,.3)">✦ פוענח ב־AI</span><div style="font-size:11px;color:var(--carbon);margin-top:6px">'+m.cands.length+' מועמדים זוהו</div></div></div>'
+    +m.cands.map(function(c){ return '<div class="cand"><div class="ch"><span class="pill mono">'+c.sku+'</span><span style="font-size:13px;color:var(--carbon)">'+c.desc+'</span><span class="conf">ביטחון זיהוי <b class="num" style="color:var(--ledger)">'+c.conf+'%</b></span></div>'
+      +'<div class="cand-grid"><div class="f"><div class="l">מחיר יחידה</div><div class="v"><input value="'+c.price+'" onchange="toast(\'עודכן — הדגמה\')"> '+c.cur+'</div></div>'
+      +'<div class="f"><div class="l">Incoterm</div><div class="v">'+c.incoterm+'</div></div>'
+      +'<div class="f"><div class="l">מטבע</div><div class="v">'+c.cur+'</div></div>'
+      +'<div class="f"><div class="l">תוקף עד</div><div class="v">'+isoToIl(c.valid)+'</div></div></div>'
+      +'<div style="font-size:11px;color:var(--carbon);margin-bottom:7px">מדרגות MOQ שזוהו:</div><div class="moq-tiers">'
+      +c.moq.map(function(t){return '<span class="tier"><b>'+t.q+'</b> יח׳ → '+t.p+' '+c.cur+'</span>';}).join('')+'</div>'
+      +'<div class="cand-actions"><button class="btn primary sm" onclick="acceptCandidate(\''+c.sku+'\','+c.price+',\''+c.cur+'\',\''+c.incoterm+'\',\''+c.valid+'\','+c.moq[0].q.replace(/,/g,'')+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>אשר כהצעת מחיר</button>'
+      +'<button class="btn sm" onclick="toast(\'נדחה — הדגמה\')">דחה</button>'
+      +'<button class="btn sm ghost" onclick="toast(\'פותח את ה־PDF המקורי — הדגמה\')">צפה במסמך המקורי</button></div></div>'; }).join('');
+}
+function acceptCandidate(skuId, price, cur, incoterm, valid, moq){
+  applyQuote(skuId, Math.round(parseFloat(price)*100), cur, incoterm, moq, valid, 'אימייל · AI', 'auto');
+  toast('אושר כהצעה — עלות הנחיתה חושבה מחדש'); go('skus'); openSku(skuId);
+}
+
+VIEWS.roadmap=function(){
+  return '<p style="font-size:13px;color:var(--carbon);max-width:640px;margin:0 0 20px">נמל נבנה בשלבים. הבסיס הוא הזנה ידנית — כי היא תמיד עובדת. מקורות מחיר אוטומטיים (סריקה, אימייל) מתחברים אחר כך, לספקים שזה מתאים להם, בלי לשכתב כלום.</p>'
+  +'<div class="road">'
+  +roadPhase('p1','שלב 1','המחשבון','✔ עובד באב-טיפוס',[['מנוע עלות נחיתה טהור — כסף כמספרים שלמים, עיגול רק בתצוגה',1],['CRUD לספקים / פריטים / הצעות מחיר — הזנה ידנית שנשמרת',1],['משלוח עם שורות עלות והקצאת שינוע (CBM / משקל / ערך)',1],['סנכרון (Snapshot) עם קלטים קפואים + שער יציג',1],['המסך שחשוב: מפל עלות הנחיתה ליחידה',1]])
+  +roadPhase('p2','שלב 2','ניטור','✔ עובד באב-טיפוס',[['התראות נגזרות חי מהמנוע + ייחוס גורם ("מה זז ולמה")',1],['כללי התראה: יחסי / מוחלט / מרווח / תפוגה',1],['שינוי שער מט״ח בהגדרות → כל ההתראות מתעדכנות',1],['שליחה באימייל / וואטסאפ (במוצר המלא)',0],['מקור TRACKED_URL / CSV למחירוני ספקים (במוצר המלא)',0]])
+  +roadPhase('p3','שלב 3','המבדל','✔ מודגם',[['תיבת הצעות — כתובת העברה ייעודית לכל סביבה',1],['פענוח הצעות PDF/אימייל ב־AI: מחיר, מטבע, MOQ, Incoterm, תוקף',1],['אישור מועמד → נכנס כהצעה אמיתית ומריץ חישוב',1],['עובד גם כשהספק לא מפרסם מחירים באינטרנט',1]])
+  +'</div>'
+  +'<div class="card" style="margin-top:22px;padding:18px 20px"><h3 style="margin:0 0 8px;font-size:14px">מה <u>לא</u> בתכולה</h3>'
+  +'<p style="font-size:12.5px;color:var(--carbon);margin:0">חיפוש אוטומטי במאגר תעריפי מכס לפי פרט מכס · אינטגרציית ERP · הרשאות רב־משתמש · הזמנות רכש · ניהול מלאי · מרקטפלייס ספקים.</p></div>';
+};
+function roadPhase(cls,chip,title,status,items){
+  return '<div class="ph '+cls+'"><div class="h"><span class="phase-chip '+cls+'">'+chip+'</span><h3>'+title+'</h3><span class="st">'+status+'</span></div><ul>'
+    +items.map(function(it){return '<li'+(it[1]?' class="done"':'')+'>'+it[0]+'</li>';}).join('')+'</ul></div>';
+}
+
+/* ============================ SLIDE-OVER: cost breakdown + waterfall ============================ */
+function openSku(id){
+  var s=skuById(id); if(!s) return;
+  var c=snap(s), p=prevSnap(s), attr=NemalEngine.attribute(c,p);
+  var total=c.landedPerUnitAgorot, prevTotal=p.landedPerUnitAgorot;
+  var d=NemalEngine.deltaPct(total,prevTotal);
+  var moveCls=d>0.3?'up':(d<-0.3?'down':'flat'), moveArw=d>0.3?'▲':(d<-0.3?'▼':'—');
+  var order=['fob','freight','duty','fees'];
+  var segHtml=order.map(function(k){
+    var w=c.seg[k]/c.landedAgorot*100; if(w<0.5) return '';
+    return '<div class="wf-seg seg-'+k+'" style="flex-basis:'+w+'%" title="'+segLabels[k]+': '+ils(c.seg[k]/c.qty)+'">'+(w>11?'<span class="lab">'+segLabels[k].split(' ')[0]+'</span>':'')+'</div>';
+  }).join('');
+  var ghostHtml=order.map(function(k){ var w=p.seg[k]/p.landedAgorot*100; if(w<0.5) return ''; return '<div class="gseg seg-'+k+'" style="width:'+w+'%"></div>'; }).join('');
+  var ghostWidth=prevTotal/total*100;
+  var legendHtml=order.map(function(k){ return '<div class="li"><span class="sw" style="background:'+segColors[k]+'"></span><span>'+segLabels[k]+'</span><span class="v">'+ils(c.seg[k]/c.qty)+'</span><span class="p">('+(c.seg[k]/c.landedAgorot*100).toFixed(0)+'%)</span></div>'; }).join('');
+  var margin=(s.sellPriceAgorot-total)/s.sellPriceAgorot*100;
+  var vatPerUnit=c.vatAgorot/c.qty;
+
+  var so=document.getElementById('slideover');
+  so.innerHTML=''
+    +'<div class="so-head"><div><div class="t">פירוק עלות נחיתה · פריט</div><h3>'+s.desc+'</h3><div class="id">'+s.id+' · פרט מכס '+s.hs+'</div></div>'
+    +'<button class="btn ghost x" onclick="closeSlide()" aria-label="סגור"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>'
+    +'<div class="so-body">'
+    +'<div class="waterfall-wrap"><div class="wf-title"><h4>מפל עלות נחיתה</h4><span class="unit">ליחידה · שקלים</span></div>'
+    +'<div class="wf-total"><span class="cur">₪</span>'+fmt(total/100)+'</div>'
+    +'<div class="wf-move"><span class="delta '+moveCls+'">'+moveArw+' '+pctTxt(d)+'</span><span style="color:var(--carbon)">מהסנכרון האחרון · '+(s.story||'')+'</span></div>'
+    +'<div class="wf-bar">'+segHtml+'</div>'
+    +'<div class="wf-ghost"><div class="gwrap" style="width:'+ghostWidth+'%">'+ghostHtml+'</div></div>'
+    +'<div class="wf-ghost-label">▓ קו מקווקו = סנכרון קודם ('+ils(prevTotal)+'). ההפרש הוא התזוזה, בלי לקרוא מספרים.</div>'
+    +'<div class="wf-legend">'+legendHtml+'</div></div>'
+    +'<div class="detail-grid">'
+      +'<div class="dbox"><div class="l">Incoterm</div><div class="v">'+s.incoterm+'</div><div class="note">קובע אילו עלויות כבר בתוך מחיר הספק</div></div>'
+      +'<div class="dbox '+(s.hasFta?'hl':'')+'"><div class="l">תעודת מקור (FTA)</div><div class="v">'+(s.hasFta?'✔ קיימת · מכס 0%':'✗ אין')+'</div><div class="note">'+(s.hasFta?'מזיז עלות יותר מכל מו״מ על מחיר':'מכס '+s.dutyRatePct+'% חל')+'</div></div>'
+      +'<div class="dbox"><div class="l">מחיר ספק ('+s.incoterm+')</div><div class="v mono">'+cur2(s.unitPriceMinor)+' '+s.cur+'</div><div class="note">כמות: '+s.qty.toLocaleString()+' יח׳</div></div>'
+      +'<div class="dbox"><div class="l">מרווח מול מחיר מכירה</div><div class="v mono" style="color:'+(margin<45?'var(--stamp)':'var(--ledger)')+'">'+margin.toFixed(0)+'%</div><div class="note">מכירה '+ils(s.sellPriceAgorot)+' · נחיתה '+ils(total)+'</div></div>'
+    +'</div>'
+    +'<div class="card" style="padding:16px 18px;margin-bottom:20px"><div style="font-size:13px;font-weight:600;margin-bottom:6px">פירוק מספרי · ליחידה</div>'
+    +'<table class="kv">'
+      +'<tr><td>מחיר ספק ('+s.incoterm+')</td><td>'+ils(c.seg.fob/c.qty)+'</td></tr>'
+      +'<tr><td>שינוע + ביטוח (מוקצה)</td><td>'+(c.seg.freight>0?ils(c.seg.freight/c.qty):'<span class="neg">כלול ב־Incoterm</span>')+'</td></tr>'
+      +'<tr class="sub"><td>ערך לצורכי מכס (CIF)</td><td>'+ils((c.seg.fob+c.seg.freight)/c.qty)+'</td></tr>'
+      +'<tr><td>מכס ('+(s.hasFta&&s.dutyRatePct>0?'0% · FTA, במקום '+s.dutyRatePct+'%':s.dutyRatePct+'%')+')</td><td>'+(c.dutyMinor>0?ils(NemalEngine.computeLandedCost(skuInputs(s)).seg.duty/c.qty):'<span class="neg">₪0.00</span>')+'</td></tr>'
+      +'<tr><td>מס קנייה ('+(s.ptaxRatePct||0)+'%)</td><td>₪0.00</td></tr>'
+      +'<tr><td>עמלות ואגרות (עמיל, נמל, הובלה, בנק)</td><td>'+ils(c.seg.fees/c.qty)+'</td></tr>'
+      +'<tr class="total"><td>עלות נחיתה ליחידה</td><td>'+ils(total)+'</td></tr>'
+      +'<tr class="sub"><td>מע״מ ('+db.settings.vatRatePct+'%) — '+(db.settings.includeVatInBasis?'כלול בבסיס':'מקוזז, מוצג בנפרד')+'</td><td>'+ils(vatPerUnit)+'</td></tr>'
+    +'</table>'
+    +'<div style="font-size:11px;color:var(--carbon);margin-top:10px;display:flex;gap:7px;align-items:flex-start"><span style="color:var(--ink)">ⓘ</span><span>'
+      +(db.settings.includeVatInBasis?'מע״מ כלול בבסיס העלות (לפי הגדרה). ':'מע״מ אינו נכלל בבסיס (עוסק מורשה מקזז אותו). מוצג רק כשורת תזרים. ')
+      +'שער יציג '+s.cur+'/ILS = '+fmt(c.fxRateToIls,4)+'.</span></div></div>'
+    +'<div class="card" style="padding:16px 18px"><div style="font-size:13px;font-weight:600;margin-bottom:8px">היסטוריית סנכרונים (Snapshots)</div><div class="snap-hist">'
+      +'<div class="row"><span class="d">היום</span><span class="v">'+ils(total)+'</span><span class="delta '+moveCls+'">'+moveArw+pctTxt(d)+'</span><span class="cause">'+(s.story||'')+'</span></div>'
+      +'<div class="row"><span class="d">בסיס אחרון</span><span class="v">'+ils(prevTotal)+'</span><span class="delta flat">—</span><span class="cause">'+(s.ack?'אושר על ידך':'סנכרון מאושר אחרון')+'</span></div>'
+      +'<div class="row"><span class="d">קודם</span><span class="v">'+ils(prevTotal*0.985)+'</span><span class="delta down">▼'+pctTxt(-1.5)+'</span><span class="cause">קלטים קפואים — לא מחושב מחדש</span></div>'
+    +'</div><div style="font-size:11px;color:var(--carbon);margin-top:10px">כל סנכרון קופא עם הקלטים שהיו באותו רגע. היסטוריה אף פעם לא מחושבת מחדש עם שער היום.</div></div>'
+    +'</div>'
+    +'<div class="so-foot"><button class="btn primary" onclick="openQuoteModal(\''+s.id+'\')">הצעת מחיר חדשה לפריט</button>'
+    +'<button class="btn" onclick="ackSku(\''+s.id+'\')">אשר תזוזה</button>'
+    +'<button class="btn ghost" onclick="closeSlide()">סגור</button></div>';
+  so.classList.add('open'); so.setAttribute('aria-hidden','false');
+  document.getElementById('overlay').classList.add('open');
+}
+function closeSlide(){ var so=document.getElementById('slideover'); so.classList.remove('open'); so.setAttribute('aria-hidden','true'); document.getElementById('overlay').classList.remove('open'); }
+
+/* ============================ QUOTE MODAL (functional) ============================ */
+function openQuoteModal(prefill){
+  var s=prefill?skuById(prefill):null;
+  var m=document.getElementById('modal');
+  m.innerHTML=''
+    +'<div class="modal-bg" onclick="closeModal()"></div><div class="modal">'
+    +'<div class="modal-head"><h3>הצעת מחיר חדשה — הזנה ידנית</h3><button class="btn ghost x" onclick="closeModal()"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>'
+    +'<div class="modal-body"><div class="form-grid">'
+      +'<div class="field"><label>פריט <span class="req">*</span></label><select id="q_sku">'
+        +db.skus.map(function(x){return '<option value="'+x.id+'"'+(s&&s.id===x.id?' selected':'')+'>'+x.id+' · '+x.desc+'</option>';}).join('')+'</select></div>'
+      +'<div class="field"><label>מחיר יחידה <span class="req">*</span></label><input id="q_price" class="num-in" placeholder="0.00" value="'+(s?cur2(s.unitPriceMinor):'')+'"></div>'
+      +'<div class="field"><label>מטבע <span class="req">*</span></label><select id="q_cur"><option'+(s&&s.cur==='USD'?' selected':'')+'>USD</option><option'+(s&&s.cur==='EUR'?' selected':'')+'>EUR</option><option'+(s&&s.cur==='CNY'?' selected':'')+'>CNY</option><option>ILS</option></select></div>'
+      +'<div class="field"><label>Incoterm <span class="req">*</span></label><select id="q_incoterm" onchange="incotermHint()"><option'+(s&&s.incoterm==='EXW'?' selected':'')+'>EXW</option><option'+(s&&s.incoterm==='FOB'?' selected':'')+'>FOB</option><option'+(s&&s.incoterm==='CIF'?' selected':'')+'>CIF</option><option>DDP</option></select></div>'
+      +'<div class="field"><label>כמות מינימלית (MOQ)</label><input id="q_moq" class="num-in" placeholder="0" value="'+(s?s.moq:'')+'"></div>'
+      +'<div class="field"><label>בתוקף עד</label><input id="q_until" type="date" value="'+(s?s.validUntil:'2026-09-30')+'"></div>'
+      +'<div class="incoterm-hint" id="incotermHint"><span>ℹ️</span><div id="incotermHintText"></div></div>'
+      +'<div class="field full"><label>מסמך מקור (אופציונלי)</label><input type="text" placeholder="גררו PDF / צילום WhatsApp, או השאירו ריק"><span class="help">נשמר כ־raw_document_ref — אפשר לחזור אליו תמיד</span></div>'
+    +'</div></div>'
+    +'<div class="modal-foot"><button class="btn ghost" onclick="closeModal()">ביטול</button><button class="btn primary" onclick="submitQuote()">שמור הצעה</button></div></div>';
+  m.classList.add('open'); incotermHint();
+}
+function incotermHint(){
+  var el=document.getElementById('q_incoterm'); if(!el) return;
+  var map={ EXW:'EXW — כל העלויות מהמפעל ומעלה עליכם. הזינו שינוע, ביטוח ואגרות בנפרד.',
+    FOB:'FOB — הספק כיסה עד הנמל במקור. הזינו שינוע ימי, ביטוח ואגרות יעד.',
+    CIF:'CIF — שינוע וביטוח כבר בתוך מחיר הספק. המנוע לא יספור אותם שוב.',
+    DDP:'DDP — המחיר כולל הכל עד דלתכם, כולל מכס. כמעט אין עלויות נוספות.' };
+  document.getElementById('incotermHintText').textContent=map[el.value]||'';
+}
+function submitQuote(){
+  var id=document.getElementById('q_sku').value;
+  var price=parseFloat(document.getElementById('q_price').value);
+  if(!(price>0)){ toast('הזינו מחיר יחידה תקין'); return; }
+  var cur=document.getElementById('q_cur').value;
+  var incoterm=document.getElementById('q_incoterm').value;
+  var moq=parseInt(document.getElementById('q_moq').value,10)||0;
+  var until=document.getElementById('q_until').value||'2026-09-30';
+  applyQuote(id, Math.round(price*100), cur, incoterm, moq, until, 'ידני', 'quote_manual.pdf');
+  closeModal(); toast('הצעת מחיר נשמרה — עלות הנחיתה חושבה מחדש'); go('skus'); openSku(id);
+}
+// core mutation: record quote, set it active on the SKU, freeze old snapshot as baseline
+function applyQuote(id, priceMinor, cur, incoterm, moq, until, src, doc){
+  var s=skuById(id); if(!s) return;
+  s.ack=snap(s);                                        // freeze pre-change cost as the comparison baseline
+  s.prev=null;                                          // switch movement source to the acknowledged baseline
+  s.unitPriceMinor=priceMinor; s.cur=cur; s.incoterm=incoterm; if(moq) s.moq=moq; s.validUntil=until;
+  s.story='הצעת מחיר חדשה נקלטה';
+  db.quotes.unshift({sku:id, priceMinor:priceMinor, cur:cur, incoterm:incoterm, moq:moq||s.moq, from:'2026-08-04', until:until, src:src, doc:doc});
+  saveDb();
+}
+
+/* ============================ SUPPLIER MODAL (functional) ============================ */
+function openSupplierModal(){
+  var m=document.getElementById('modal');
+  m.innerHTML=''
+    +'<div class="modal-bg" onclick="closeModal()"></div><div class="modal">'
+    +'<div class="modal-head"><h3>ספק חדש</h3><button class="btn ghost x" onclick="closeModal()"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>'
+    +'<div class="modal-body"><div class="form-grid">'
+      +'<div class="field full"><label>שם הספק <span class="req">*</span></label><input id="s_name" placeholder="לדוגמה: Shenzhen Bright Co."></div>'
+      +'<div class="field"><label>מדינה</label><input id="s_country" placeholder="סין"></div>'
+      +'<div class="field"><label>ברירת מחדל · Incoterm</label><select id="s_incoterm"><option>FOB</option><option>EXW</option><option>CIF</option><option>DDP</option></select></div>'
+      +'<div class="field"><label>ברירת מחדל · מטבע</label><select id="s_cur"><option>USD</option><option>EUR</option><option>CNY</option><option>ILS</option></select></div>'
+      +'<div class="field"><label>איש קשר</label><input id="s_contact" placeholder="שם · אימייל / WhatsApp"></div>'
+    +'</div></div>'
+    +'<div class="modal-foot"><button class="btn ghost" onclick="closeModal()">ביטול</button><button class="btn primary" onclick="submitSupplier()">שמור ספק</button></div></div>';
+  m.classList.add('open');
+}
+function submitSupplier(){
+  var name=document.getElementById('s_name').value.trim();
+  if(!name){ toast('הזינו שם ספק'); return; }
+  var n=db.suppliers.length+1;
+  db.suppliers.push({ id:'S-'+(n<10?'0':'')+n, name:name, flag:'🏳️',
+    country:document.getElementById('s_country').value||'—',
+    incoterm:document.getElementById('s_incoterm').value, cur:document.getElementById('s_cur').value,
+    contact:document.getElementById('s_contact').value||'—' });
+  saveDb(); closeModal(); toast('הספק נוסף'); render('suppliers');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+
+/* ============================ SETTINGS MODAL (functional) ============================ */
+function openSettings(){
+  var m=document.getElementById('modal');
+  var f=db.settings.fx;
+  m.innerHTML=''
+    +'<div class="modal-bg" onclick="closeModal()"></div><div class="modal">'
+    +'<div class="modal-head"><h3>הגדרות סביבת עבודה</h3><button class="btn ghost x" onclick="closeModal()"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>'
+    +'<div class="modal-body">'
+      +'<div style="font-size:13px;font-weight:600;margin-bottom:10px">שערים יציגים (ILS ל־1)</div>'
+      +'<div class="form-grid">'
+        +'<div class="field"><label>USD / ILS</label><input id="fx_USD" class="num-in" value="'+f.USD+'"></div>'
+        +'<div class="field"><label>EUR / ILS</label><input id="fx_EUR" class="num-in" value="'+f.EUR+'"></div>'
+        +'<div class="field"><label>CNY / ILS</label><input id="fx_CNY" class="num-in" value="'+f.CNY+'"></div>'
+        +'<div class="field"><label>TRY / ILS</label><input id="fx_TRY" class="num-in" value="'+f.TRY+'"></div>'
+      +'</div>'
+      +'<div style="margin:16px 0 8px;padding-top:14px;border-top:1px solid var(--line);display:flex;align-items:center;gap:12px">'
+        +'<div style="flex:1"><div style="font-size:13px;font-weight:600">כלול מע״מ בבסיס העלות</div><div style="font-size:11.5px;color:var(--carbon);margin-top:2px">עוסק מורשה מקזז מע״מ — ברירת המחדל כבויה. הפעלה תנפח עלות ותשנה התראות.</div></div>'
+        +'<button id="vatToggle" class="toggle '+(db.settings.includeVatInBasis?'':'off')+'" onclick="this.classList.toggle(\'off\')" aria-label="כלול מע״מ"></button></div>'
+      +'<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line)"><div style="font-size:12px;color:var(--carbon);margin-bottom:8px">סימולציה מהירה (לבדיקת ייחוס גורם):</div>'
+        +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" onclick="bumpFx(\'USD\',1.02)">USD +2%</button><button class="btn sm" onclick="bumpFx(\'USD\',0.98)">USD −2%</button><button class="btn sm" onclick="bumpFx(\'EUR\',1.02)">EUR +2%</button></div></div>'
+    +'</div>'
+    +'<div class="modal-foot"><button class="btn ghost" onclick="resetDemo();closeModal()">אפס לדוגמה</button><div style="flex:1"></div><button class="btn ghost" onclick="closeModal()">ביטול</button><button class="btn primary" onclick="saveSettings()">שמור</button></div></div>';
+  m.classList.add('open');
+}
+// freeze current cost as each SKU's comparison baseline, at the CURRENT settings,
+// before a rate/VAT change — so the resulting move is attributed to what changed.
+function freezeBaselines(story){ db.skus.forEach(function(s){ s.ack=snap(s); s.prev=null; if(story) s.story=story; }); }
+function saveSettings(){
+  var newFx={}; ['USD','EUR','CNY','TRY'].forEach(function(k){ var v=parseFloat(document.getElementById('fx_'+k).value); newFx[k]=(v>0?v:db.settings.fx[k]); });
+  var newVat=!document.getElementById('vatToggle').classList.contains('off');
+  var changed = newVat!==db.settings.includeVatInBasis || ['USD','EUR','CNY','TRY'].some(function(k){return newFx[k]!==db.settings.fx[k];});
+  if(changed) freezeBaselines('עדכון הגדרות סביבה');
+  db.settings.fx=newFx; db.settings.includeVatInBasis=newVat;
+  saveDb(); closeModal(); toast('ההגדרות נשמרו — הכל חושב מחדש'); render(currentView);
+}
+function bumpFx(cur,factor){
+  freezeBaselines('סימולציית שער '+cur);                 // baseline at the pre-bump rate
+  db.settings.fx[cur]=Math.round(db.settings.fx[cur]*factor*10000)/10000; saveDb();
+  var el=document.getElementById('fx_'+cur); if(el) el.value=db.settings.fx[cur];
+  syncRailFx(); render(currentView);
+  toast(cur+'/ILS עודכן ל־'+fmt(db.settings.fx[cur],4)+' — פתחו התראות לראות את הייחוס');
+}
+
+/* ============================ UTIL / BOOT ============================ */
+var toastT;
+function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove('show');},2400); }
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ closeSlide(); closeModal(); } });
+window.addEventListener('hashchange',function(){ render(location.hash.replace('#','')); });
+
+loadDb();
+render(location.hash.replace('#','')||'dashboard');
+
+</script>
+</body>
+</html>
